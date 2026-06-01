@@ -13,10 +13,15 @@ Read **`CONTEXT.md`** first — it is the source of truth for locked decisions, 
 ## Commands (after scaffold exists)
 
 ```bash
-make test          # pytest
-make lint          # ruff + black
-jupyter lab notebooks/00_eda_gate.ipynb
+make test        # pytest -v --tb=short
+make test-cov    # pytest with 90% coverage gate
+make lint        # pre-commit run --all-files
+make typecheck   # mypy src/ --strict
+make check       # lint + typecheck + test-cov
+make setup       # pip install -e ".[dev]" + pre-commit install
 ```
+
+Note: `make test-cov` and `make typecheck` require `src/` directory (created after EDA gate).
 
 ## Rules
 

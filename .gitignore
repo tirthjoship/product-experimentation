@@ -1,9 +1,12 @@
 # Data — too large for git
-data/raw/
-data/bronze/
-data/silver/
-data/gold/
-!data/**/.gitkeep
+data/raw/**
+!data/raw/.gitkeep
+data/bronze/**
+!data/bronze/.gitkeep
+data/silver/**
+!data/silver/.gitkeep
+data/gold/**
+!data/gold/.gitkeep
 
 # Reports (commit .md and .json, not HTML)
 reports/*.html
