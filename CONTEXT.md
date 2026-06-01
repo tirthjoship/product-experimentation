@@ -206,7 +206,7 @@ product-experimentation-analytics/
 | Pattern | Source repo |
 |---------|-------------|
 | Makefile + pytest rigor | `supply-chain-optimization-ml/` |
-| Report generation | `multi-modal-stock-recommender/application/evaluation.py` |
+| Report generation | `../multi-modal-stock-recommender/application/evaluation.py` |
 | Anti-hallucination | `../PORTFOLIO_LOCKED_DECISIONS.md` |
 
 ---
