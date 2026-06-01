@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install pre-commit
-          pip install black isort mypy ruff
+          pip install -e ".[dev]"
       - name: Run pre-commit
         run: pre-commit run --all-files
 
@@ -31,7 +31,11 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install dependencies
-        run: |
-          pip install -e ".[dev]"
+        run: pip install -e ".[dev]"
       - name: Run mypy
-        run: mypy src/ --strict
+        run: |
+          if [ -d "src" ]; then
+            mypy src/ --strict
+          else
+            echo "src/ not yet created (Phase 0) — skipping typecheck"
+          fi
