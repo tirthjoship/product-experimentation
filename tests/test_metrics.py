@@ -3,6 +3,7 @@ import pytest
 
 from src.metrics.aov import aov_by_variant
 from src.metrics.conversion import conversion_by_variant
+from src.metrics.d7_repeat import d7_repeat_by_variant
 
 
 def _pandas_conversion(frame: pd.DataFrame) -> dict[str, float]:
@@ -38,3 +39,9 @@ def test_aov_known_values(frame_con):
     r = aov_by_variant(frame_con)
     assert r["control"] == pytest.approx(310 / 3)
     assert r["treatment"] == pytest.approx(230 / 3)
+
+
+def test_d7_known_values(frame_con):
+    r = d7_repeat_by_variant(frame_con)
+    assert r["treatment"] == pytest.approx(0.5)
+    assert r["control"] == pytest.approx(0.0)
