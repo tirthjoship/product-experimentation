@@ -1,6 +1,7 @@
 import pandas as pd
 import pytest
 
+from src.metrics.aov import aov_by_variant
 from src.metrics.conversion import conversion_by_variant
 
 
@@ -20,3 +21,20 @@ def test_conversion_known_values(frame_con):
     r = conversion_by_variant(frame_con)
     assert r["control"] == pytest.approx(1 / 3)
     assert r["treatment"] == pytest.approx(1.0)
+
+
+def _pandas_aov(frame: pd.DataFrame) -> dict[str, float]:
+    return frame.groupby("variant")["order_value"].mean().to_dict()
+
+
+def test_aov_matches_pandas(frame_con, frame):
+    sql_result = aov_by_variant(frame_con)
+    pd_result = _pandas_aov(frame)
+    assert sql_result["control"] == pytest.approx(pd_result["control"])
+    assert sql_result["treatment"] == pytest.approx(pd_result["treatment"])
+
+
+def test_aov_known_values(frame_con):
+    r = aov_by_variant(frame_con)
+    assert r["control"] == pytest.approx(310 / 3)
+    assert r["treatment"] == pytest.approx(230 / 3)
