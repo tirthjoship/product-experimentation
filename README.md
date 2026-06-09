@@ -1,7 +1,13 @@
 # Product Experimentation & Growth Metrics Platform
 
-**Status:** Phase 0 — EDA gate (scaffold + data onboarded)  
+**Status:** Phase 1 — Metrics + Simulated Experiment (complete)
 **Portfolio:** Project 4 of 5 · Balanced DA/DS strategy
+
+> **Simulated RCT on historical Olist cohorts.** Variants are assigned by hashed
+> `customer_unique_id` (seed 42) on historical data — Olist has no native A/B column.
+> The treatment effect is a synthetic constant (`SIMULATED_EFFECT = 0.05`, defined once in
+> `src/constants.py`) injected after assignment to demonstrate the inference pipeline.
+> This is not a real product lift. Seed 42 is documented and pinned.
 
 End-to-end **product analytics** for a classic hiring question: *Did a product change actually improve conversion, or was it noise?* Built on the [Olist Brazilian E-Commerce](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) dataset — SQL metric definitions, simulated experiment analysis, confidence intervals, and a ship/no-ship recommendation.
 
@@ -185,23 +191,54 @@ Full checklist: [`../PORTFOLIO_EDA_SPRINT.md`](../PORTFOLIO_EDA_SPRINT.md)
 
 ---
 
+## Reproduce
+
+```bash
+# 1. Install dependencies and pre-commit hooks
+make setup
+
+# 2. Place the Olist CSVs in data/raw/olist/
+#    Download from https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
+#    Files needed: olist_orders_dataset.csv, olist_order_payments_dataset.csv,
+#                  olist_customers_dataset.csv, olist_order_items_dataset.csv
+
+# 3. Run the simulated experiment (bootstrap takes ~10-60 s on ~50k/arm)
+make experiment     # writes reports/experiment_001.md
+
+# 4. Run the full test suite (fixtures only — no full Olist in tests)
+make test
+```
+
+Generated outputs:
+- `reports/experiment_001.md` — ship/no-ship recommendation with 95% CI, power table,
+  simulation disclaimer
+
+Metric and design documentation:
+- [`docs/METRICS.md`](./docs/METRICS.md) — three metric definitions, SQL paths, AOV
+  multi-payment rule, person-key rule
+- [`docs/EXPERIMENT_DESIGN.md`](./docs/EXPERIMENT_DESIGN.md) — cohort window, assignment,
+  injected effect, inference, power/MDE
+
+---
+
 ## Developer entry points
 
 1. [`CONTEXT.md`](./CONTEXT.md) — mission, locked decisions, session playbook
-2. [`../PORTFOLIO_EDA_SPRINT.md`](../PORTFOLIO_EDA_SPRINT.md) — EDA checklist
-3. [`CLAUDE.md`](./CLAUDE.md) — rules and commands
-4. [`../PORTFOLIO_LOCKED_DECISIONS.md`](../PORTFOLIO_LOCKED_DECISIONS.md) — anti-hallucination rules
+2. [`docs/METRICS.md`](./docs/METRICS.md) — metric definitions
+3. [`docs/EXPERIMENT_DESIGN.md`](./docs/EXPERIMENT_DESIGN.md) — experiment design
+4. [`CLAUDE.md`](./CLAUDE.md) — rules and commands
+5. [`../PORTFOLIO_LOCKED_DECISIONS.md`](../PORTFOLIO_LOCKED_DECISIONS.md) — anti-hallucination rules
 
-### Quick setup (when implementation starts)
+### Quick setup
 
 ```bash
 cd product-experimentation-analytics
-pip install -e ".[dev]"
-pre-commit install
-make test   # after tests/ exists
+make setup
+make test
+make experiment
 ```
 
-**Data:** CSVs already in `data/raw/olist/`. If missing, download from [Kaggle](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce).
+**Data:** Place CSVs in `data/raw/olist/`. If missing, download from [Kaggle](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce).
 
 ---
 
