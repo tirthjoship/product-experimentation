@@ -1,4 +1,4 @@
-.PHONY: test test-cov lint typecheck setup check
+.PHONY: test test-cov lint typecheck setup check experiment
 
 test:
 	pytest tests/ -v --tb=short
@@ -17,3 +17,6 @@ setup:
 	pre-commit install
 
 check: lint typecheck test-cov
+
+experiment:
+	.venv/bin/python -m src.experiment.run_experiment
