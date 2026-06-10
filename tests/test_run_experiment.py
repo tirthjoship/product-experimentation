@@ -78,4 +78,4 @@ def test_write_scenarios_emits_md_and_json(base_con, tmp_path):
 
     parsed = json.loads(json_path.read_text())
     assert len(parsed) == len(scenarios)
-    assert parsed[0]["scenario"] == "null"
+    assert parsed[0]["scenario"] == scenarios[0]["scenario"]
