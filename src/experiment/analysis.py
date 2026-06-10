@@ -3,6 +3,7 @@
 from collections.abc import Sequence
 
 import numpy as np
+import numpy.typing as npt
 from scipy import stats
 
 from src.constants import ALPHA, BOOTSTRAP_RESAMPLES, SEED
@@ -15,17 +16,36 @@ def bootstrap_ci_diff_means(
     seed: int = SEED,
     alpha: float = ALPHA,
 ) -> tuple[float, float]:
-    rng = np.random.default_rng(seed)
+    """BCa bootstrap CI on (treatment mean - control mean).
+
+    Bias-corrected-and-accelerated: corrects the percentile interval for median
+    bias (z0) and skew-driven acceleration (a, via jackknife). Preferred over the
+    percentile method because AOV is heavily right-skewed, where percentile
+    intervals undercover. Deterministic given a fixed seed (the P3 contract).
+    """
     c = np.asarray(control, dtype=float)
     t = np.asarray(treatment, dtype=float)
-    diffs = np.empty(n_resamples, dtype=float)
-    for i in range(n_resamples):
-        cs = rng.choice(c, size=c.size, replace=True)
-        ts = rng.choice(t, size=t.size, replace=True)
-        diffs[i] = ts.mean() - cs.mean()
-    lo = float(np.percentile(diffs, 100 * alpha / 2))
-    hi = float(np.percentile(diffs, 100 * (1 - alpha / 2)))
-    return lo, hi
+
+    def _stat(
+        cs: npt.NDArray[np.float64],
+        ts: npt.NDArray[np.float64],
+        axis: int = -1,
+    ) -> npt.NDArray[np.float64]:
+        result: npt.NDArray[np.float64] = ts.mean(axis=axis) - cs.mean(axis=axis)
+        return result
+
+    res = stats.bootstrap(
+        (c, t),
+        _stat,
+        n_resamples=n_resamples,
+        confidence_level=1 - alpha,
+        method="BCa",
+        vectorized=True,
+        paired=False,
+        random_state=np.random.default_rng(seed),
+        batch=100,
+    )
+    return float(res.confidence_interval.low), float(res.confidence_interval.high)
 
 
 def welch_ttest(
@@ -33,6 +53,22 @@ def welch_ttest(
 ) -> tuple[float, float]:
     result = stats.ttest_ind(treatment, control, equal_var=False)
     return float(result.statistic), float(result.pvalue)
+
+
+def quantile_lift(
+    control: Sequence[float],
+    treatment: Sequence[float],
+    quantiles: Sequence[float],
+) -> dict[float, float]:
+    """Per-quantile treatment effect: q-th quantile(treatment) - q-th quantile(control).
+
+    Shows *where* a mean lift lands. A mean AOV difference can be driven entirely by
+    the tail (high-value 'whale' orders); the quantile view exposes that instead of
+    hiding it behind the mean.
+    """
+    c = np.asarray(control, dtype=float)
+    t = np.asarray(treatment, dtype=float)
+    return {float(q): float(np.quantile(t, q) - np.quantile(c, q)) for q in quantiles}
 
 
 def two_proportion_ztest(
