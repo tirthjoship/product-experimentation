@@ -53,3 +53,9 @@ def test_empty_cohort_raises():
     with pytest.raises(EmptyCohortError):
         build_experiment_frame(con)
     con.close()
+
+
+def test_experiment_frame_row_order_is_deterministic(base_con):
+    a = build_experiment_frame(base_con)["order_id"].tolist()
+    b = build_experiment_frame(base_con)["order_id"].tolist()
+    assert a == b
