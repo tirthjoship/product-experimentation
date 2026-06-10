@@ -17,12 +17,14 @@ from src.io.loader import build_experiment_frame, load_olist
 from src.metrics.aov import aov_by_variant
 from src.metrics.conversion import conversion_by_variant
 from src.metrics.d7_repeat import d7_repeat_by_variant
-from src.report.experiment_report import generate_report
-from src.report.results_io import write_results_json
+from src.report.experiment_report import generate_report, generate_scenarios_report
+from src.report.results_io import results_to_json, write_results_json
 
 RAW_DIR = Path("data/raw/olist")
 REPORT_PATH = Path("reports/experiment_001.md")
 JSON_PATH = Path("reports/experiment_001.json")
+SCENARIOS_REPORT_PATH = Path("reports/experiment_scenarios.md")
+SCENARIOS_JSON_PATH = Path("reports/experiment_scenarios.json")
 
 
 def run(
@@ -101,6 +103,14 @@ def write_outputs(
     write_results_json(results, json_path)
 
 
+def write_scenarios_outputs(
+    scenarios: list[dict[str, object]], md_path: Path, json_path: Path
+) -> None:
+    md_path.parent.mkdir(parents=True, exist_ok=True)
+    md_path.write_text(generate_scenarios_report(scenarios))
+    json_path.write_text(results_to_json(scenarios) + "\n")
+
+
 def main(
     raw_dir: Path = RAW_DIR,
     report_path: Path = REPORT_PATH,
@@ -113,5 +123,26 @@ def main(
     print(f"wrote {report_path} and {json_path}")
 
 
+def main_scenarios(raw_dir: Path = RAW_DIR) -> None:
+    from src.experiment.scenarios import run_scenarios  # lazy: avoids circular import
+
+    con = duckdb.connect(":memory:")
+    load_olist(con, raw_dir)
+    scenarios = run_scenarios(con)
+    write_scenarios_outputs(scenarios, SCENARIOS_REPORT_PATH, SCENARIOS_JSON_PATH)
+    large = next(s for s in scenarios if s["scenario"] == "large")
+    large_clean = {k: v for k, v in large.items() if k not in ("scenario", "verdict")}
+    write_outputs(large_clean, REPORT_PATH, JSON_PATH)
+    print(
+        f"wrote {SCENARIOS_REPORT_PATH}, {SCENARIOS_JSON_PATH}, "
+        f"{REPORT_PATH}, {JSON_PATH}"
+    )
+
+
 if __name__ == "__main__":
-    main()
+    import sys
+
+    if "--scenarios" in sys.argv:
+        main_scenarios()
+    else:
+        main()
