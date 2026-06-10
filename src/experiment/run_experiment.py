@@ -18,9 +18,11 @@ from src.metrics.aov import aov_by_variant
 from src.metrics.conversion import conversion_by_variant
 from src.metrics.d7_repeat import d7_repeat_by_variant
 from src.report.experiment_report import generate_report
+from src.report.results_io import write_results_json
 
 RAW_DIR = Path("data/raw/olist")
 REPORT_PATH = Path("reports/experiment_001.md")
+JSON_PATH = Path("reports/experiment_001.json")
 
 
 def run(con: duckdb.DuckDBPyConnection) -> dict[str, object]:
@@ -89,13 +91,24 @@ def run(con: duckdb.DuckDBPyConnection) -> dict[str, object]:
     }
 
 
-def main() -> None:
+def write_outputs(
+    results: dict[str, object], report_path: Path, json_path: Path
+) -> None:
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(generate_report(results))
+    write_results_json(results, json_path)
+
+
+def main(
+    raw_dir: Path = RAW_DIR,
+    report_path: Path = REPORT_PATH,
+    json_path: Path = JSON_PATH,
+) -> None:
     con = duckdb.connect(":memory:")
-    load_olist(con, RAW_DIR)
+    load_olist(con, raw_dir)
     results = run(con)
-    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_PATH.write_text(generate_report(results))
-    print(f"wrote {REPORT_PATH}")
+    write_outputs(results, report_path, json_path)
+    print(f"wrote {report_path} and {json_path}")
 
 
 if __name__ == "__main__":
