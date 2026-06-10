@@ -12,7 +12,7 @@ Injected `SIMULATED_EFFECT` = 0.05
 
 | Metric | Control | Treatment | Lift | 95% CI | p |
 |---|---|---|---|---|---|
-| AOV (primary) | 159.88 | 170.03 | 10.15 | (7.30, 13.03) | 0.0000 |
+| AOV (primary) | 159.88 | 170.03 | 10.15 | (7.35, 13.00) | 0.0000 |
 | Conversion (guardrail) | 0.9700 | 0.9718 | 0.0018 | (-0.0003, 0.0039) | 0.0874 |
 | D7 repeat (exploratory) | 0.0088 | 0.0084 | — | — | — |
 
@@ -21,4 +21,4 @@ Injected `SIMULATED_EFFECT` = 0.05
 - Conversion MDE: 0.0030
 
 ## Recommendation
-**SHIP** — based on the AOV 95% bootstrap CI (7.30, 13.03).
+**SHIP** — based on the AOV 95% bootstrap CI (7.35, 13.00).

@@ -14,4 +14,5 @@ LEFT JOIN (
     GROUP BY order_id
 ) p ON o.order_id = p.order_id
 WHERE o.order_purchase_timestamp >= $start
-  AND o.order_purchase_timestamp <  $end;
+  AND o.order_purchase_timestamp <  $end
+ORDER BY o.order_id;

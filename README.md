@@ -43,7 +43,7 @@ Most ML portfolio projects prove modeling depth. This one proves **metric defini
 
 | Metric | Control | Treatment | Lift | 95% CI | p | Verdict |
 |--------|---------|-----------|------|--------|---|---------|
-| **AOV** (primary) | 159.88 | 170.03 | **+10.15** | (7.39, 13.01) | <0.0001 | CI excludes 0 → **SHIP** |
+| **AOV** (primary) | 159.88 | 170.03 | **+10.15** | (7.35, 13.00) | <0.0001 | CI excludes 0 → **SHIP** |
 | **Conversion** (guardrail) | 0.9700 | 0.9718 | +0.0018 | (−0.0003, 0.0039) | 0.087 | CI spans 0 → no harm |
 | **D7 repeat** (exploratory) | 0.0088 | 0.0084 | — | — | — | descriptive only |
 
