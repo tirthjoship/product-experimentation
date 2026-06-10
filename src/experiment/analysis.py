@@ -43,6 +43,7 @@ def bootstrap_ci_diff_means(
         vectorized=True,
         paired=False,
         random_state=np.random.default_rng(seed),
+        batch=100,
     )
     return float(res.confidence_interval.low), float(res.confidence_interval.high)
 
