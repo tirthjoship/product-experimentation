@@ -48,6 +48,22 @@ def welch_ttest(
     return float(result.statistic), float(result.pvalue)
 
 
+def quantile_lift(
+    control: Sequence[float],
+    treatment: Sequence[float],
+    quantiles: Sequence[float],
+) -> dict[float, float]:
+    """Per-quantile treatment effect: q-th quantile(treatment) - q-th quantile(control).
+
+    Shows *where* a mean lift lands. A mean AOV difference can be driven entirely by
+    the tail (high-value 'whale' orders); the quantile view exposes that instead of
+    hiding it behind the mean.
+    """
+    c = np.asarray(control, dtype=float)
+    t = np.asarray(treatment, dtype=float)
+    return {float(q): float(np.quantile(t, q) - np.quantile(c, q)) for q in quantiles}
+
+
 def two_proportion_ztest(
     x_control: int,
     n_control: int,

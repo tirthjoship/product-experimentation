@@ -9,3 +9,4 @@ ALPHA: float = 0.05
 POWER: float = 0.80
 IMBALANCE_TOLERANCE: float = 0.05
 DELIVERED_STATUS: str = "delivered"
+QUANTILES: tuple[float, ...] = (0.25, 0.50, 0.75, 0.90)
