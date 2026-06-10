@@ -1,0 +1,7 @@
+order_id,customer_unique_id,order_status,order_value,order_purchase_timestamp,variant
+o1,u1,delivered,120.00,2017-05-01 10:00:00,treatment
+o2,u2,delivered,50.00,2017-06-01 10:00:00,control
+o3,u1,delivered,30.00,2017-05-04 10:00:00,treatment
+o4,u3,canceled,200.00,2017-07-01 10:00:00,control
+o5,u4,delivered,80.00,2018-01-01 10:00:00,treatment
+o6,u5,shipped,60.00,2018-02-01 10:00:00,control
