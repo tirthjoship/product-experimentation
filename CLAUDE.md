@@ -1,6 +1,22 @@
 # CLAUDE.md — Product Experimentation Analytics
 
-Read **`CONTEXT.md`** first — it is the source of truth for locked decisions, dataset, and phase gates.
+Read **`docs/STATUS.md`** first (Tier 0 — current phase, next action, branch, caveats). Then
+**`CONTEXT.md`** for the stable source of truth (locked decisions, dataset, phase gates).
+
+## Documentation map (what lives where — don't duplicate)
+
+| Channel | Holds | Tier |
+|---------|-------|------|
+| `docs/STATUS.md` | current state: phase, next action, branch, PR, caveats (~40 lines, overwrite) | 0 — read first |
+| `MEMORY.md` (auto-loaded) | evergreen cross-session prefs + pointers | 1 — scan |
+| `CONTEXT.md` | why + locked decisions + dataset + glossary (stable) | 2 — on demand |
+| `docs/adr/` | one record per non-obvious decision (context/options/consequences) | 2 — on demand |
+| `docs/PHASE_LOG.md` | append-only history of each session/phase | 2 — history only |
+| `docs/SKILL_ROUTING.md` | phase→skill/agent routing + gate rules | 2 — on demand |
+| `AGENTS.md` | coding standards | 2 — on demand |
+| `docs/superpowers/specs/` · `plans/` | design specs + implementation plans | 2 — on demand |
+
+Route by this table: current state never goes in an ADR; decisions never go in STATUS.
 
 ## Quick reference
 
@@ -8,6 +24,7 @@ Read **`CONTEXT.md`** first — it is the source of truth for locked decisions, 
 |------|-------|
 | Dataset | Olist Brazilian E-Commerce (Kaggle) |
 | Phase | **0 = EDA gate** — do not build full pipeline until `reports/eda_gate.md` says GO |
+| Skill routing | `docs/SKILL_ROUTING.md` — which skill/agent to invoke per phase + gate rules |
 | Portfolio docs | `../PORTFOLIO_LOCKED_DECISIONS.md`, `../PORTFOLIO_EDA_SPRINT.md` |
 
 ## Commands (after scaffold exists)
