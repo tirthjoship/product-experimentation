@@ -23,7 +23,7 @@ A/B demo) and "full platform showcase" (diminishing returns for portfolio slot 4
 
 | # | Branch | Decision | Why |
 |---|--------|----------|-----|
-| Q1 | Data in CI/host | Commit a **~2MB labeled sample** (only the 4 tables the experiment uses: orders, payments, customers, items; ~5–10k orders) under `data/sample/`. Full data stays Kaggle-referenced + gitignored. | 120MB raw bloats git history permanently (immutable); 58MB geolocation is unused dead weight; "reference don't commit" is the senior DS convention. Sample gives ~95% of "clone → it runs" at ~2% of the size. |
+| Q1 | Data in CI/host | Commit a **~2MB labeled sample** of the **4 tables `load_olist` reads** (orders, order_items, order_payments, customers) under `data/sample/`. Sample is **join-consistent**: anchor on a sample of `orders`, then keep only the customers/payments/items those orders reference. Full data stays Kaggle-referenced + gitignored. | 120MB raw bloats git history permanently (immutable); 58MB geolocation is unused dead weight; "reference don't commit" is the senior DS convention. Sample gives ~95% of "clone → it runs" at ~2% of the size. (`order_items` is unused by the experiment but `load_olist` opens the file, so it must be present.) |
 | Q2 | Dashboard data source | `run_experiment.py` emits committed `reports/experiment_001.json` (real 99k numbers). Dashboard **renders that JSON** (no recompute). Host on Streamlit Community Cloud → public README link. | A dashboard showing **real** headline numbers beats an interactive one showing toy sample numbers. Zero data dependency → trivial deploy. JSON artifact doubles as P3's snapshot input. |
 | Q3 | GHA scope | **Reproducibility regression gate**: CI runs the pipeline on the committed sample and asserts metrics == committed `reports/sample_results.json`; fail the build on drift. Optional sample-report artifact upload. **No** auto-commit bot. | CI cannot regenerate the full-data report (no full data in repo). Reframing "re-run a script" into "my analytics pipeline is numerically stable + regression-guarded" is a stronger, rarer signal. Auto-commit causes commit loops + push-permission pain. |
 | Q4 | Natural experiment | **Calendar-shock × region diff-in-diff**, with a **pre-registered gate** (below). Rejection is a valid, still-valuable deliverable. | Olist has no documented intervention; classic DiD needs a dated treatment. Pre-registering the gate prevents manufacturing a fake causal claim. A documented rejection is a strong judgment artifact. |
@@ -34,10 +34,14 @@ A/B demo) and "full platform showcase" (diminishing returns for portfolio slot 4
 
 ### Phase F — Foundation (prerequisite for P2 + P3)
 
-- Add a sampling script (e.g. `scripts/build_sample.py`) that downsamples the 4 used Olist tables
-  to ~5–10k orders, deterministic (seed 42), and writes labeled CSVs to `data/sample/`. Commit the
-  sample (~2MB). Each file/banner labeled "sample for CI/demo; full data on Kaggle".
-- Extend `run_experiment.py` to emit two committed JSON artifacts alongside the markdown:
+- Add a sampling script (e.g. `scripts/build_sample.py`) that **anchors on a deterministic sample
+  of `orders`** (seed 42, ~5–10k orders in the cohort window) and then filters customers,
+  order_payments, and order_items down to only the ids those sampled orders reference — so every
+  join in `cohort.sql` stays intact. Writes labeled CSVs to `data/sample/` (~2MB), committed. A
+  `data/sample/README.md` states "sample for CI/demo; full data on Kaggle".
+- Extend `run_experiment.py` to emit two committed JSON artifacts alongside the markdown. The
+  `results` dict holds tuples (e.g. `ci`); serialize via `json.dumps` (tuples → JSON arrays) and
+  the dashboard reads them back as lists.
   - `reports/experiment_001.json` — full-data (99k) results dict (the dashboard reads this).
   - `reports/sample_results.json` — results computed on `data/sample/` (P3's regression snapshot).
 - Add a `[dashboard]` optional-dependency group (`streamlit`) to `pyproject.toml`.
@@ -55,8 +59,10 @@ A/B demo) and "full platform showcase" (diminishing returns for portfolio slot 4
 ### Phase P3 — Reproducibility regression gate (needs F)
 
 - New CI job (extend `.github/workflows/`): install deps, run the pipeline on `data/sample/`,
-  assert the freshly-computed metrics equal `reports/sample_results.json` within tolerance; **fail
-  on drift**. This is a numerical regression test for the stats pipeline.
+  assert the freshly-computed metrics equal `reports/sample_results.json` via `np.isclose`
+  tolerance (**not** exact `==`, for cross-platform float stability); **fail on drift**.
+  Bootstrap CIs are deterministic given fixed sample + `seed=42`. This is a numerical regression
+  test for the stats pipeline.
 - Optional: upload the rendered sample report as a build artifact for viewing.
 - No auto-commit. The committed full-data report/JSON are produced locally and reviewed in PRs.
 
