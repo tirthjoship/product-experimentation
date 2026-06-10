@@ -21,4 +21,4 @@ def results_to_json(results: dict[str, Any]) -> str:
 
 def write_results_json(results: dict[str, Any], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(results_to_json(results))
+    path.write_text(results_to_json(results) + "\n")
