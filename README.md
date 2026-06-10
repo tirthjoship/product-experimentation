@@ -12,7 +12,9 @@
 End-to-end **product analytics** for a classic hiring question: *Did a product change actually improve conversion, or was it noise?* Built on the [Olist Brazilian E-Commerce](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) dataset — SQL metric definitions, simulated experiment analysis, confidence intervals, and a ship/no-ship recommendation.
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![Phase](https://img.shields.io/badge/phase-0%20EDA%20gate-orange)](./reports/)
+[![Phase](https://img.shields.io/badge/phase-1%20complete-brightgreen)](./reports/experiment_001.md)
+[![Tests](https://img.shields.io/badge/tests-43%20passing-brightgreen)](./tests/)
+[![Coverage](https://img.shields.io/badge/coverage-92%25-brightgreen)](./tests/)
 [![Portfolio](https://img.shields.io/badge/portfolio-4%20of%205-purple)](../README.md)
 
 > **Disclaimer:** Experiments in this repo are **simulated** on historical Olist data (hashed customer assignment or documented natural experiment). This is not employer A/B test data and does not claim causal lift from a real product rollout.
@@ -32,6 +34,38 @@ Most ML portfolio projects prove modeling depth. This one proves **metric defini
 
 ---
 
+## Results — Experiment 001 (simulated)
+
+> Full report: [`reports/experiment_001.md`](./reports/experiment_001.md). Numbers below are
+> emitted by `make experiment` on the real Olist cohort (99,092 delivered-eligible orders);
+> nothing here is hand-entered. The lift is a **labeled synthetic effect** (`SIMULATED_EFFECT = 0.05`),
+> not a real product rollout.
+
+| Metric | Control | Treatment | Lift | 95% CI | p | Verdict |
+|--------|---------|-----------|------|--------|---|---------|
+| **AOV** (primary) | 159.88 | 170.03 | **+10.15** | (7.39, 13.01) | <0.0001 | CI excludes 0 → **SHIP** |
+| **Conversion** (guardrail) | 0.9700 | 0.9718 | +0.0018 | (−0.0003, 0.0039) | 0.087 | CI spans 0 → no harm |
+| **D7 repeat** (exploratory) | 0.0088 | 0.0084 | — | — | — | descriptive only |
+
+**Recommendation: SHIP** — the AOV 95% bootstrap CI lies entirely above zero, while the
+conversion guardrail shows no significant movement (the synthetic effect was injected on
+`order_value` only, so the guardrail *should* stay flat — and it does, validating no leakage).
+
+**Reading the numbers (the narrative that matters in interviews):**
+
+1. **Why is observed lift +6.35% when the injected effect is 5%?** Random hash assignment left
+   the treatment arm with a slightly higher pre-effect baseline (~161.9 vs 159.9). The ×1.05
+   multiplier adds ~8.1; the ~2.0 baseline gap is sampling noise. Decompose before you trust a lift.
+2. **The guardrail is the integrity check.** Effect touches only `order_value`; `order_status`
+   is untouched, so conversion staying flat (p=0.087) is *expected* and confirms the pipeline
+   doesn't leak the treatment signal into other metrics.
+3. **Powered enough?** AOV MDE ≈ 4.32 at n≈49k/arm — the detected +10.15 is well above the
+   minimum detectable effect, so the SHIP call isn't an underpowered fluke.
+4. **Assignment balance:** 49,694 control / 49,398 treatment (0.6% gap, within the 5% tolerance
+   guard). A near-50/50 split confirms hash assignment introduces no structural bias.
+
+---
+
 ## Who this is for (hiring signal)
 
 | Market | Why this repo matters |
@@ -44,16 +78,17 @@ Most ML portfolio projects prove modeling depth. This one proves **metric defini
 
 ---
 
-## What you will get when complete (v1 target)
+## What's delivered (Phase 1, v1)
 
-| Component | Deliverable | Evidence |
-|-----------|-------------|----------|
-| **Metric layer** | Versioned SQL in `sql/metrics/` | Conversion, AOV, D7 repeat — each with pytest on fixtures |
-| **Experiment** | Simulated RCT or documented natural experiment | Hashed `customer_id` assignment (seed 42) or geo/time split with assumptions labeled |
-| **Analysis** | Lift + 95% CI, p-value or bootstrap | `reports/experiment_001.md` auto-generated |
-| **Power** | MDE and sample-size reasoning | Section in report or `docs/POWER_ANALYSIS.md` |
-| **Dashboard** | Streamlit variant comparison | Control vs treatment with CIs visible |
-| **Honesty** | README + report banners | Simulation clearly labeled; null results are valid |
+| Component | Deliverable | Evidence | Status |
+|-----------|-------------|----------|--------|
+| **Metric layer** | Versioned SQL in `sql/metrics/` | Conversion, AOV, D7 repeat — each with pandas-parity pytest on fixtures | ✅ |
+| **Experiment** | Simulated RCT, labeled synthetic effect | Hashed `customer_unique_id` assignment (seed 42) | ✅ |
+| **Analysis** | Lift + 95% bootstrap CI, Welch t, two-proportion z | `reports/experiment_001.md` auto-generated | ✅ |
+| **Power** | MDE + sample-size reasoning | AOV MDE 4.32, conversion MDE 0.0030 in report | ✅ |
+| **Integrity** | Balance guard + no-leakage design | 0.6% arm gap (within 5% tol); guardrail flat | ✅ |
+| **Honesty** | README + report banners | Simulation labeled; SHIP/HOLD/MORE-DATA all valid | ✅ |
+| **Dashboard** | Streamlit variant comparison | Control vs treatment with CIs visible | ⏳ Phase 2 |
 
 ---
 
@@ -98,17 +133,17 @@ erDiagram
 
 ---
 
-## Planned metrics (draft — lock after EDA)
+## Locked metrics (post-EDA, implemented)
 
-| Metric | Draft definition | Notes |
-|--------|------------------|-------|
-| **Conversion** | % orders with `order_status == 'delivered'` | Exclude canceled/unavailable explicitly |
-| **AOV** | `sum(payment_value) / count(distinct order_id)` | Handle multi-payment rows |
-| **D7 repeat** | Customer with ≥2 orders where 2nd within 7 days of 1st | Cohort logic — validate feasibility in EDA |
-| **Funnel drop-off** | Created → paid → delivered | By month |
-| **Time to deliver** | Delivered − purchase timestamp | If columns reliable |
+| Metric | Locked definition | Role |
+|--------|-------------------|------|
+| **Conversion** | % orders with `order_status == 'delivered'` | Guardrail |
+| **AOV** | `sum(payment_value)` per order, averaged per variant (multi-payment rows summed first) | Primary |
+| **D7 repeat** | Customer with a 2nd order within 7 days of the 1st | Exploratory |
 
-Every metric will have **SQL in `sql/metrics/`** plus a pytest that runs against a tiny in-memory DuckDB fixture (not the full 100k+ load in CI).
+Each metric is **SQL in `sql/metrics/`** wrapped by a thin DuckDB Python adapter, with a pytest
+that asserts the SQL matches a pandas reimplementation on a ≤100-row fixture (never the full
+100k+ load in CI). Full definitions: [`docs/METRICS.md`](./docs/METRICS.md).
 
 ---
 
@@ -120,13 +155,12 @@ Olist has **no native A/B column**. The locked v1 approach:
 2. Assign variant: `hash(customer_id, seed=42) % 2` → control / treatment
 3. Compare metrics with lift, 95% CI, and plain-English recommendation
 
-**Portfolio honesty options** (pick one after EDA):
+**Locked approach: Labeled synthetic lift.** A `SIMULATED_EFFECT = 0.05` is injected on
+`order_value` for the treatment arm *after* assignment — methodology demo only, marked in code
+constants and every report banner. Natural-experiment and pure-null variants are documented as
+future options in [`docs/FUTURE_ENHANCEMENTS.md`](./docs/FUTURE_ENHANCEMENTS.md).
 
-- **Natural experiment** — e.g. payment-type or geo rollout with diff-in-diff assumptions documented
-- **Simulated RCT** — hash assignment; may show **null result** (still valuable if power and CIs are correct)
-- **Labeled synthetic lift** — methodology demo only; must be marked `SIMULATED_EFFECT` in code constants
-
-See [`CONTEXT.md`](./CONTEXT.md) §6 and [`docs/FUTURE_ENHANCEMENTS.md`](./docs/FUTURE_ENHANCEMENTS.md).
+See [`CONTEXT.md`](./CONTEXT.md) §6 and [`docs/EXPERIMENT_DESIGN.md`](./docs/EXPERIMENT_DESIGN.md).
 
 ---
 
@@ -155,15 +189,15 @@ product-experimentation-analytics/
 
 ---
 
-## Phase 0 — current focus (START HERE)
+## Phase 0 — EDA gate (PASSED → GO)
 
-Implementation begins only after the EDA gate passes. Do not scaffold full `src/` until GO.
+Implementation was gated on EDA. The gate returned **GO**; full `src/` then built.
 
 | Deliverable | Status |
 |-------------|--------|
-| `notebooks/00_eda_gate.ipynb` | ⏳ Pending |
-| `reports/eda_gate.md` (GO/NO-GO) | ⏳ Pending |
-| `docs/DATA_DICTIONARY.md` | ⏳ Pending |
+| `notebooks/00_eda_gate.ipynb` | ✅ Executed |
+| `reports/eda_gate.md` (GO/NO-GO) | ✅ **GO** |
+| `docs/DATA_DICTIONARY.md` | ✅ Done |
 
 ### EDA gate checks
 
@@ -242,9 +276,12 @@ make experiment
 
 ---
 
-## Resume bullet (fill after v1 — no invented numbers)
+## Resume bullet
 
-> Defined funnel metrics in SQL on N e-commerce orders (Olist); analyzed simulated A/B test with 95% CIs and power analysis; documented ship/no-ship recommendation.
+> Defined funnel metrics (conversion, AOV, D7-repeat) in versioned SQL over ~99k Olist
+> e-commerce orders; ran a simulated A/B test with hashed person-level assignment, 95% bootstrap
+> CIs, Welch/two-proportion tests, and MDE power analysis; auto-generated a ship/no-ship report
+> with a guardrail-validated, no-leakage pipeline (43 tests, 92% coverage, mypy strict).
 
 ---
 
