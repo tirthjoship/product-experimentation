@@ -18,7 +18,7 @@
 - Phase C (Tasks 8–11 effect injection, analysis, power, balance) — verified PASS.
 - Phase D (Tasks 12–14 report gen, end-to-end runner, METRICS/EXPERIMENT_DESIGN/README/FUTURE)
   — **verified PASS this session** (Opus verification-before-completion).
-- `make experiment` ran on real Olist → `reports/experiment_001.md` (SHIP, AOV CI (7.39, 13.01)).
+- `make experiment` ran on real Olist → `reports/experiment_001.md` (SHIP, AOV CI (7.35, 13.00)).
 - Verification evidence: 43/43 pytest, mypy --strict clean (19 files), coverage 92% (>90% gate).
 - Cleanups: real `conv_z` captured (was hardcoded 0.0); `.coverage` gitignored.
 

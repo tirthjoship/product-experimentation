@@ -2,6 +2,7 @@ import json
 
 from src.experiment.run_experiment import run, write_outputs
 from src.report.experiment_report import generate_report
+from src.report.results_io import results_to_json
 
 
 def test_run_returns_expected_shape(base_con):
@@ -35,3 +36,10 @@ def test_write_outputs_emits_md_and_json(base_con, tmp_path):
     # ci tuple serialized as a 2-element list
     assert len(parsed["aov"]["ci"]) == 2
     assert "simulated_effect" in parsed
+
+
+def test_run_is_deterministic_for_p3_contract(base_con):
+    # Same connection, two runs -> byte-identical JSON. Codifies the P3 regression contract.
+    first = results_to_json(run(base_con))
+    second = results_to_json(run(base_con))
+    assert first == second
