@@ -1,6 +1,7 @@
 # Product Experimentation & Growth Metrics Platform
 
-**Status:** Phase 1 — Metrics + Simulated Experiment (complete)
+**Status:** Phase 1 complete (metrics + simulated experiment) · Phase F foundation complete
+(committed result JSON + join-consistent data sample) · Phase 2 (dashboard) next
 **Portfolio:** Project 4 of 5 · Balanced DA/DS strategy
 
 > **Simulated RCT on historical Olist cohorts.** Variants are assigned by hashed
@@ -13,7 +14,7 @@ End-to-end **product analytics** for a classic hiring question: *Did a product c
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Phase](https://img.shields.io/badge/phase-1%20complete-brightgreen)](./reports/experiment_001.md)
-[![Tests](https://img.shields.io/badge/tests-43%20passing-brightgreen)](./tests/)
+[![Tests](https://img.shields.io/badge/tests-54%20passing-brightgreen)](./tests/)
 [![Coverage](https://img.shields.io/badge/coverage-92%25-brightgreen)](./tests/)
 [![Portfolio](https://img.shields.io/badge/portfolio-4%20of%205-purple)](../README.md)
 
@@ -63,6 +64,12 @@ conversion guardrail shows no significant movement (the synthetic effect was inj
    minimum detectable effect, so the SHIP call isn't an underpowered fluke.
 4. **Assignment balance:** 49,694 control / 49,398 treatment (0.6% gap, within the 5% tolerance
    guard). A near-50/50 split confirms hash assignment introduces no structural bias.
+5. **Reproducibility finding (Phase F).** The bootstrap CI was initially *non-deterministic* —
+   the cohort SQL had no `ORDER BY`, so DuckDB returned rows in arbitrary order and the
+   positional bootstrap resampled differently each run (CI wandered at the 2nd decimal). Fixed by
+   pinning frame order (`ORDER BY order_id`); the CI `(7.35, 13.00)` is now byte-stable across
+   runs and guarded by a determinism test. A committed `reports/experiment_001.json` snapshot
+   makes the result a regression-testable contract — not a number you have to trust.
 
 ---
 
