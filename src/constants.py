@@ -8,6 +8,9 @@ BOOTSTRAP_RESAMPLES: int = 10_000
 ALPHA: float = 0.05
 POWER: float = 0.80
 IMBALANCE_TOLERANCE: float = 0.05
+BASELINE_BALANCE_TOLERANCE: float = (
+    0.05  # max relative arm-mean gap on pre-injection metric
+)
 DELIVERED_STATUS: str = "delivered"
 QUANTILES: tuple[float, ...] = (0.25, 0.50, 0.75, 0.90)
 
