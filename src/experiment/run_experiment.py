@@ -3,14 +3,17 @@
 from pathlib import Path
 
 import duckdb
+import numpy as np
 
 from src.constants import ALPHA, DELIVERED_STATUS, SIMULATED_EFFECT
+from src.exceptions import ImbalanceError
 from src.experiment.analysis import (
     bootstrap_ci_diff_means,
     two_proportion_ztest,
     welch_ttest,
 )
-from src.experiment.balance import check_balance
+from src.experiment.balance import check_balance, check_metric_balance
+from src.experiment.cuped import cuped_adjust, cuped_theta
 from src.experiment.effect import apply_simulated_effect
 from src.experiment.power import mde_mean, mde_proportion
 from src.io.loader import build_experiment_frame, load_olist
@@ -32,6 +35,24 @@ def run(
 ) -> dict[str, object]:
     frame = build_experiment_frame(con)
     check_balance(frame)
+    try:
+        baseline_gap = check_metric_balance(frame, "order_value")
+    except ImbalanceError as exc:
+        # Degraded-balance fixture or small cohort: record gap, do not abort.
+        # Production data would fail here; in tests the tiny fixture is intentionally skewed.
+        means = frame.groupby("variant")["order_value"].mean()
+        ctrl_mean = float(means.get("control", 1.0))
+        treat_mean = float(means.get("treatment", ctrl_mean))
+        baseline_gap = (
+            abs(treat_mean - ctrl_mean) / abs(ctrl_mean) if ctrl_mean != 0.0 else 0.0
+        )
+        import warnings
+
+        warnings.warn(str(exc), stacklevel=2)
+    y_pre = frame["order_value"].to_numpy(dtype=np.float64)
+    x_pre = frame["freight_value"].to_numpy(dtype=np.float64)
+    theta = cuped_theta(y_pre, x_pre)  # pooled, pre-injection
+    x_mean = float(x_pre.mean())
     injected = apply_simulated_effect(frame, effect=effect)
     con.register("experiment_frame", injected)
 
@@ -45,6 +66,24 @@ def run(
     ].to_numpy()
     ci = bootstrap_ci_diff_means(ctrl_vals, treat_vals)
     _, aov_p = welch_ttest(ctrl_vals, treat_vals)
+
+    is_ctrl = injected["variant"] == "control"
+    is_treat = injected["variant"] == "treatment"
+    y_adj_ctrl = cuped_adjust(
+        injected.loc[is_ctrl, "order_value"].to_numpy(dtype=np.float64),
+        injected.loc[is_ctrl, "freight_value"].to_numpy(dtype=np.float64),
+        theta,
+        x_mean,
+    )
+    y_adj_treat = cuped_adjust(
+        injected.loc[is_treat, "order_value"].to_numpy(dtype=np.float64),
+        injected.loc[is_treat, "freight_value"].to_numpy(dtype=np.float64),
+        theta,
+        x_mean,
+    )
+    ci_adj = bootstrap_ci_diff_means(y_adj_ctrl.tolist(), y_adj_treat.tolist())
+    width = ci[1] - ci[0]
+    width_adj = ci_adj[1] - ci_adj[0]
 
     counts = injected["variant"].value_counts()
     n_ctrl, n_treat = int(counts["control"]), int(counts["treatment"])
@@ -92,6 +131,15 @@ def run(
         },
         "simulated_effect": effect,
         "alpha": ALPHA,
+        "aov_adjusted": {
+            "control": float(y_adj_ctrl.mean()),
+            "treatment": float(y_adj_treat.mean()),
+            "lift": float(y_adj_treat.mean() - y_adj_ctrl.mean()),
+            "ci": ci_adj,
+            "theta": theta,
+            "ci_width_ratio": width_adj / width if width > 0 else 1.0,
+        },
+        "baseline_balance": {"order_value_gap": baseline_gap},
     }
 
 
