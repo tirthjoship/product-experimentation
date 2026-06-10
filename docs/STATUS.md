@@ -11,7 +11,7 @@
 ## Plan 2 — what shipped
 
 - `freight_value` covariate (CUPED-style regression adjustment; classic CUPED rejected — ~97% one-time buyers).
-- `src/experiment/cuped.py` — `theta_ols` + `adjusted_means` + `adjusted_ci` (OLS residualization).
+- `src/experiment/cuped.py` — `cuped_theta` + `cuped_adjust` (θ = cov/var, pooled pre-injection).
 - `aov_adjusted` block added to every `run()` result dict (lift, CI, ci_width_ratio, theta).
 - Adjusted-CI verdicts in scenario sweep (adverse / null / large).
 - Baseline-balance warning guard (`order_value_gap` emitted; warns if gap > 0.05).
