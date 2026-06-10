@@ -18,7 +18,7 @@ def run_scenarios(
     for name, effect in scenarios:
         result = run(con, effect=effect)
         result["scenario"] = name
-        aov = cast("dict[str, object]", result["aov"])
-        result["verdict"] = recommend(cast("tuple[float, float]", aov["ci"]))
+        adj = cast("dict[str, object]", result["aov_adjusted"])
+        result["verdict"] = recommend(cast("tuple[float, float]", adj["ci"]))
         out.append(result)
     return out
