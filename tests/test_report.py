@@ -1,4 +1,4 @@
-from src.report.experiment_report import generate_report
+from src.report.experiment_report import generate_report, generate_scenarios_report
 
 RESULTS = {
     "sample_sizes": {"control": 49575, "treatment": 49866},
@@ -48,3 +48,36 @@ def test_need_more_data_when_ci_spans_zero():
 def test_sample_sizes_rendered():
     md = generate_report(RESULTS)
     assert "49575" in md and "49866" in md
+
+
+def test_scenarios_report_lists_all_verdicts():
+    scenarios = [
+        {
+            "scenario": "null",
+            "simulated_effect": 0.0,
+            "aov": {
+                "control": 100.0,
+                "treatment": 100.1,
+                "lift": 0.1,
+                "ci": (-2.0, 2.2),
+                "p": 0.9,
+            },
+            "verdict": "NEED MORE DATA",
+        },
+        {
+            "scenario": "large",
+            "simulated_effect": 0.05,
+            "aov": {
+                "control": 100.0,
+                "treatment": 105.0,
+                "lift": 5.0,
+                "ci": (3.0, 7.0),
+                "p": 0.001,
+            },
+            "verdict": "SHIP",
+        },
+    ]
+    md = generate_scenarios_report(scenarios)
+    assert "null" in md and "large" in md
+    assert "NEED MORE DATA" in md and "SHIP" in md
+    assert "simulated" in md.lower()
