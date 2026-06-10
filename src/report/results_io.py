@@ -1,4 +1,4 @@
-"""Serialize the experiment results dict to JSON. Tuples -> arrays; numpy -> python scalars."""
+"""Serialize experiment results (dict or list) to JSON. Tuples -> arrays; numpy -> python scalars."""
 
 import json
 from pathlib import Path
@@ -15,10 +15,10 @@ def _default(o: Any) -> Any:
     raise TypeError(f"not JSON-serializable: {type(o)!r}")
 
 
-def results_to_json(results: dict[str, Any]) -> str:
+def results_to_json(results: Any) -> str:
     return json.dumps(results, indent=2, default=_default)
 
 
-def write_results_json(results: dict[str, Any], path: Path) -> None:
+def write_results_json(results: Any, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(results_to_json(results) + "\n")
