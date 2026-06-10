@@ -6,9 +6,9 @@
 ## Where we are
 
 - **Phase:** 1–2 implementation **COMPLETE + verified**. All 14 plan tasks committed.
-- **Branch:** `feat/metrics-experiment` (off `feat/phase0-eda-gate`). Clean; uncommitted: STATUS +
-  `.gitignore` + `z`-field fix (this session).
-- **Open PR:** #1 `feat/phase0-eda-gate` → `dev` (Phase 0 + routing docs). Not yet merged.
+- **Branch:** all work **merged to `main`**. PRs #1 (phase0→dev), #2 (metrics→dev),
+  #3 (dev→main) all merged. `main` tip `2bfc664`.
+- **Open PR:** none.
 
 ## Done
 
@@ -24,9 +24,8 @@
 
 ## Next action
 
-1. Commit this session (STATUS + `.gitignore` + `run_experiment.py` z-fix). Use `SKIP=gitleaks`.
-2. Open PR for `feat/metrics-experiment` (Phase 1–2 metrics + simulated experiment).
-3. Decide merge order vs open PR #1 (`feat/phase0-eda-gate` → `dev`).
+Phase 1 shipped to `main`. **Phase 2 = Streamlit dashboard** (control vs treatment with CIs) —
+the one remaining ⏳ in the README deliverables table. Start there next session.
 
 ## Caveats / environment
 
