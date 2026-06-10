@@ -54,7 +54,9 @@ def run(con: duckdb.DuckDBPyConnection) -> dict[str, object]:
             & injected["order_status"].eq(DELIVERED_STATUS)
         ).sum()
     )
-    _, conv_p, conv_lo, conv_hi = two_proportion_ztest(x_ctrl, n_ctrl, x_treat, n_treat)
+    conv_z, conv_p, conv_lo, conv_hi = two_proportion_ztest(
+        x_ctrl, n_ctrl, x_treat, n_treat
+    )
 
     return {
         "sample_sizes": {"control": n_ctrl, "treatment": n_treat},
@@ -68,7 +70,7 @@ def run(con: duckdb.DuckDBPyConnection) -> dict[str, object]:
         "conversion": {
             "control": conv["control"],
             "treatment": conv["treatment"],
-            "z": 0.0,
+            "z": conv_z,
             "p": conv_p,
             "ci": (conv_lo, conv_hi),
         },
