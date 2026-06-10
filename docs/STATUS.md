@@ -1,44 +1,37 @@
 # STATUS — Product Experimentation Analytics
 
-> **Tier 0, authoritative.** Current state only. Read this first. Overwrite at end of session;
-> move finished history to `PHASE_LOG.md`. Keep ~40 lines. Last updated: 2026-06-10.
+> **Tier 0, authoritative.** Current state only. Read first. Overwrite at session end;
+> finished history → `PHASE_LOG.md`. ~40 lines. Last updated: 2026-06-10.
 
 ## Where we are
 
-- **Phase:** Phase 1 (metrics + simulated experiment) and **Phase F (foundation)** both COMPLETE,
-  verified, and **merged to `main`** (`main` tip `4cf0805`). CI green on dev + main.
-- **Branch:** on `main`. `feat/phase-f-foundation` merged into dev → main and deleted.
-- **Open PR:** none. Roadmap spec + per-phase plans live in `docs/superpowers/`.
+- **Shipped to `main`:** Phase 1 (metrics + simulated A/B) + Phase F (result JSON, data sample, determinism fix). CI green.
+- **This session (depth series, from methodology review):** two unmerged branches, both local/unpushed.
 
-## Done
+## Branches (unpushed)
 
-- Phase 0 EDA gate (GO); Phases A–D (Phase 1): metrics, simulated A/B, report — verified.
-- **Phase F (this session, subagent-driven, all reviewed):**
-  - `src/report/results_io.py` — JSON serializer for results dict (tuples→arrays, numpy coerced).
-  - `run_experiment.py` emits committed `reports/experiment_001.json` (full) via `write_outputs()`.
-  - `scripts/build_sample.py` — deterministic join-consistent Olist sampler w/ loud guards.
-  - `data/sample/` (3.6 MB, labeled) + `reports/sample_results.json` committed.
-  - `[dashboard]` optional-deps (streamlit); `make typecheck` now covers `scripts/`.
-  - **CRITICAL fix:** `cohort.sql` had no `ORDER BY` → bootstrap CI was non-deterministic.
-    Added `ORDER BY order_id` → CI `(7.35, 13.00)` byte-stable, guarded by determinism test.
-- Evidence: 54/54 pytest, mypy --strict clean (src + scripts, 22 files), CI green main.
+- `fix/portfolio-hygiene-sync` — README test-count/coverage fix (54 tests, 91% cov). 1 commit `5572d77`. Doc-only, PR-ready.
+- `feat/experiment-inference-depth` — **Plan 1 DONE** (8 commits, tip `55ff013`). Off `main`.
+
+## Plan 1 done (feat/experiment-inference-depth)
+
+- **BCa bootstrap** replaces percentile (skew-correct; seeded+`batch=100` → deterministic, memory-safe at n≈50k).
+- **`quantile_lift`** — distributional AOV view.
+- **Scenario sweep** — `SCENARIOS = adverse(-0.05)/null(0.0)/large(0.05)` → `make scenarios` emits `reports/experiment_scenarios.{md,json}` showing all 3 verdicts: **DO NOT SHIP / NEED MORE DATA / SHIP**. Kills the tautology.
+- `null` scenario exposes the ~2 BRL baseline arm imbalance (lift 2.06 at zero effect) → motivates Plan 2 (CUPED/covariate adj).
+- `experiment_001.{md,json}` (dashboard contract) + `sample_results.json` regenerated with BCa. 64 tests, mypy strict clean, determinism byte-stable.
 
 ## Next action
 
-**Phase 2 = Streamlit dashboard** — renders committed `reports/experiment_001.json` (real numbers),
-CI error bars + ship banner, deploy on Streamlit Community Cloud (public README link). Needs its own
-plan (writing-plans). Then **P3** (reproducibility regression gate on the sample) and **P4** (gated
-calendar-shock × region diff-in-diff). Roadmap: `docs/superpowers/specs/2026-06-09-phase2-roadmap-design.md`.
+1. Optional: push + PR `fix/portfolio-hygiene-sync` → dev; PR `feat/experiment-inference-depth` → dev (confirm before main).
+2. **Plan 2** — spec #2 covariate-adjustment/ANCOVA (classic CUPED infeasible: ~97% one-time customers; surface a pre-treatment covariate e.g. `freight_value` into the frame).
+3. **Plan 3** — narrative: free-shipping reframe (default, unconfirmed) + PM decision memo.
+4. **Plan 4** — P4 natural experiment (own pre-registration spec).
+
+Plans: `docs/superpowers/plans/2026-06-10-experiment-inference-depth.md` (+ roadmap spec in `docs/superpowers/specs/`).
 
 ## Caveats / environment
 
-- Env `.venv` (uv, py3.12). Tools as `.venv/bin/pytest`, `.venv/bin/mypy`.
-- **Local disk ~100%** → `gitleaks` pre-commit hook can't build. Commit with `SKIP=gitleaks`
-  (never `--no-verify`). CI runs gitleaks server-side.
-- CI Security (gitleaks-action@v2) needs `permissions: pull-requests: read` — fixed in `security.yml`.
-- Large-file hook holds 500 KB globally, excludes `data/sample/`.
-
-## Pointers
-
-`CONTEXT.md` · `docs/adr/` · `docs/SKILL_ROUTING.md` · roadmap spec + Phase F plan in
-`docs/superpowers/`. Caffeinate (PID may be stale) keeps Mac awake — `pkill caffeinate` to stop.
+- Env `.venv` (uv, py3.12); tools as `.venv/bin/pytest`, `.venv/bin/mypy`. `make scenarios` uses bare `python` → run `.venv/bin/python -m src.experiment.run_experiment --scenarios`.
+- Disk ~100% → commit with `SKIP=gitleaks` (never `--no-verify`); CI runs gitleaks server-side.
+- Hub README (parent, not a git repo) synced to "Phase 1 + F shipped" via file save.
