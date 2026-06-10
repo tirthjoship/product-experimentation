@@ -8,6 +8,7 @@ Read **`CONTEXT.md`** first — it is the source of truth for locked decisions, 
 |------|-------|
 | Dataset | Olist Brazilian E-Commerce (Kaggle) |
 | Phase | **0 = EDA gate** — do not build full pipeline until `reports/eda_gate.md` says GO |
+| Skill routing | `docs/SKILL_ROUTING.md` — which skill/agent to invoke per phase + gate rules |
 | Portfolio docs | `../PORTFOLIO_LOCKED_DECISIONS.md`, `../PORTFOLIO_EDA_SPRINT.md` |
 
 ## Commands (after scaffold exists)
