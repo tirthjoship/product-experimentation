@@ -15,5 +15,6 @@ for the stable "why + locked decisions" read `CONTEXT.md`.
 | [0004](0004-simulated-rct-with-injected-effect.md) | Simulated RCT with a labeled injected effect | accepted |
 | [0005](0005-aov-primary-conversion-guardrail.md) | AOV primary, conversion guardrail, D7 exploratory | accepted |
 | [0006](0006-bootstrap-welch-ztest-inference.md) | Bootstrap CI + Welch t-test + two-proportion z | accepted |
+| [0007](0007-covariate-adjustment-not-cuped.md) | ANCOVA on `freight_value`, classic CUPED rejected | accepted |
 
 New ADR: copy `0000-template.md`, bump the number, add a row above.
