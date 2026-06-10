@@ -25,10 +25,12 @@ REPORT_PATH = Path("reports/experiment_001.md")
 JSON_PATH = Path("reports/experiment_001.json")
 
 
-def run(con: duckdb.DuckDBPyConnection) -> dict[str, object]:
+def run(
+    con: duckdb.DuckDBPyConnection, effect: float = SIMULATED_EFFECT
+) -> dict[str, object]:
     frame = build_experiment_frame(con)
     check_balance(frame)
-    injected = apply_simulated_effect(frame)
+    injected = apply_simulated_effect(frame, effect=effect)
     con.register("experiment_frame", injected)
 
     aov = aov_by_variant(con)
@@ -86,7 +88,7 @@ def run(con: duckdb.DuckDBPyConnection) -> dict[str, object]:
             ),
             "conversion": mde_proportion(conv["control"] or 0.0001, n_ctrl),
         },
-        "simulated_effect": SIMULATED_EFFECT,
+        "simulated_effect": effect,
         "alpha": ALPHA,
     }
 
