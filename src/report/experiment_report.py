@@ -9,7 +9,7 @@ DISCLAIMER = (
 )
 
 
-def _recommend(ci: tuple[float, float]) -> str:
+def recommend(ci: tuple[float, float]) -> str:
     lo, hi = ci
     if lo > 0:
         return "SHIP"
@@ -24,7 +24,7 @@ def generate_report(results: dict[str, Any]) -> str:
     conv = results["conversion"]
     d7 = results["d7"]
     mde = results["mde"]
-    rec = _recommend(aov["ci"])
+    rec = recommend(aov["ci"])
     lines = [
         "# Experiment 001 — Simulated AOV Lift",
         "",
@@ -56,4 +56,29 @@ def generate_report(results: dict[str, Any]) -> str:
         f"({aov['ci'][0]:.2f}, {aov['ci'][1]:.2f}).",
         "",
     ]
+    return "\n".join(lines)
+
+
+def generate_scenarios_report(scenarios: list[dict[str, Any]]) -> str:
+    """Render the multi-scenario sweep: one row per injected effect, with its verdict."""
+    lines = [
+        "# Experiment Scenarios — Decision Rule Validation",
+        "",
+        DISCLAIMER,
+        "",
+        "Each row injects a different `SIMULATED_EFFECT` and reports the verdict the "
+        "AOV 95% bootstrap CI produces. The rule yields SHIP / DO NOT SHIP / NEED MORE "
+        "DATA — not just SHIP — which is the point: the pipeline handles the hard cases.",
+        "",
+        "| Scenario | Injected effect | Control | Treatment | Lift | 95% CI | Verdict |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for s in scenarios:
+        aov = s["aov"]
+        lines.append(
+            f"| {s['scenario']} | {s['simulated_effect']} | {aov['control']:.2f} | "
+            f"{aov['treatment']:.2f} | {aov['lift']:.2f} | "
+            f"({aov['ci'][0]:.2f}, {aov['ci'][1]:.2f}) | {s['verdict']} |"
+        )
+    lines.append("")
     return "\n".join(lines)
