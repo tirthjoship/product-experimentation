@@ -1,4 +1,4 @@
-.PHONY: test test-cov lint typecheck setup check experiment
+.PHONY: test test-cov lint typecheck setup check experiment scenarios
 
 test:
 	pytest tests/ -v --tb=short
@@ -20,3 +20,6 @@ check: lint typecheck test-cov
 
 experiment:
 	.venv/bin/python -m src.experiment.run_experiment
+
+scenarios:
+	python -m src.experiment.run_experiment --scenarios
