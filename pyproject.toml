@@ -50,5 +50,5 @@ module = "tests.*"
 disallow_untyped_decorators = false
 
 [[tool.mypy.overrides]]
-module = ["pandas.*", "duckdb.*", "scipy.*", "matplotlib.*"]
+module = ["pandas.*", "duckdb.*", "scipy.*", "matplotlib.*", "numpy.*"]
 ignore_missing_imports = true
