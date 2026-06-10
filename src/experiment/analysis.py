@@ -3,6 +3,7 @@
 from collections.abc import Sequence
 
 import numpy as np
+import numpy.typing as npt
 from scipy import stats
 
 from src.constants import ALPHA, BOOTSTRAP_RESAMPLES, SEED
@@ -25,8 +26,13 @@ def bootstrap_ci_diff_means(
     c = np.asarray(control, dtype=float)
     t = np.asarray(treatment, dtype=float)
 
-    def _stat(cs: np.ndarray, ts: np.ndarray, axis: int = -1) -> np.ndarray:
-        return ts.mean(axis=axis) - cs.mean(axis=axis)
+    def _stat(
+        cs: npt.NDArray[np.float64],
+        ts: npt.NDArray[np.float64],
+        axis: int = -1,
+    ) -> npt.NDArray[np.float64]:
+        result: npt.NDArray[np.float64] = ts.mean(axis=axis) - cs.mean(axis=axis)
+        return result
 
     res = stats.bootstrap(
         (c, t),
