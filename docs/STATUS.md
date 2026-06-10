@@ -32,6 +32,8 @@ the one remaining ⏳ in the README deliverables table. Start there next session
 - Env is `.venv` (uv, py3.12). Run tools as `.venv/bin/pytest`, `.venv/bin/mypy`.
 - **Local disk ~100%** → `gitleaks` pre-commit hook can't build. Commit with `SKIP=gitleaks`
   (never `--no-verify`). CI runs gitleaks server-side. Free disk when able.
+- CI Security job (gitleaks-action@v2) needs `permissions: pull-requests: read` to list PR
+  commits on `pull_request` events — without it, PR runs 403. Fixed in `security.yml`.
 - Uncovered lines are expected (loader real-CSV, `main()` entry, balance raise) — not fixture-testable.
 
 ## Pointers
