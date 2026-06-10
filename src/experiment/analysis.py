@@ -15,17 +15,30 @@ def bootstrap_ci_diff_means(
     seed: int = SEED,
     alpha: float = ALPHA,
 ) -> tuple[float, float]:
-    rng = np.random.default_rng(seed)
+    """BCa bootstrap CI on (treatment mean - control mean).
+
+    Bias-corrected-and-accelerated: corrects the percentile interval for median
+    bias (z0) and skew-driven acceleration (a, via jackknife). Preferred over the
+    percentile method because AOV is heavily right-skewed, where percentile
+    intervals undercover. Deterministic given a fixed seed (the P3 contract).
+    """
     c = np.asarray(control, dtype=float)
     t = np.asarray(treatment, dtype=float)
-    diffs = np.empty(n_resamples, dtype=float)
-    for i in range(n_resamples):
-        cs = rng.choice(c, size=c.size, replace=True)
-        ts = rng.choice(t, size=t.size, replace=True)
-        diffs[i] = ts.mean() - cs.mean()
-    lo = float(np.percentile(diffs, 100 * alpha / 2))
-    hi = float(np.percentile(diffs, 100 * (1 - alpha / 2)))
-    return lo, hi
+
+    def _stat(cs: np.ndarray, ts: np.ndarray, axis: int = -1) -> np.ndarray:
+        return ts.mean(axis=axis) - cs.mean(axis=axis)
+
+    res = stats.bootstrap(
+        (c, t),
+        _stat,
+        n_resamples=n_resamples,
+        confidence_level=1 - alpha,
+        method="BCa",
+        vectorized=True,
+        paired=False,
+        random_state=np.random.default_rng(seed),
+    )
+    return float(res.confidence_interval.low), float(res.confidence_interval.high)
 
 
 def welch_ttest(
