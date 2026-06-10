@@ -17,12 +17,19 @@ def build_sample(
     out_dir.mkdir(parents=True, exist_ok=True)
 
     orders = pd.read_csv(raw_dir / "olist_orders_dataset.csv")
+    if orders.empty:
+        raise ValueError(f"no orders found in {raw_dir}")
     sample = orders.sample(n=min(n_orders, len(orders)), random_state=seed)
     order_ids = set(sample["order_id"])
     customer_ids = set(sample["customer_id"])
 
     customers = pd.read_csv(raw_dir / "olist_customers_dataset.csv")
     customers = customers[customers["customer_id"].isin(customer_ids)]
+    missing = customer_ids - set(customers["customer_id"])
+    if missing:
+        raise ValueError(
+            f"{len(missing)} sampled customer_id(s) absent from customers table"
+        )
 
     payments = pd.read_csv(raw_dir / "olist_order_payments_dataset.csv")
     payments = payments[payments["order_id"].isin(order_ids)]

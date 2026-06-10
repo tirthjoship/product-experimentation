@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from scripts.build_sample import build_sample
 
@@ -73,3 +74,30 @@ def test_all_four_files_written(tmp_path: Path) -> None:
     build_sample(raw, out, n_orders=5, seed=42)
     for t in TABLES:
         assert (out / f"olist_{t}_dataset.csv").exists()
+
+
+def test_raises_on_empty_orders(tmp_path: Path) -> None:
+    raw, out = tmp_path / "raw", tmp_path / "sample"
+    _make_raw(raw)
+    # blank out orders
+    pd.DataFrame(
+        {
+            "order_id": [],
+            "customer_id": [],
+            "order_status": [],
+            "order_purchase_timestamp": [],
+        }
+    ).to_csv(raw / "olist_orders_dataset.csv", index=False)
+    with pytest.raises(ValueError, match="no orders"):
+        build_sample(raw, out, n_orders=5, seed=42)
+
+
+def test_raises_on_orphan_customer(tmp_path: Path) -> None:
+    raw, out = tmp_path / "raw", tmp_path / "sample"
+    _make_raw(raw)
+    # drop a customer so some order references a missing customer_id
+    cust = pd.read_csv(raw / "olist_customers_dataset.csv")
+    cust.iloc[1:].to_csv(raw / "olist_customers_dataset.csv", index=False)  # remove c0
+    # force the sample to include all 20 orders so c0's order is selected
+    with pytest.raises(ValueError, match="absent from customers"):
+        build_sample(raw, out, n_orders=20, seed=42)
