@@ -44,3 +44,7 @@ LOCAL_PROJECT_STORY.md
 
 # Conda
 environment.yml
+
+# coverage artifacts
+.coverage
+htmlcov/
