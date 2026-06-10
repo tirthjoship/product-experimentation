@@ -63,3 +63,19 @@ def test_run_accepts_effect_override(base_con):
     # simulated_effect key must reflect the kwarg, not the module constant.
     assert null["simulated_effect"] == pytest.approx(0.0)
     assert big["simulated_effect"] == pytest.approx(0.20)
+
+
+def test_write_scenarios_emits_md_and_json(base_con, tmp_path):
+    from src.experiment.run_experiment import write_scenarios_outputs
+    from src.experiment.scenarios import run_scenarios
+
+    scenarios = run_scenarios(base_con)
+    md_path = tmp_path / "experiment_scenarios.md"
+    json_path = tmp_path / "experiment_scenarios.json"
+    write_scenarios_outputs(scenarios, md_path, json_path)
+    assert md_path.exists()
+    import json
+
+    parsed = json.loads(json_path.read_text())
+    assert len(parsed) == len(scenarios)
+    assert parsed[0]["scenario"] == "null"
