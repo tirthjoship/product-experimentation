@@ -10,7 +10,7 @@ lint:
 	pre-commit run --all-files
 
 typecheck:
-	mypy src/ --strict
+	mypy src/ scripts/ --strict
 
 setup:
 	pip install -e ".[dev]"
