@@ -13,6 +13,7 @@ def test_frame_columns_and_size(base_con):
         "customer_unique_id",
         "order_status",
         "order_value",
+        "freight_value",
         "order_purchase_timestamp",
         "variant",
     }
@@ -47,12 +48,33 @@ def test_empty_cohort_raises():
     empty_payments = pd.DataFrame(
         columns=["order_id", "payment_sequential", "payment_type", "payment_value"]
     )
+    empty_items = pd.DataFrame(
+        columns=[
+            "order_id",
+            "order_item_id",
+            "product_id",
+            "seller_id",
+            "price",
+            "freight_value",
+        ]
+    )
     con.register("orders", empty_orders)
     con.register("customers", empty_customers)
     con.register("order_payments", empty_payments)
+    con.register("order_items", empty_items)
     with pytest.raises(EmptyCohortError):
         build_experiment_frame(con)
     con.close()
+
+
+def test_freight_value_sums_per_order(base_con):
+    df = build_experiment_frame(base_con).set_index("order_id")
+    assert df.loc["o1", "freight_value"] == pytest.approx(15.5)
+
+
+def test_freight_value_zero_when_no_items(base_con):
+    df = build_experiment_frame(base_con).set_index("order_id")
+    assert df.loc["o6", "freight_value"] == pytest.approx(0.0)
 
 
 def test_experiment_frame_row_order_is_deterministic(base_con):
