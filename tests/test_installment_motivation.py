@@ -1,3 +1,7 @@
+import json
+import shutil
+from pathlib import Path
+
 import pytest
 
 from src.report.installment_motivation import compute_motivation_stats
@@ -30,3 +34,31 @@ def test_stats_are_deterministic(base_con):
     a = compute_motivation_stats(base_con)
     b = compute_motivation_stats(base_con)
     assert a == b
+
+
+def test_generate_md_contains_table_and_disclaimer(base_con):
+    from src.report.installment_motivation import (
+        compute_motivation_stats,
+        generate_motivation_md,
+    )
+
+    md = generate_motivation_md(compute_motivation_stats(base_con))
+    assert "| Installments | Orders | AOV |" in md
+    assert "descriptive" in md.lower()
+    assert "not an effect estimate" in md.lower()
+
+
+def test_main_end_to_end_writes_artifacts(tmp_path):
+    from src.report.installment_motivation import main
+
+    raw_dir = tmp_path / "raw"
+    raw_dir.mkdir()
+    fixtures = Path(__file__).parent / "fixtures"
+    for name in ["customers", "orders", "order_payments", "order_items"]:
+        shutil.copy(fixtures / f"{name}.csv", raw_dir / f"olist_{name}_dataset.csv")
+    md_path = tmp_path / "installment_motivation.md"
+    json_path = tmp_path / "installment_motivation.json"
+    main(raw_dir=raw_dir, md_path=md_path, json_path=json_path)
+    parsed = json.loads(json_path.read_text())
+    assert parsed["share_multi_installment_orders"] == pytest.approx(0.5)
+    assert "| Installments | Orders | AOV |" in md_path.read_text()

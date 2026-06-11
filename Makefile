@@ -1,4 +1,4 @@
-.PHONY: test test-cov lint typecheck setup check experiment scenarios
+.PHONY: test test-cov lint typecheck setup check experiment scenarios motivation
 
 test:
 	pytest tests/ -v --tb=short
@@ -23,3 +23,6 @@ experiment:
 
 scenarios:
 	python -m src.experiment.run_experiment --scenarios
+
+motivation:
+	python -m src.report.installment_motivation
