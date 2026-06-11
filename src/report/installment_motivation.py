@@ -30,7 +30,9 @@ def compute_motivation_stats(con: duckdb.DuckDBPyConnection) -> dict[str, object
         {
             "bucket": str(r["bucket"]),
             "n_orders": int(r["n_orders"]),
-            "aov": float(r["aov"]),
+            # round: DuckDB AVG parallel summation is float-nondeterministic at ~1e-13;
+            # round to keep committed JSON byte-stable across runs (md uses :.2f anyway).
+            "aov": round(float(r["aov"]), 6),
         }
         for r in buckets_df.to_dict("records")
     ]
