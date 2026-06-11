@@ -87,3 +87,22 @@ def test_write_scenarios_emits_md_and_json(base_con, tmp_path):
     parsed = json.loads(json_path.read_text())
     assert len(parsed) == len(scenarios)
     assert parsed[0]["scenario"] == scenarios[0]["scenario"]
+
+
+def test_main_end_to_end_writes_reports(tmp_path):
+    import shutil
+    from pathlib import Path
+
+    from src.experiment.run_experiment import main
+
+    raw_dir = tmp_path / "raw"
+    raw_dir.mkdir()
+    fixtures = Path(__file__).parent / "fixtures"
+    for name in ["customers", "orders", "order_payments", "order_items"]:
+        shutil.copy(fixtures / f"{name}.csv", raw_dir / f"olist_{name}_dataset.csv")
+    report_path = tmp_path / "experiment_001.md"
+    json_path = tmp_path / "experiment_001.json"
+    main(raw_dir=raw_dir, report_path=report_path, json_path=json_path)
+    assert "AOV (covariate-adjusted)" in report_path.read_text()
+    parsed = json.loads(json_path.read_text())
+    assert "aov_adjusted" in parsed
