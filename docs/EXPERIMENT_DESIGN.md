@@ -121,6 +121,61 @@ narrative).
 
 ---
 
+## Covariate adjustment (Plan 2)
+
+Plan 2 adds ANCOVA adjustment on `freight_value` to reduce variance and correct the +2.06 BRL
+baseline arm imbalance exposed by the null scenario in Plan 1.
+
+### Formula
+
+```
+Y_adj = Y − θ · (X − X̄)
+```
+
+- Y = `order_value` (outcome)
+- X = `freight_value` (covariate)
+- X̄ = grand mean of `freight_value` across both arms (pooled)
+- θ = Cov(Y, X) / Var(X), estimated pooled and **pre-injection**
+
+### θ estimation rule
+
+θ is computed once from the unadjusted experiment frame **before** `apply_simulated_effect`
+is called. This ensures the synthetic treatment signal cannot contaminate the coefficient.
+Using post-injection data to estimate θ would bias the adjustment.
+
+### Why `freight_value` is treatment-independent
+
+`freight_value` is the shipping cost set by the seller/marketplace at order placement time.
+The injected effect (`SIMULATED_EFFECT = 0.05`) is applied as a multiplier on `order_value`
+only and never modifies `freight_value`. The covariate is therefore pre-treatment in the
+causal sense and safe to adjust on.
+
+Measured correlation (pre-injection, n = 99,092): **r = 0.484**, yielding an expected
+variance reduction of ~23% (1 − r² ≈ 0.77 of original variance retained).
+
+### Why not classic CUPED
+
+CUPED (Deng et al., WSDM 2013) requires per-user pre-experiment outcome data. ~97% of Olist
+customers are one-time purchasers (within-7d repeat rate 0.214%, ever-repeat 3.12% per
+`reports/eda_gate.md`). No meaningful pre-period AOV exists for the vast majority of the
+cohort. ANCOVA on a pre-treatment order-level covariate is the correct substitute.
+
+### Honesty rule
+
+Both unadjusted and adjusted numbers are always reported. No result may quote only the
+adjusted CI without also showing the unadjusted CI alongside it. This preserves full audit
+transparency and makes the variance-reduction effect legible.
+
+### Baseline-imbalance guard
+
+`run()` emits a `UserWarning` (not a hard exception) when the pre-injection arm means differ
+by more than a threshold. The gap is recorded in `results["baseline_balance"]`. A hard guard
+would crash legitimate small fixtures in tests; the ANCOVA adjustment corrects the bias anyway.
+
+**ADR:** `docs/adr/0007-covariate-adjustment-not-cuped.md`
+
+---
+
 ## Reproducibility
 
 ```bash

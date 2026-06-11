@@ -89,6 +89,7 @@ All metric SQL runs against a relation registered as `experiment_frame` with the
 | `customer_unique_id` | str | person key |
 | `order_status` | str | e.g. `delivered`, `canceled` |
 | `order_value` | float | sum of `payment_value` for this order |
+| `freight_value` | float | SUM(order_items.freight_value) per order; 0 when order has no items; pre-treatment covariate for ANCOVA adjustment |
 | `order_purchase_timestamp` | datetime | cohort filter applied upstream |
 | `variant` | str | `control` or `treatment` |
 
