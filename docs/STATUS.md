@@ -1,49 +1,47 @@
 # STATUS — Product Experimentation Analytics
 
 > **Tier 0, authoritative.** Current state only. Read first. Overwrite at session end;
-> finished history → `PHASE_LOG.md`. ~40 lines. Last updated: 2026-06-10.
+> finished history → `PHASE_LOG.md`. ~40 lines. Last updated: 2026-06-11.
 
 ## Where we are
 
-- **Plan 2 MERGED to dev AND main** (PRs #14→dev, #15+#17→main). CI fully green on main.
-- Coverage-gate fix shipped (PR #16): CI failed at 89% < 90 after Plan 2; new fixture-only
-  tests for `main()`, `results_io`, balance error branches → **95% cov, 82 tests**.
+- **Plans 1 + 2 on main** (inference depth + covariate adjustment). CI green on main.
+- **Plan 3 DONE on branch `feat/plan3-installment-narrative`** — not yet pushed/PR'd. 95 tests,
+  96% coverage, mypy strict clean.
 
-## Plan 2 — what shipped
+## Plan 3 — what shipped (installment-expansion narrative)
 
-- `freight_value` covariate (CUPED-style regression adjustment; classic CUPED rejected — ~97% one-time buyers).
-- `src/experiment/cuped.py` — `cuped_theta` + `cuped_adjust` (θ = cov/var, pooled pre-injection).
-- `aov_adjusted` block added to every `run()` result dict (lift, CI, ci_width_ratio, theta).
-- Adjusted-CI verdicts in scenario sweep (adverse / null / large).
-- Baseline-balance warning guard (`order_value_gap` emitted; warns if gap > 0.05).
-- ADR 0007 — freight_value covariate rationale (logged in `docs/adr/`).
-- Artifacts regenerated + determinism verified (byte-identical on two consecutive runs).
+- Framing locked: installment-expansion test (6x→10x interest-free cap). Free-shipping rejected
+  for portfolio separation from supply-chain-ml. **ADR 0008**.
+- `src/report/installment_motivation.py` + `sql/eda/installments*.sql` → committed descriptive
+  artifacts `reports/installment_motivation.{md,json}` (deterministic; aov rounded 6dp because
+  DuckDB AVG parallel-sum is float-nondeterministic). `make motivation`.
+- **PM decision memo** `reports/experiment_001_readout.md` (hand-written, judgment artifact).
+- **Memo↔artifact integrity test** `tests/test_readout_integrity.py` — every headline number in
+  the memo must match committed JSON (CI enforces "no invented metrics" forever).
+- Framing sweep: report intro lines, README, EXPERIMENT_DESIGN, CONTEXT §2, ADR 0008 index.
+- Experiment .json numbers UNCHANGED (only report .md framing lines + new artifacts).
 
-## Measured numbers (full-data run, seed 42)
+## Real motivation numbers (cohort window, full data)
 
-- **aov_adjusted.ci_width_ratio = 0.868** (target ≤ 0.85 — see caveat below).
-- **null scenario adjusted lift = +0.537** vs unadjusted **+2.057** → adjustment pulls toward zero ✓.
-- 82 tests pass · 95% coverage · mypy strict clean · pre-commit all-pass (gitleaks skipped locally, disk-full).
-
-## ci_width_ratio caveat
-
-Target was ≤ 0.85 (≥15% CI width reduction). Achieved 0.868 (~13% reduction). freight_value
-is a real predictor but R² is modest at n≈100k. This is honest — do not inflate. Noted in ADR 0007.
+- 51.4% of orders paid in >1 installment · credit cards = 78.4% of payment value · n=99,092.
+- AOV by bucket: 1→120.98, 2-3→136.11, 4-6→182.69, 7+→337.03 (affordability gradient is real).
 
 ## Next action
 
-1. **Plan 3** — narrative memo `reports/experiment_001_readout.md`; free-shipping-threshold reframe
-   (unconfirmed — user questioned it; treat as default hypothesis, not locked).
+1. **Push + PR** `feat/plan3-installment-narrative` → dev, merge, promote dev → main.
 2. **Plan 4** — DiD natural experiment (calendar-shock × region), own spec, pre-registered gate.
 3. Earlier roadmap still pending: P2 dashboard + P3 reproducibility CI gate.
 
 ## Caveats / environment
 
-- `.venv` (uv, py3.12); use `.venv/bin/pytest`, `.venv/bin/mypy`. `make scenarios` calls bare `python` — run `.venv/bin/python -m src.experiment.run_experiment --scenarios`.
+- `.venv` (uv, py3.12); use `.venv/bin/pytest`, `.venv/bin/mypy`. `make scenarios`/`motivation`
+  call bare `python` — run via `.venv/bin/python -m ...`.
 - Disk ~100% → commit `SKIP=gitleaks` (never `--no-verify`); CI runs gitleaks server-side.
-- Hub README (parent dir, not a git repo) synced to "Phase 1 + F shipped" via file save.
+- ci_width_ratio = 0.868 (Plan 2) misses ≤0.85 target — honest, documented in ADR 0007.
 - `caffeinate` running (keeps Mac awake) — `pkill caffeinate` to stop.
 
 ## Pointers
 
-`CONTEXT.md` · `docs/adr/` · `docs/superpowers/specs/` (roadmap + Plan 2) · `docs/superpowers/plans/` (Plan 1, Plan 2).
+`CONTEXT.md` · `docs/adr/` (0007 covariate, 0008 framing) · `docs/superpowers/specs/` ·
+`docs/superpowers/plans/` (Plans 1–3).
