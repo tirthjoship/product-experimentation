@@ -65,6 +65,14 @@ def test_run_accepts_effect_override(base_con):
     assert big["simulated_effect"] == pytest.approx(0.20)
 
 
+def test_run_includes_aov_adjusted_block(base_con):
+    results = run(base_con)
+    adj = results["aov_adjusted"]
+    for key in ("control", "treatment", "lift", "ci", "theta", "ci_width_ratio"):
+        assert key in adj
+    assert results["baseline_balance"]["order_value_gap"] >= 0.0
+
+
 def test_write_scenarios_emits_md_and_json(base_con, tmp_path):
     from src.experiment.run_experiment import write_scenarios_outputs
     from src.experiment.scenarios import run_scenarios

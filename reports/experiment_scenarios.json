@@ -34,6 +34,20 @@
     },
     "simulated_effect": -0.05,
     "alpha": 0.05,
+    "aov_adjusted": {
+      "control": 160.63812780703438,
+      "treatment": 153.07825368956705,
+      "lift": -7.559874117467331,
+      "ci": [
+        -9.930334405518293,
+        -5.192041976632583
+      ],
+      "theta": 4.956977470329654,
+      "ci_width_ratio": 0.869352862212637
+    },
+    "baseline_balance": {
+      "order_value_gap": 0.012869320656627504
+    },
     "scenario": "adverse",
     "verdict": "DO NOT SHIP"
   },
@@ -72,6 +86,20 @@
     },
     "simulated_effect": 0.0,
     "alpha": 0.05,
+    "aov_adjusted": {
+      "control": 160.63812780703438,
+      "treatment": 161.17513759174935,
+      "lift": 0.537009784714968,
+      "ci": [
+        -1.8823938231317319,
+        2.9603964684509636
+      ],
+      "theta": 4.956977470329654,
+      "ci_width_ratio": 0.8642599655997769
+    },
+    "baseline_balance": {
+      "order_value_gap": 0.012869320656627504
+    },
     "scenario": "null",
     "verdict": "NEED MORE DATA"
   },
@@ -110,6 +138,20 @@
     },
     "simulated_effect": 0.05,
     "alpha": 0.05,
+    "aov_adjusted": {
+      "control": 160.63812780703438,
+      "treatment": 169.27202149393162,
+      "lift": 8.633893686897238,
+      "ci": [
+        6.150973636777385,
+        11.146573603685807
+      ],
+      "theta": 4.956977470329654,
+      "ci_width_ratio": 0.8681526654761796
+    },
+    "baseline_balance": {
+      "order_value_gap": 0.012869320656627504
+    },
     "scenario": "large",
     "verdict": "SHIP"
   }

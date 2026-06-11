@@ -1,7 +1,10 @@
 # CLAUDE.md — Product Experimentation Analytics
 
-Read **`docs/STATUS.md`** first (Tier 0 — current phase, next action, branch, caveats). Then
-**`CONTEXT.md`** for the stable source of truth (locked decisions, dataset, phase gates).
+**Fresh-session startup (token budget):** read **`docs/STATUS.md`** ONLY (Tier 0 — current
+phase, next action, branch, caveats, ~40 lines). That is enough to start work. Do NOT read
+`CONTEXT.md`, ADRs, `PHASE_LOG.md`, or code history up front — open a Tier-2 file only when
+the named task points at it, max ~3 such files before starting. `CONTEXT.md` is the stable
+source of truth (locked decisions, dataset, phase gates) — on demand, never by default.
 
 ## Documentation map (what lives where — don't duplicate)
 

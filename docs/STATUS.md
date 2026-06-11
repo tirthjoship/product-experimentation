@@ -5,30 +5,37 @@
 
 ## Where we are
 
-- **On `main`:** Phase 1 (metrics + simulated A/B) + Phase F (result JSON, sample, determinism). CI green.
-- **This session** (methodology review → depth series): three branches, **all pushed, PRs open → `dev`, none merged yet**.
+- **Branch:** `feat/plan2-covariate-adjustment` (not yet pushed / no PR open).
+- **Plan 2 DONE** — covariate-adjusted block shipped, artifacts regenerated, all gates green.
 
-## Open PRs → dev (merge in any order; no conflicts)
+## Plan 2 — what shipped
 
-- **PR #11** `fix/portfolio-hygiene-sync` — README test-count/coverage sync (54 tests, 91% cov). Doc-only.
-- **PR #12** `feat/experiment-inference-depth` — **Plan 1 DONE** (BCa + 3-verdict scenario sweep). 64 tests, mypy strict clean, byte-stable.
-- **PR (this branch)** `spec/plan2-covariate-adjustment` — Plan 2 design spec only (no code).
+- `freight_value` covariate (CUPED-style regression adjustment; classic CUPED rejected — ~97% one-time buyers).
+- `src/experiment/cuped.py` — `cuped_theta` + `cuped_adjust` (θ = cov/var, pooled pre-injection).
+- `aov_adjusted` block added to every `run()` result dict (lift, CI, ci_width_ratio, theta).
+- Adjusted-CI verdicts in scenario sweep (adverse / null / large).
+- Baseline-balance warning guard (`order_value_gap` emitted; warns if gap > 0.05).
+- ADR 0007 — freight_value covariate rationale (logged in `docs/adr/`).
+- Artifacts regenerated + determinism verified (byte-identical on two consecutive runs).
 
-## Plan 1 shipped (PR #12)
+## Measured numbers (full-data run, seed 42)
 
-- BCa bootstrap replaces percentile (seeded + `batch=100` → deterministic, memory-safe at n≈50k).
-- `quantile_lift` distributional view. `make scenarios` → `reports/experiment_scenarios.{md,json}`.
-- Sweep `adverse(-0.05)/null(0.0)/large(0.05)` → **DO NOT SHIP / NEED MORE DATA / SHIP** (tautology killed).
-- `null` lift = +2.06 at zero effect → exposes baseline arm imbalance → motivates Plan 2.
+- **aov_adjusted.ci_width_ratio = 0.868** (target ≤ 0.85 — see caveat below).
+- **null scenario adjusted lift = +0.537** vs unadjusted **+2.057** → adjustment pulls toward zero ✓.
+- 77 tests pass · mypy strict clean · pre-commit all-pass (gitleaks skipped, disk-full).
 
-## Next action (fresh session)
+## ci_width_ratio caveat
 
-1. **Merge PRs #11, #12, #-spec → dev** (confirm before promoting dev→main).
-2. **Plan 2** — build covariate-adjustment from spec `docs/superpowers/specs/2026-06-10-plan2-covariate-adjustment.md`. Run **writing-plans** to turn it into TDD tasks, then subagent-driven (Sonnet impl, Opus verify). Default covariate = `freight_value`; classic CUPED rejected (Olist ~97% one-time customers). Adds an `aov_adjusted` block + pre-period balance guard.
-3. **Plan 3** — narrative: free-shipping-threshold reframe (default, **unconfirmed** — user questioned it) + PM decision memo `reports/experiment_001_readout.md`.
-4. **Plan 4** — P4 natural experiment (calendar-shock × region DiD, pre-registered gate). Own spec.
+Target was ≤ 0.85 (≥15% CI width reduction). Achieved 0.868 (~13% reduction). freight_value
+is a real predictor but R² is modest at n≈100k. This is honest — do not inflate. Noted in ADR 0007.
 
-Also pending from earlier roadmap: **P2 dashboard** + **P3 reproducibility CI gate** (`docs/superpowers/specs/2026-06-09-phase2-roadmap-design.md`).
+## Next action
+
+1. **Push + open PR** `feat/plan2-covariate-adjustment` → `dev`.
+2. Merge pending PRs (#11, #12, plan2 PR) into dev, then promote dev → main.
+3. **Plan 3** — narrative memo `reports/experiment_001_readout.md`; free-shipping-threshold reframe
+   (unconfirmed — user questioned it; treat as default hypothesis, not locked).
+4. **Plan 4** — DiD natural experiment (calendar-shock × region), own spec, pre-registered gate.
 
 ## Caveats / environment
 
@@ -39,4 +46,4 @@ Also pending from earlier roadmap: **P2 dashboard** + **P3 reproducibility CI ga
 
 ## Pointers
 
-`CONTEXT.md` · `docs/adr/` · `docs/superpowers/specs/` (roadmap + Plan 2) · `docs/superpowers/plans/` (Plan 1).
+`CONTEXT.md` · `docs/adr/` · `docs/superpowers/specs/` (roadmap + Plan 2) · `docs/superpowers/plans/` (Plan 1, Plan 2).
