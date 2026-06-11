@@ -5,8 +5,9 @@
 
 ## Where we are
 
-- **Branch:** `feat/plan2-covariate-adjustment` (not yet pushed / no PR open).
-- **Plan 2 DONE** — covariate-adjusted block shipped, artifacts regenerated, all gates green.
+- **Plan 2 MERGED to dev AND main** (PRs #14→dev, #15+#17→main). CI fully green on main.
+- Coverage-gate fix shipped (PR #16): CI failed at 89% < 90 after Plan 2; new fixture-only
+  tests for `main()`, `results_io`, balance error branches → **95% cov, 82 tests**.
 
 ## Plan 2 — what shipped
 
@@ -22,7 +23,7 @@
 
 - **aov_adjusted.ci_width_ratio = 0.868** (target ≤ 0.85 — see caveat below).
 - **null scenario adjusted lift = +0.537** vs unadjusted **+2.057** → adjustment pulls toward zero ✓.
-- 77 tests pass · mypy strict clean · pre-commit all-pass (gitleaks skipped, disk-full).
+- 82 tests pass · 95% coverage · mypy strict clean · pre-commit all-pass (gitleaks skipped locally, disk-full).
 
 ## ci_width_ratio caveat
 
@@ -31,11 +32,10 @@ is a real predictor but R² is modest at n≈100k. This is honest — do not inf
 
 ## Next action
 
-1. **Push + open PR** `feat/plan2-covariate-adjustment` → `dev`.
-2. Merge pending PRs (#11, #12, plan2 PR) into dev, then promote dev → main.
-3. **Plan 3** — narrative memo `reports/experiment_001_readout.md`; free-shipping-threshold reframe
+1. **Plan 3** — narrative memo `reports/experiment_001_readout.md`; free-shipping-threshold reframe
    (unconfirmed — user questioned it; treat as default hypothesis, not locked).
-4. **Plan 4** — DiD natural experiment (calendar-shock × region), own spec, pre-registered gate.
+2. **Plan 4** — DiD natural experiment (calendar-shock × region), own spec, pre-registered gate.
+3. Earlier roadmap still pending: P2 dashboard + P3 reproducibility CI gate.
 
 ## Caveats / environment
 
