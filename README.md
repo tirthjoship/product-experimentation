@@ -37,6 +37,12 @@ Most ML portfolio projects prove modeling depth. This one proves **metric defini
 
 ## Results — Experiment 001 (simulated)
 
+**Framing:** installment-expansion test — would raising the interest-free installment cap
+(6x → 10x) grow basket sizes? Motivated by real Olist payment behavior
+([motivation stats](reports/installment_motivation.md)); effect itself is simulated and labeled.
+**→ Read the [PM decision memo](reports/experiment_001_readout.md)** — the headline artifact:
+verdict, guardrail readout, caveats, rollout + monitoring plan.
+
 > Full report: [`reports/experiment_001.md`](./reports/experiment_001.md). Numbers below are
 > emitted by `make experiment` on the real Olist cohort (99,092 delivered-eligible orders);
 > nothing here is hand-entered. The lift is a **labeled synthetic effect** (`SIMULATED_EFFECT = 0.05`),
