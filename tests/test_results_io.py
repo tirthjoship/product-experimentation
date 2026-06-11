@@ -1,6 +1,7 @@
 import json
 
 import numpy as np
+import pytest
 
 from src.report.results_io import results_to_json, write_results_json
 
@@ -35,3 +36,14 @@ def test_write_results_json_roundtrips(tmp_path):
     write_results_json(_sample_results(), path)
     parsed = json.loads(path.read_text())
     assert parsed["aov"]["p"] == 0.01
+
+
+def test_numpy_scalars_coerced_via_default():
+    payload = {"f": np.float32(1.5), "i": np.int32(7)}
+    parsed = json.loads(results_to_json(payload))
+    assert parsed == {"f": 1.5, "i": 7}
+
+
+def test_non_serializable_raises_type_error():
+    with pytest.raises(TypeError):
+        results_to_json({"bad": object()})

@@ -34,3 +34,15 @@ def test_metric_balance_raises_large_gap():
     f = _metric_frame([100.0, 100.0], [120.0, 120.0])  # 20% gap
     with pytest.raises(ImbalanceError):
         check_metric_balance(f, "order_value")
+
+
+def test_check_balance_empty_frame_raises():
+    df = pd.DataFrame({"variant": pd.Series([], dtype=str)})
+    with pytest.raises(ImbalanceError):
+        check_balance(df)
+
+
+def test_metric_balance_zero_control_mean_raises():
+    f = _metric_frame([0.0, 0.0], [10.0, 10.0])
+    with pytest.raises(ImbalanceError):
+        check_metric_balance(f, "order_value")
