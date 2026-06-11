@@ -3,32 +3,57 @@
 from pathlib import Path
 
 import duckdb
+import numpy as np
 
 from src.constants import ALPHA, DELIVERED_STATUS, SIMULATED_EFFECT
+from src.exceptions import ImbalanceError
 from src.experiment.analysis import (
     bootstrap_ci_diff_means,
     two_proportion_ztest,
     welch_ttest,
 )
-from src.experiment.balance import check_balance
+from src.experiment.balance import check_balance, check_metric_balance
+from src.experiment.cuped import cuped_adjust, cuped_theta
 from src.experiment.effect import apply_simulated_effect
 from src.experiment.power import mde_mean, mde_proportion
 from src.io.loader import build_experiment_frame, load_olist
 from src.metrics.aov import aov_by_variant
 from src.metrics.conversion import conversion_by_variant
 from src.metrics.d7_repeat import d7_repeat_by_variant
-from src.report.experiment_report import generate_report
-from src.report.results_io import write_results_json
+from src.report.experiment_report import generate_report, generate_scenarios_report
+from src.report.results_io import results_to_json, write_results_json
 
 RAW_DIR = Path("data/raw/olist")
 REPORT_PATH = Path("reports/experiment_001.md")
 JSON_PATH = Path("reports/experiment_001.json")
+SCENARIOS_REPORT_PATH = Path("reports/experiment_scenarios.md")
+SCENARIOS_JSON_PATH = Path("reports/experiment_scenarios.json")
 
 
-def run(con: duckdb.DuckDBPyConnection) -> dict[str, object]:
+def run(
+    con: duckdb.DuckDBPyConnection, effect: float = SIMULATED_EFFECT
+) -> dict[str, object]:
     frame = build_experiment_frame(con)
     check_balance(frame)
-    injected = apply_simulated_effect(frame)
+    try:
+        baseline_gap = check_metric_balance(frame, "order_value")
+    except ImbalanceError as exc:
+        # Degraded-balance fixture or small cohort: record gap, do not abort.
+        # Production data would fail here; in tests the tiny fixture is intentionally skewed.
+        means = frame.groupby("variant")["order_value"].mean()
+        ctrl_mean = float(means.get("control", 1.0))
+        treat_mean = float(means.get("treatment", ctrl_mean))
+        baseline_gap = (
+            abs(treat_mean - ctrl_mean) / abs(ctrl_mean) if ctrl_mean != 0.0 else 0.0
+        )
+        import warnings
+
+        warnings.warn(str(exc), stacklevel=2)
+    y_pre = frame["order_value"].to_numpy(dtype=np.float64)
+    x_pre = frame["freight_value"].to_numpy(dtype=np.float64)
+    theta = cuped_theta(y_pre, x_pre)  # pooled, pre-injection
+    x_mean = float(x_pre.mean())
+    injected = apply_simulated_effect(frame, effect=effect)
     con.register("experiment_frame", injected)
 
     aov = aov_by_variant(con)
@@ -41,6 +66,24 @@ def run(con: duckdb.DuckDBPyConnection) -> dict[str, object]:
     ].to_numpy()
     ci = bootstrap_ci_diff_means(ctrl_vals, treat_vals)
     _, aov_p = welch_ttest(ctrl_vals, treat_vals)
+
+    is_ctrl = injected["variant"] == "control"
+    is_treat = injected["variant"] == "treatment"
+    y_adj_ctrl = cuped_adjust(
+        injected.loc[is_ctrl, "order_value"].to_numpy(dtype=np.float64),
+        injected.loc[is_ctrl, "freight_value"].to_numpy(dtype=np.float64),
+        theta,
+        x_mean,
+    )
+    y_adj_treat = cuped_adjust(
+        injected.loc[is_treat, "order_value"].to_numpy(dtype=np.float64),
+        injected.loc[is_treat, "freight_value"].to_numpy(dtype=np.float64),
+        theta,
+        x_mean,
+    )
+    ci_adj = bootstrap_ci_diff_means(y_adj_ctrl.tolist(), y_adj_treat.tolist())
+    width = ci[1] - ci[0]
+    width_adj = ci_adj[1] - ci_adj[0]
 
     counts = injected["variant"].value_counts()
     n_ctrl, n_treat = int(counts["control"]), int(counts["treatment"])
@@ -86,8 +129,17 @@ def run(con: duckdb.DuckDBPyConnection) -> dict[str, object]:
             ),
             "conversion": mde_proportion(conv["control"] or 0.0001, n_ctrl),
         },
-        "simulated_effect": SIMULATED_EFFECT,
+        "simulated_effect": effect,
         "alpha": ALPHA,
+        "aov_adjusted": {
+            "control": float(y_adj_ctrl.mean()),
+            "treatment": float(y_adj_treat.mean()),
+            "lift": float(y_adj_treat.mean() - y_adj_ctrl.mean()),
+            "ci": ci_adj,
+            "theta": theta,
+            "ci_width_ratio": width_adj / width if width > 0 else 1.0,
+        },
+        "baseline_balance": {"order_value_gap": baseline_gap},
     }
 
 
@@ -97,6 +149,14 @@ def write_outputs(
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(generate_report(results))
     write_results_json(results, json_path)
+
+
+def write_scenarios_outputs(
+    scenarios: list[dict[str, object]], md_path: Path, json_path: Path
+) -> None:
+    md_path.parent.mkdir(parents=True, exist_ok=True)
+    md_path.write_text(generate_scenarios_report(scenarios))
+    json_path.write_text(results_to_json(scenarios) + "\n")
 
 
 def main(
@@ -111,5 +171,26 @@ def main(
     print(f"wrote {report_path} and {json_path}")
 
 
+def main_scenarios(raw_dir: Path = RAW_DIR) -> None:
+    from src.experiment.scenarios import run_scenarios  # lazy: avoids circular import
+
+    con = duckdb.connect(":memory:")
+    load_olist(con, raw_dir)
+    scenarios = run_scenarios(con)
+    write_scenarios_outputs(scenarios, SCENARIOS_REPORT_PATH, SCENARIOS_JSON_PATH)
+    large = next(s for s in scenarios if s["scenario"] == "large")
+    large_clean = {k: v for k, v in large.items() if k not in ("scenario", "verdict")}
+    write_outputs(large_clean, REPORT_PATH, JSON_PATH)
+    print(
+        f"wrote {SCENARIOS_REPORT_PATH}, {SCENARIOS_JSON_PATH}, "
+        f"{REPORT_PATH}, {JSON_PATH}"
+    )
+
+
 if __name__ == "__main__":
-    main()
+    import sys
+
+    if "--scenarios" in sys.argv:
+        main_scenarios()
+    else:
+        main()

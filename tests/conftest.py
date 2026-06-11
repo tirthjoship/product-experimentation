@@ -11,7 +11,7 @@ FIXTURES = Path(__file__).parent / "fixtures"
 def base_con():
     """In-memory DuckDB with the raw Olist base tables registered from fixtures."""
     con = duckdb.connect(":memory:")
-    for name in ["customers", "orders", "order_payments"]:
+    for name in ["customers", "orders", "order_payments", "order_items"]:
         df = pd.read_csv(FIXTURES / f"{name}.csv")
         if "timestamp" in "".join(df.columns):
             for col in df.columns:
