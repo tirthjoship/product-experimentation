@@ -13,6 +13,19 @@
 
 ---
 
+## Business framing (Plan 3): installment-expansion test
+
+The simulated change: checkout caps interest-free installments at 6x; treatment raises the cap
+to 10x. Mechanism: in Brazilian e-commerce the binding constraint is the monthly payment —
+lowering per-month cost lets customers build bigger baskets (AOV ↑, primary). Risk: more credit
+over a longer horizon → payment failures/cancellations surface as non-delivered orders
+(delivered-rate, guardrail). Customer-level hash assignment matches how a cap change would
+actually roll out (same customer always sees the same cap). Motivation stats (descriptive,
+real data): `reports/installment_motivation.md`. Decision memo:
+`reports/experiment_001_readout.md`. Rationale and rejected framings: ADR 0008.
+
+---
+
 ## Cohort
 
 Orders with `order_purchase_timestamp` in `[2017-01-01, 2018-08-31]`.
