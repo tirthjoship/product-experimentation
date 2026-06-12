@@ -63,6 +63,10 @@ def generate_did_report_md(
         "  *differential*-exposure effect, biased toward zero if controls were hit too.",
         "- Composition: order mix may shift at the boundary (purchase-week assignment).",
         "- SUTVA: marketplace-level seller congestion can couple arms.",
+        "- Delivery-cell selection: cells with zero delivered orders yield a NULL",
+        "  outcome and are dropped before estimation; a freight shock that suppresses",
+        "  delivery itself thins treated-post cells, a selection channel that can bias",
+        "  the delivery-time estimate. A volume outcome (log_orders) avoids this.",
         "",
     ]
     return "\n".join(lines)

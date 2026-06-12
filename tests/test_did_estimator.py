@@ -39,9 +39,6 @@ def test_fit_twfe_tolerates_nan_outcome_cells():
     statsmodels drops those rows; groups must align or cov_cluster raises."""
     import numpy as np
 
-    from src.did.estimator import fit_twfe
-    from tests.did_factory import make_synthetic_panel
-
     panel = make_synthetic_panel(effect=4.0, seed=7)
     panel.loc[panel.index[:5], "delivery_days"] = np.nan  # punch holes
     res = fit_twfe(panel, "delivery_days")  # must not raise

@@ -21,8 +21,18 @@ def require_go(verdict_path: Path, event_name: str) -> None:
             f"no gate verdict at {verdict_path}; post-period data stays blinded"
         )
     verdict = json.loads(verdict_path.read_text())
-    if verdict.get("event") != event_name or verdict.get("verdict") != "GO":
-        raise BlindingError(f"gate verdict is not GO for {event_name!r}: {verdict!r}")
+    conditions = verdict.get("conditions", {})
+    all_passed = bool(conditions) and all(
+        c.get("passed") is True for c in conditions.values()
+    )
+    if (
+        verdict.get("event") != event_name
+        or verdict.get("verdict") != "GO"
+        or not all_passed
+    ):
+        raise BlindingError(
+            f"gate verdict is not a genuine GO for {event_name!r}: {verdict!r}"
+        )
 
 
 def build_panel(

@@ -16,7 +16,7 @@ End-to-end **product analytics** for a classic hiring question: *Did a product c
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Phase](https://img.shields.io/badge/phase-1%20complete-brightgreen)](./reports/experiment_001.md)
-[![Tests](https://img.shields.io/badge/tests-128%20passing-brightgreen)](./tests/)
+[![Tests](https://img.shields.io/badge/tests-132%20passing-brightgreen)](./tests/)
 [![Coverage](https://img.shields.io/badge/coverage-93%25-brightgreen)](./tests/)
 [![Portfolio](https://img.shields.io/badge/portfolio-4%20of%205-purple)](../README.md)
 
