@@ -1,7 +1,8 @@
 # Product Experimentation & Growth Metrics Platform
 
 **Status:** Plans 1–3 complete on `main` (BCa inference + scenario sweep · ANCOVA covariate
-adjustment · installment narrative + PM memo) · Plan 4 (gated DiD natural experiment) spec'd ·
+adjustment · installment narrative + PM memo) · Plan 4 DiD infrastructure complete on branch
+`feat/plan4-did-natural-experiment` (Phase A–D code done; feasibility run pending) ·
 dashboard + repro CI gate on the backlog
 **Portfolio:** Project 4 of 5 · Balanced DA/DS strategy
 
@@ -15,8 +16,8 @@ End-to-end **product analytics** for a classic hiring question: *Did a product c
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Phase](https://img.shields.io/badge/phase-1%20complete-brightgreen)](./reports/experiment_001.md)
-[![Tests](https://img.shields.io/badge/tests-95%20passing-brightgreen)](./tests/)
-[![Coverage](https://img.shields.io/badge/coverage-96%25-brightgreen)](./tests/)
+[![Tests](https://img.shields.io/badge/tests-128%20passing-brightgreen)](./tests/)
+[![Coverage](https://img.shields.io/badge/coverage-93%25-brightgreen)](./tests/)
 [![Portfolio](https://img.shields.io/badge/portfolio-4%20of%205-purple)](../README.md)
 
 > **Disclaimer:** Experiments in this repo are **simulated** on historical Olist data (hashed customer assignment or documented natural experiment). This is not employer A/B test data and does not claim causal lift from a real product rollout.
