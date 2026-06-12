@@ -23,6 +23,29 @@ End-to-end **product analytics** for a classic hiring question: *Did a product c
 
 ---
 
+## 📊 Dashboard
+
+A read-only **Streamlit + Plotly** dashboard renders the committed `reports/*.json` — no
+recompute, every number traceable to a report. Two tabs: a **Story** tab (the SHIP decision
+with covariate-adjusted CIs, the installment-affordability motivation, and the Plan 4 DiD
+*honest rejection* with its pre-trends evidence) and an **Interactive** tab (a scenario
+explorer where the verdict flips across adverse / null / large injected effects).
+
+<!-- Screenshots + live URL added after first deploy:
+![Story tab — verdict, forest plot](docs/img/dashboard-story.png)
+![Interactive tab — scenario explorer](docs/img/dashboard-scenarios.png)
+[Open the live dashboard ↗](<APP_URL>)
+-->
+
+Run locally:
+
+```bash
+pip install -e ".[dashboard]"
+make dashboard        # streamlit run dashboard/app.py
+```
+
+---
+
 ## The business problem
 
 A product team ships a checkout or onboarding change. Leadership asks:
