@@ -1,0 +1,41 @@
+[
+  {
+    "sample_sizes": {"control": 100, "treatment": 98},
+    "aov": {"control": 150.0, "treatment": 143.96, "lift": -6.04, "ci": [-8.69, -3.24], "p": 0.00001},
+    "conversion": {"control": 0.97, "treatment": 0.9718, "z": 1.71, "p": 0.087, "ci": [-0.0003, 0.0039]},
+    "d7": {"control": 0.0088, "treatment": 0.0084},
+    "mde": {"aov": 3.91, "conversion": 0.003},
+    "simulated_effect": -0.05,
+    "alpha": 0.05,
+    "aov_adjusted": {"control": 151.0, "treatment": 143.44, "lift": -7.56, "ci": [-9.93, -5.19], "theta": 4.96, "ci_width_ratio": 0.869},
+    "baseline_balance": {"order_value_gap": 0.0129},
+    "scenario": "adverse",
+    "verdict": "DO NOT SHIP"
+  },
+  {
+    "sample_sizes": {"control": 100, "treatment": 98},
+    "aov": {"control": 150.0, "treatment": 152.06, "lift": 2.06, "ci": [-0.67, 4.93], "p": 0.145},
+    "conversion": {"control": 0.97, "treatment": 0.9718, "z": 1.71, "p": 0.087, "ci": [-0.0003, 0.0039]},
+    "d7": {"control": 0.0088, "treatment": 0.0084},
+    "mde": {"aov": 3.91, "conversion": 0.003},
+    "simulated_effect": 0.0,
+    "alpha": 0.05,
+    "aov_adjusted": {"control": 151.0, "treatment": 151.54, "lift": 0.54, "ci": [-1.83, 2.91], "theta": 4.96, "ci_width_ratio": 0.869},
+    "baseline_balance": {"order_value_gap": 0.0129},
+    "scenario": "null",
+    "verdict": "NEED MORE DATA"
+  },
+  {
+    "sample_sizes": {"control": 100, "treatment": 98},
+    "aov": {"control": 150.0, "treatment": 160.15, "lift": 10.15, "ci": [7.36, 13.11], "p": 0.001},
+    "conversion": {"control": 0.97, "treatment": 0.9718, "z": 1.71, "p": 0.087, "ci": [-0.0003, 0.0039]},
+    "d7": {"control": 0.0088, "treatment": 0.0084},
+    "mde": {"aov": 3.91, "conversion": 0.003},
+    "simulated_effect": 0.05,
+    "alpha": 0.05,
+    "aov_adjusted": {"control": 151.0, "treatment": 159.63, "lift": 8.63, "ci": [6.15, 11.15], "theta": 4.96, "ci_width_ratio": 0.868},
+    "baseline_balance": {"order_value_gap": 0.0129},
+    "scenario": "large",
+    "verdict": "SHIP"
+  }
+]
