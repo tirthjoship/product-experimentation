@@ -144,3 +144,151 @@ def load_experiment(
     path: Path = REPORTS_DIR / "experiment_001.json",
 ) -> ExperimentResult:
     return _parse_experiment(_read_json(path), path)
+
+
+@dataclass(frozen=True)
+class ScenarioResult:
+    """One scenario from the sweep. Verdict is READ from JSON, never recomputed."""
+
+    scenario: str
+    verdict: str
+    result: ExperimentResult
+
+
+def load_scenarios(
+    path: Path = REPORTS_DIR / "experiment_scenarios.json",
+) -> list[ScenarioResult]:
+    raw = _read_json(path)
+    if not isinstance(raw, list):
+        raise ReportSchemaError(path, "<root>", "expected a list of scenarios")
+    return [
+        ScenarioResult(
+            scenario=str(_get(item, "scenario", path)),
+            verdict=str(_get(item, "verdict", path)),
+            result=_parse_experiment(item, path),
+        )
+        for item in raw
+    ]
+
+
+@dataclass(frozen=True)
+class Bucket:
+    bucket: str
+    n_orders: int
+    aov: float
+
+
+@dataclass(frozen=True)
+class MotivationStats:
+    cohort_start: str
+    cohort_end: str
+    n_orders: int
+    buckets: tuple[Bucket, ...]
+    share_multi_installment: float
+    credit_card_value_share: float
+
+
+def load_motivation(
+    path: Path = REPORTS_DIR / "installment_motivation.json",
+) -> MotivationStats:
+    raw = _read_json(path)
+    window = _get(raw, "cohort_window", path)
+    buckets = tuple(
+        Bucket(
+            bucket=str(_get(b, "bucket", path)),
+            n_orders=int(_get(b, "n_orders", path)),
+            aov=float(_get(b, "aov", path)),
+        )
+        for b in _get(raw, "buckets", path)
+    )
+    return MotivationStats(
+        cohort_start=str(window[0]),
+        cohort_end=str(window[1]),
+        n_orders=int(_get(raw, "n_orders", path)),
+        buckets=buckets,
+        share_multi_installment=float(
+            _get(raw, "share_multi_installment_orders", path)
+        ),
+        credit_card_value_share=float(_get(raw, "credit_card_value_share", path)),
+    )
+
+
+@dataclass(frozen=True)
+class PreTrends:
+    passed: bool
+    wald_p: float
+    max_lead_abs: float
+    band: float
+    n_leads: int
+    min_detectable_lead: float
+    leads: dict[int, float]
+
+
+@dataclass(frozen=True)
+class AdequateN:
+    passed: bool
+    treated_orders: int
+    control_orders: int
+    week_cell_share_ge_20: float
+    treated_states: int
+    control_states: int
+    n_week_cells: int
+
+
+@dataclass(frozen=True)
+class DidFeasibility:
+    event: str
+    outcome: str
+    verdict: str
+    dated_boundary_passed: bool
+    boundary_date: str
+    exogenous_passed: bool
+    treated_state_codes: tuple[str, ...]
+    control_state_codes: tuple[str, ...]
+    excluded_state_codes: tuple[str, ...]
+    pretrends: PreTrends
+    adequate_n: AdequateN
+
+
+def load_did(path: Path = REPORTS_DIR / "did_feasibility.json") -> DidFeasibility:
+    raw = _read_json(path)
+    # did_feasibility.json is a TOP-LEVEL LIST (one event today).
+    if not isinstance(raw, list) or not raw:
+        raise ReportSchemaError(path, "<root>", "expected a non-empty list of events")
+    event = raw[0]
+    conditions = _get(event, "conditions", path)
+    boundary = _get(conditions, "dated_boundary", path)
+    exog = _get(conditions, "exogenous_assignment", path)
+    pre = _get(conditions, "parallel_pretrends", path)
+    n = _get(conditions, "adequate_n", path)
+    # leads arrive keyed by STRING negatives ("-5".."-2") — parse to int.
+    leads = {int(k): float(v) for k, v in _get(pre, "leads", path).items()}
+    return DidFeasibility(
+        event=str(_get(event, "event", path)),
+        outcome=str(_get(event, "outcome", path)),
+        verdict=str(_get(event, "verdict", path)),
+        dated_boundary_passed=bool(_get(boundary, "passed", path)),
+        boundary_date=str(_get(boundary, "boundary_date", path)),
+        exogenous_passed=bool(_get(exog, "passed", path)),
+        treated_state_codes=tuple(_get(exog, "treated_states", path)),
+        control_state_codes=tuple(_get(exog, "control_states", path)),
+        excluded_state_codes=tuple(_get(exog, "excluded_states", path)),
+        pretrends=PreTrends(
+            passed=bool(_get(pre, "passed", path)),
+            wald_p=float(_get(pre, "wald_p", path)),
+            max_lead_abs=float(_get(pre, "max_lead_abs", path)),
+            band=float(_get(pre, "band", path)),
+            n_leads=int(_get(pre, "n_leads", path)),
+            min_detectable_lead=float(_get(pre, "min_detectable_lead", path)),
+            leads=leads,
+        ),
+        adequate_n=AdequateN(
+            passed=bool(_get(n, "passed", path)),
+            treated_orders=int(_get(n, "treated_orders", path)),
+            control_orders=int(_get(n, "control_orders", path)),
+            week_cell_share_ge_20=float(_get(n, "week_cell_share_ge_20", path)),
+            treated_states=int(_get(n, "treated_states", path)),
+            control_states=int(_get(n, "control_states", path)),
+            n_week_cells=int(_get(n, "n_week_cells", path)),
+        ),
+    )
