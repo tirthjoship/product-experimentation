@@ -98,6 +98,34 @@ def test_sample_sizes_rendered():
     assert "49575" in md and "49866" in md
 
 
+def test_report_mentions_installment_framing():
+    # use the same results dict as test_report_includes_adjusted_row
+    md = generate_report(RESULTS)
+    assert "installment-expansion test" in md
+    assert "experiment_001_readout.md" in md
+
+
+def test_scenarios_report_mentions_installment_framing():
+    # use the same scenarios list as test_scenarios_report_has_adjusted_columns
+    scenarios = [
+        {
+            "scenario": "large",
+            "simulated_effect": 0.05,
+            "aov": {
+                "control": 100.0,
+                "treatment": 105.0,
+                "lift": 5.0,
+                "ci": (3.0, 7.0),
+                "p": 0.001,
+            },
+            "aov_adjusted": AOV_ADJUSTED,
+            "verdict": "SHIP",
+        },
+    ]
+    md = generate_scenarios_report(scenarios)
+    assert "installment-expansion test" in md
+
+
 def test_scenarios_report_lists_all_verdicts():
     scenarios = [
         {
