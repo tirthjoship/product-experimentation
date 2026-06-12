@@ -14,7 +14,7 @@ def render(stats: MotivationStats) -> None:
         "Credit-card share of payment value", f"{stats.credit_card_value_share:.1%}"
     )
     c3.metric("Cohort orders", f"{stats.n_orders:,}")
-    st.plotly_chart(charts.bucket_bar(stats), use_container_width=True)
+    st.plotly_chart(charts.bucket_bar(stats), width="stretch")
     st.caption(
         "Descriptive, not causal: the gradient shows the affordability mechanism exists. "
         "Estimating what the cap change *causes* is the experiment's job."

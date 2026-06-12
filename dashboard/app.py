@@ -36,8 +36,11 @@ def _render(name: str, fn: Callable[[], None]) -> None:
     try:
         fn()
     except FileNotFoundError as exc:
-        st.error(f"Section '{name}': {exc} — regenerate with the matching make target.")
-    except data.ReportSchemaError as exc:
+        st.error(
+            f"Section '{name}': {exc} — regenerate the report "
+            "(`make experiment` / `scenarios` / `motivation` / `did-feasibility`)."
+        )
+    except (data.ReportSchemaError, ValueError) as exc:
         st.error(f"Section '{name}': schema error — {exc}")
 
 

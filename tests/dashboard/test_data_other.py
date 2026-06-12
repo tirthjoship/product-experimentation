@@ -4,9 +4,28 @@ from pathlib import Path
 
 import pytest
 
-from dashboard.data import load_did, load_motivation, load_scenarios
+from dashboard.data import (
+    ReportSchemaError,
+    load_did,
+    load_motivation,
+    load_scenarios,
+)
 
 FIXTURES = Path(__file__).parent / "fixtures"
+
+
+def test_load_scenarios_rejects_non_list_root(tmp_path: Path) -> None:
+    bad = tmp_path / "bad.json"
+    bad.write_text('{"scenario": "large"}')  # object, not the expected list
+    with pytest.raises(ReportSchemaError, match="list of scenarios"):
+        load_scenarios(bad)
+
+
+def test_load_did_rejects_empty_list_root(tmp_path: Path) -> None:
+    bad = tmp_path / "bad.json"
+    bad.write_text("[]")  # empty list — no event to read
+    with pytest.raises(ReportSchemaError, match="non-empty list"):
+        load_did(bad)
 
 
 def test_load_scenarios_reads_verdicts_verbatim() -> None:

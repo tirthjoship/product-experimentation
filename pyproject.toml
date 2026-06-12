@@ -27,7 +27,7 @@ dev = [
     "hypothesis>=6.100",
 ]
 dashboard = [
-    "streamlit>=1.40.0",
+    "streamlit>=1.52.0",
     "plotly>=5.24.0",
 ]
 

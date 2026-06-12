@@ -35,7 +35,7 @@ def render(scenarios: list[ScenarioResult]) -> None:
     )
     st.plotly_chart(
         charts.forest(s.result, title=f"AOV lift — scenario: {chosen}"),
-        use_container_width=True,
+        width="stretch",
     )
     raw, adj = s.result.aov.lift, s.result.aov_adjusted.lift
     st.markdown(
