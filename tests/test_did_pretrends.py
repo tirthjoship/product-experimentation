@@ -29,3 +29,15 @@ def test_pretrends_uses_pre_period_only():
     pt_b = pretrends_check(b, "delivery_days", "2018-05-21")
     assert pt_a.wald_p == pytest.approx(pt_b.wald_p)
     assert pt_a.leads == pt_b.leads
+
+
+def test_pretrends_tolerates_nan_outcome_cells():
+    import numpy as np
+
+    from src.did.estimator import pretrends_check
+    from tests.did_factory import make_synthetic_panel
+
+    panel = make_synthetic_panel(effect=4.0, seed=7)
+    panel.loc[panel.index[:5], "delivery_days"] = np.nan
+    pt = pretrends_check(panel, "delivery_days", "2018-05-21")  # must not raise
+    assert pt.wald_p == pt.wald_p

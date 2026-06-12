@@ -20,6 +20,7 @@ class DidResult:
 
 def fit_twfe(panel: pd.DataFrame, outcome: str) -> DidResult:
     d = panel.copy()
+    d = d[d[outcome].notna()].reset_index(drop=True)
     d["treated_post"] = (d["treated"] & d["post"]).astype(int)
     d["week_id"] = d["week"].astype(str)
     res = smf.ols(
@@ -55,6 +56,7 @@ def pretrends_check(
     panel: pd.DataFrame, outcome: str, boundary_date: str
 ) -> PreTrendsResult:
     pre = panel[~panel["post"]].copy()
+    pre = pre[pre[outcome].notna()].reset_index(drop=True)
     days = (pre["week"] - pd.Timestamp(boundary_date)).dt.days
     pre["rel_bin"] = (days // LEAD_BIN_DAYS).astype(int)  # -1 = 4 weeks before boundary
     lead_bins = sorted(int(b) for b in pre["rel_bin"].unique() if b <= -2)
