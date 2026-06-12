@@ -1,16 +1,16 @@
-.PHONY: test test-cov lint typecheck setup check experiment scenarios motivation did-feasibility did-gate did
+.PHONY: test test-cov lint typecheck setup check experiment scenarios motivation did-feasibility did-gate did dashboard dashboard-smoke
 
 test:
 	pytest tests/ -v --tb=short
 
 test-cov:
-	pytest tests/ -v --cov=src --cov-fail-under=90 --tb=short
+	pytest tests/ -v --cov=src --cov=dashboard --cov-fail-under=90 --tb=short
 
 lint:
 	pre-commit run --all-files
 
 typecheck:
-	mypy src/ scripts/ --strict
+	mypy src/ scripts/ dashboard/ --strict
 
 setup:
 	pip install -e ".[dev]"
@@ -35,3 +35,9 @@ did-gate:
 
 did:
 	python -m src.did.run_did --stage estimate
+
+dashboard:
+	.venv/bin/python -m streamlit run dashboard/app.py
+
+dashboard-smoke:
+	.venv/bin/python scripts/dashboard_smoke.py
