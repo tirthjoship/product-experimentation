@@ -106,6 +106,11 @@ Olist has **no native A/B column**. v1 approach:
 
 **Preferred for portfolio honesty:** Use a **natural experiment** if EDA finds one (e.g. payment type rollout by state) OR compare **two time periods** with diff-in-diff assumptions documented.
 
+**Plan 4 outcome (executed):** This path was pursued as a gated DiD in Plan 4. The truckers'-strike
+candidate (2018) failed the pre-registered gate on Olist sparsity (45.0% week-cell density vs 80%
+threshold) and diverging pre-trends (Wald p=0.018). No estimate was computed; rejection is the
+deliverable. See [ADR 0009](docs/adr/0009-gated-did-natural-experiment.md).
+
 If pure hash assignment with no treatment effect: experiment shows **null result** — still valuable if power analysis and CIs are correct.
 
 **Deliverable:** `reports/experiment_001.md` auto-generated with:
