@@ -2,6 +2,7 @@
 
 > **Simulated experiment.** Olist has no native A/B test. Variants are assigned by hashed `customer_unique_id` (seed 42) on historical data, and the treatment effect is a synthetic `SIMULATED_EFFECT` injected for methodology demonstration. Not a real lift.
 
+Framing: installment-expansion test (6x → 10x interest-free cap) — full decision memo in `reports/experiment_001_readout.md`.
 Injected `SIMULATED_EFFECT` = 0.05
 
 ## Sample sizes

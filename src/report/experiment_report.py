@@ -31,6 +31,8 @@ def generate_report(results: dict[str, Any]) -> str:
         "",
         DISCLAIMER,
         "",
+        "Framing: installment-expansion test (6x → 10x interest-free cap) — full decision "
+        "memo in `reports/experiment_001_readout.md`.",
         f"Injected `SIMULATED_EFFECT` = {results['simulated_effect']}",
         "",
         "## Sample sizes",
@@ -77,6 +79,7 @@ def generate_scenarios_report(scenarios: list[dict[str, Any]]) -> str:
         "Each row injects a different `SIMULATED_EFFECT` and reports the verdict the "
         "covariate-adjusted AOV 95% bootstrap CI produces. The rule yields SHIP / DO NOT SHIP / "
         "NEED MORE DATA — not just SHIP — which is the point: the pipeline handles the hard cases.",
+        "Framing: installment-expansion test (6x → 10x interest-free cap).",
         "",
         "| Scenario | Injected effect | Lift | 95% CI | Adj. lift | Adj. 95% CI | Verdict |",
         "|---|---|---|---|---|---|---|",
