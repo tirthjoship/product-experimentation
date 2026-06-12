@@ -1,7 +1,8 @@
 # Product Experimentation & Growth Metrics Platform
 
-**Status:** Phase 1 complete (metrics + simulated experiment) · Phase F foundation complete
-(committed result JSON + join-consistent data sample) · Phase 2 (dashboard) next
+**Status:** Plans 1–3 complete on `main` · Plan 4 DiD implemented on branch
+`feat/plan4-did-natural-experiment` — feasibility ran, truckers'-strike candidate FAILED the
+pre-registered gate → documented rejection (ADR 0009) · dashboard + repro CI gate on the backlog
 **Portfolio:** Project 4 of 5 · Balanced DA/DS strategy
 
 > **Simulated RCT on historical Olist cohorts.** Variants are assigned by hashed
@@ -14,8 +15,8 @@ End-to-end **product analytics** for a classic hiring question: *Did a product c
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Phase](https://img.shields.io/badge/phase-1%20complete-brightgreen)](./reports/experiment_001.md)
-[![Tests](https://img.shields.io/badge/tests-95%20passing-brightgreen)](./tests/)
-[![Coverage](https://img.shields.io/badge/coverage-96%25-brightgreen)](./tests/)
+[![Tests](https://img.shields.io/badge/tests-132%20passing-brightgreen)](./tests/)
+[![Coverage](https://img.shields.io/badge/coverage-93%25-brightgreen)](./tests/)
 [![Portfolio](https://img.shields.io/badge/portfolio-4%20of%205-purple)](../README.md)
 
 > **Disclaimer:** Experiments in this repo are **simulated** on historical Olist data (hashed customer assignment or documented natural experiment). This is not employer A/B test data and does not claim causal lift from a real product rollout.
@@ -50,19 +51,25 @@ verdict, guardrail readout, caveats, rollout + monitoring plan.
 
 | Metric | Control | Treatment | Lift | 95% CI | p | Verdict |
 |--------|---------|-----------|------|--------|---|---------|
-| **AOV** (primary) | 159.88 | 170.03 | **+10.15** | (7.35, 13.00) | <0.0001 | CI excludes 0 → **SHIP** |
+| **AOV, ANCOVA-adjusted** (decision object) | 160.64 | 169.27 | **+8.63** | (6.15, 11.15) | — | CI excludes 0 → **SHIP** |
+| AOV, raw (audit) | 159.88 | 170.03 | +10.15 | (7.36, 13.11) | <0.0001 | reported alongside |
 | **Conversion** (guardrail) | 0.9700 | 0.9718 | +0.0018 | (−0.0003, 0.0039) | 0.087 | CI spans 0 → no harm |
 | **D7 repeat** (exploratory) | 0.0088 | 0.0084 | — | — | — | descriptive only |
 
-**Recommendation: SHIP** — the AOV 95% bootstrap CI lies entirely above zero, while the
-conversion guardrail shows no significant movement (the synthetic effect was injected on
-`order_value` only, so the guardrail *should* stay flat — and it does, validating no leakage).
+**Recommendation: SHIP** — the **adjusted** AOV 95% CI lies entirely above zero (since Plan 2 /
+[ADR 0007](docs/adr/0007-covariate-adjustment-not-cuped.md), verdicts are decided on the
+ANCOVA-adjusted CI; raw numbers are always reported for audit). The conversion guardrail shows
+no significant movement (the synthetic effect was injected on `order_value` only, so the
+guardrail *should* stay flat — and it does, validating no leakage).
 
 **Reading the numbers (the narrative that matters in interviews):**
 
-1. **Why is observed lift +6.35% when the injected effect is 5%?** Random hash assignment left
-   the treatment arm with a slightly higher pre-effect baseline (~161.9 vs 159.9). The ×1.05
-   multiplier adds ~8.1; the ~2.0 baseline gap is sampling noise. Decompose before you trust a lift.
+1. **Why is raw lift +10.15 when the injected effect should add ~8.1?** Random hash assignment
+   left the treatment arm with a slightly higher pre-effect baseline (~161.9 vs 159.9). The ×1.05
+   multiplier adds ~8.1; the ~2.0 baseline gap is sampling noise. The ANCOVA adjustment (Plan 2)
+   pulls that imbalance back out: adjusted lift **+8.63** lands near the known truth — the
+   adjustment demonstrably corrects the bias, which is the whole point of having injected a
+   known effect. Decompose before you trust a lift.
 2. **The guardrail is the integrity check.** Effect touches only `order_value`; `order_status`
    is untouched, so conversion staying flat (p=0.087) is *expected* and confirms the pipeline
    doesn't leak the treatment signal into other metrics.
@@ -76,6 +83,40 @@ conversion guardrail shows no significant movement (the synthetic effect was inj
    pinning frame order (`ORDER BY order_id`); the CI `(7.35, 13.00)` is now byte-stable across
    runs and guarded by a determinism test. A committed `reports/experiment_001.json` snapshot
    makes the result a regression-testable contract — not a number you have to trust.
+
+---
+
+## The project story — problem → triage → decision
+
+Every pivot in this project came from a problem the data or the pipeline surfaced. The trail
+is the portfolio artifact: each problem was triaged, a decision was recorded (ADR), and the
+pipeline moved on.
+
+```mermaid
+flowchart TD
+    P0["Phase 0 — EDA gate<br/>(GO with caveats)"]
+    P0 -->|"97% one-time customers"| C1["D7 repeat demoted to exploratory<br/>(later: kills CUPED too)"]
+    P0 -->|"AOV right-skewed<br/>median 105 vs mean 161"| C2["bootstrap CI chosen<br/>over bare t-test — ADR 0006"]
+    P0 -->|"boundary months near-empty<br/>(2016-12 has 1 order)"| C3["cohort window trimmed"]
+    P0 --> P1["Phase 1 + F — metrics, simulated RCT,<br/>committed JSON snapshot"]
+    P1 -->|"bootstrap CI wandered<br/>between runs"| C4["root cause: SQL had no ORDER BY →<br/>positional resampling differed.<br/>Fix: pin frame order + determinism test"]
+    P1 --> PL1["Plan 1 — BCa bootstrap +<br/>3-verdict scenario sweep"]
+    PL1 -->|"null (A/A) run exposed<br/>+2.06 BRL baseline imbalance"| PL2["Plan 2 — variance reduction.<br/>CUPED infeasible (no repeat customers) →<br/>ANCOVA on freight_value — ADR 0007"]
+    PL2 -->|"statistically credible,<br/>but no product story"| PL3["Plan 3 — installment-expansion framing<br/>(free-shipping rejected: domain collision) — ADR 0008.<br/>PM memo + CI-enforced number integrity"]
+    PL3 --> PL4["Plan 4 — gated DiD natural experiment<br/>implemented; feasibility FAILED the gate →<br/>honest rejection (ADR 0009)"]
+```
+
+| Problem found | How it was triaged | Decision + artifact |
+|---|---|---|
+| Olist has no A/B column | simulate RCT with **known injected truth** → pipeline must recover it | [ADR 0004](docs/adr/0004-simulated-rct-with-injected-effect.md), labels everywhere |
+| 97% one-time customers | D7 repeat can't be primary; CUPED has no pre-period | D7 → exploratory; ANCOVA over CUPED ([ADR 0007](docs/adr/0007-covariate-adjustment-not-cuped.md)) |
+| AOV heavy right skew | mean-CLT fine at 49k/arm, but bootstrap added as robustness evidence | BCa + Welch reported together ([ADR 0006](docs/adr/0006-bootstrap-welch-ztest-inference.md)) |
+| CI not reproducible across runs | traced to unordered SQL → positional bootstrap | `ORDER BY` pinned, determinism test, committed JSON contract |
+| +2.06 BRL baseline arm imbalance | caught by the **null/A-A scenario** (zero effect → only noise visible) | ANCOVA adjustment; verdicts moved to adjusted CI |
+| `ci_width_ratio` 0.868 "missed" ≤0.85 target | re-derived: width shrinks by √(1−r²) ≈ 0.875 at r = 0.484 — the **target was a unit error** (variance vs width), not a miss | ADR 0007 amended; honest correction beats fake apology |
+| Generic "simulated lift" had no PM story | framing workshop; free-shipping collided with sibling repo's freight domain | installment-expansion test ([ADR 0008](docs/adr/0008-installment-framing-over-free-shipping.md)) |
+| Prose numbers go stale when pipelines re-run | memo numbers must match committed JSON, enforced in CI | `tests/test_readout_integrity.py` — and this README table was itself caught stale (CI upper 13.00 vs committed 13.11) and fixed |
+| Olist has no real intervention for causal work | gated DiD: pre-register, run outcome-blind feasibility, reject if assumptions fail | truckers'-strike DiD FAILS gate (sparse North/NE: 45% week-cells <20 orders; pre-trends diverge wald_p=0.018) → documented rejection ([ADR 0009](docs/adr/0009-gated-did-natural-experiment.md)) |
 
 ---
 
@@ -173,7 +214,69 @@ Olist has **no native A/B column**. The locked v1 approach:
 constants and every report banner. Natural-experiment and pure-null variants are documented as
 future options in [`docs/FUTURE_ENHANCEMENTS.md`](./docs/FUTURE_ENHANCEMENTS.md).
 
+### Statistical flow (where each safeguard sits)
+
+```mermaid
+flowchart LR
+    COHORT["Olist cohort<br/>99,092 delivered-eligible orders"] --> HASH["hash(customer_unique_id, seed 42)<br/>→ control / treatment"]
+    COHORT --> THETA["θ = Cov(Y, X) / Var(X)<br/>estimated PRE-injection<br/>(treatment can't leak into it)"]
+    HASH --> INJ["inject ×1.05 on order_value<br/>treatment arm only<br/>(labeled SIMULATED_EFFECT)"]
+    INJ --> MET["metrics<br/>AOV · conversion · D7"]
+    MET --> ADJ["ANCOVA<br/>Y_adj = Y − θ·(X − X̄)<br/>X = freight_value"]
+    THETA --> ADJ
+    ADJ --> INF["inference<br/>BCa bootstrap CI (seed 42)<br/>+ Welch t / 2-prop z"]
+    INF --> GATE{"adjusted CI excludes 0<br/>AND guardrails flat?"}
+    GATE -->|yes| SHIP["SHIP<br/>PM memo + committed JSON"]
+    GATE -->|no| HOLD["HOLD / MORE DATA<br/>(equally valid exits)"]
+```
+
+Why each box matters: **θ pre-injection** keeps the treatment effect out of the adjustment
+(same leakage principle as Plan 4's blinding); **seed 42 everywhere** makes every number
+byte-reproducible; the **null scenario** re-runs this whole graph with no injection as a
+permanent A/A regression test; **guardrails** stop a pretty primary metric from shipping a
+worse business (delivered-rate is load-bearing under the installment framing — easier credit
+can lift baskets while rotting delivery).
+
 See [`CONTEXT.md`](./CONTEXT.md) §6 and [`docs/EXPERIMENT_DESIGN.md`](./docs/EXPERIMENT_DESIGN.md).
+
+---
+
+## Plan 4 — gated DiD natural experiment (implemented → honest rejection)
+
+The simulated RCT proves pipeline mechanics against known truth. Plan 4 attempted the harder,
+observational skill: a difference-in-differences estimate of a real calendar shock (the
+2018 Brazilian truckers' strike), with a **pre-registered gate** so a causal claim can't be
+manufactured — rejection is an equally shippable result.
+
+The full pipeline was built (Phases A–D): event catalog, blinded panel builder, TWFE estimator,
+pre-trends checker, and gate report writers. Phase B feasibility then ran on the real Olist data.
+The truckers'-strike candidate **FAILED the pre-registered gate on two conditions:**
+
+1. **Adequate n (FAIL):** Only 45.0% of week × state cells in the treated North/Northeast had
+   ≥20 orders (threshold: 80%). Treated pre-period: 3,604 orders across 16 states; control: 27,884
+   orders across 7 states — the geography is too sparse to support a credible DiD.
+2. **Parallel pre-trends (FAIL):** Wald test p = 0.018 (threshold: >0.10); max lead coefficient
+   absolute value 3.40 exceeds the magnitude band of 1.93 — pre-period trends diverge before the
+   strike, violating the core DiD assumption.
+
+Per protocol, **no post-period estimate was computed.** The rejection itself is the deliverable:
+it demonstrates the judgment to walk away from a technically runnable but statistically invalid
+analysis. A future GO candidate would need denser geography (or a log_orders volume outcome that
+smooths sparsity) and a pre-registration lock commit before any data query.
+
+```mermaid
+flowchart TD
+    A["Phase A — event catalog<br/>public record ONLY, zero data access:<br/>hypothesis + outcome + donut state-lists per candidate"]
+    A --> B["Phase B — feasibility EDA<br/>pre-period cell counts only (outcome-blind)"]
+    B --> C["Phase C — pre-registration lock<br/>one commit: event, outcome, arms, thresholds"]
+    C --> D{"Phase D — gate (all 4):<br/>1 dated boundary · 2 geographic arms ·<br/>3 parallel pre-trends (Wald + magnitude band) ·<br/>4 adequate n"}
+    D -->|GO| E1["TWFE DiD + cluster SE<br/>reports/experiment_002_did.md"]
+    D -->|"FAIL ← real outcome"| E2["documented rejection<br/>reports/natural_experiment_feasibility.md<br/>(deliberate judgment artifact — ADR 0009)"]
+    D -.->|"verdict JSON is the key that<br/>unlocks post-period data in code"| E1
+```
+
+Full decision record: [ADR 0009](docs/adr/0009-gated-did-natural-experiment.md).
+Spec: [`docs/superpowers/specs/2026-06-11-plan4-did-natural-experiment-design.md`](docs/superpowers/specs/2026-06-11-plan4-did-natural-experiment-design.md).
 
 ---
 
@@ -222,6 +325,20 @@ Implementation was gated on EDA. The gate returned **GO**; full `src/` then buil
 - DuckDB conversion query matches pandas
 
 **Pass criteria:** ≥50k valid orders · conversion computable without >5% ambiguous status · metric SQL reproducible.
+
+### What EDA actually found (and what each finding changed)
+
+| Finding | Number | Design consequence |
+|---|---|---|
+| Repeat purchase is near-absent | 0.214% of persons reorder within 7 days | D7 → exploratory only; **CUPED impossible later** (no per-customer pre-period) — chain reaction into ADR 0007 |
+| AOV is heavily right-skewed | median 105.29 vs mean 160.99, max 13,664 | bootstrap CI preferred; BCa added in Plan 1 for skew correction |
+| Boundary months unusable | 2016-09 has 4 orders; 2016-12 has 1 | cohort window trimmed; same trim logic carries into Plan 4's panel window |
+| Joins are clean | max orphan group 0.78% | GO — multi-table SQL story is credible |
+| Status ambiguity low | 2.98% non-delivered | conversion metric computable as guardrail |
+
+The gate verdict was **GO with design caveats** — and every caveat above became a real
+constraint in a later plan. Full investigation narrative:
+[`reports/eda_gate.md`](./reports/eda_gate.md) ("How we got to GO").
 
 Full checklist: [`../PORTFOLIO_EDA_SPRINT.md`](../PORTFOLIO_EDA_SPRINT.md)
 

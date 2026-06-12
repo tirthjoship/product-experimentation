@@ -15,3 +15,11 @@ class MissingColumnError(ExperimentError):
 
 class ImbalanceError(ExperimentError):
     """Variant sizes differ beyond the configured tolerance."""
+
+
+class UnknownEventError(ExperimentError):
+    """Requested event name is not in the Plan 4 catalog."""
+
+
+class BlindingError(ExperimentError):
+    """Post-period data requested without a committed GO gate verdict."""
