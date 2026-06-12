@@ -22,7 +22,7 @@ def render(did: DidFeasibility) -> None:
     c2.metric("Exogenous assignment", _CHECK[did.exogenous_passed])
     c3.metric("Parallel pre-trends", _CHECK[did.pretrends.passed])
     c4.metric("Adequate n", _CHECK[did.adequate_n.passed])
-    st.plotly_chart(charts.coef_plot(did.pretrends), use_container_width=True)
+    st.plotly_chart(charts.coef_plot(did.pretrends), width="stretch")
     n = did.adequate_n
     st.markdown(
         f"Density also failed: {n.week_cell_share_ge_20:.1%} of week-cells had ≥20 orders "

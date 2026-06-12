@@ -8,7 +8,7 @@ from dashboard.data import ExperimentResult
 
 def render(exp: ExperimentResult) -> None:
     st.markdown('<p class="section-label">03 / Results</p>', unsafe_allow_html=True)
-    st.plotly_chart(charts.forest(exp), use_container_width=True)
+    st.plotly_chart(charts.forest(exp), width="stretch")
     st.markdown(
         "Two rows on purpose: random assignment put slightly higher-value customers in "
         f"treatment (baseline gap {exp.balance_gap:.1%}). The adjusted row is the "
