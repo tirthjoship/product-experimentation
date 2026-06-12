@@ -1,0 +1,34 @@
+[
+  {
+    "event": "truckers_strike_2018",
+    "outcome": "delivery_days",
+    "verdict": "FAIL",
+    "conditions": {
+      "dated_boundary": {"passed": true, "boundary_date": "2018-05-21"},
+      "exogenous_assignment": {
+        "passed": true,
+        "treated_states": ["AM", "BA", "CE"],
+        "control_states": ["SP", "RJ"],
+        "excluded_states": ["DF"]
+      },
+      "parallel_pretrends": {
+        "passed": false,
+        "wald_p": 0.018,
+        "max_lead_abs": 3.4,
+        "band": 1.93,
+        "n_leads": 4,
+        "min_detectable_lead": 3.85,
+        "leads": {"-5": -2.48, "-4": -1.32, "-3": -0.83, "-2": 3.4}
+      },
+      "adequate_n": {
+        "passed": false,
+        "treated_orders": 3604,
+        "control_orders": 27884,
+        "week_cell_share_ge_20": 0.45,
+        "treated_states": 16,
+        "control_states": 7,
+        "n_week_cells": 431
+      }
+    }
+  }
+]
