@@ -14,8 +14,8 @@ End-to-end **product analytics** for a classic hiring question: *Did a product c
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Phase](https://img.shields.io/badge/phase-1%20complete-brightgreen)](./reports/experiment_001.md)
-[![Tests](https://img.shields.io/badge/tests-82%20passing-brightgreen)](./tests/)
-[![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)](./tests/)
+[![Tests](https://img.shields.io/badge/tests-95%20passing-brightgreen)](./tests/)
+[![Coverage](https://img.shields.io/badge/coverage-96%25-brightgreen)](./tests/)
 [![Portfolio](https://img.shields.io/badge/portfolio-4%20of%205-purple)](../README.md)
 
 > **Disclaimer:** Experiments in this repo are **simulated** on historical Olist data (hashed customer assignment or documented natural experiment). This is not employer A/B test data and does not claim causal lift from a real product rollout.
@@ -36,6 +36,12 @@ Most ML portfolio projects prove modeling depth. This one proves **metric defini
 ---
 
 ## Results — Experiment 001 (simulated)
+
+**Framing:** installment-expansion test — would raising the interest-free installment cap
+(6x → 10x) grow basket sizes? Motivated by real Olist payment behavior
+([motivation stats](reports/installment_motivation.md)); effect itself is simulated and labeled.
+**→ Read the [PM decision memo](reports/experiment_001_readout.md)** — the headline artifact:
+verdict, guardrail readout, caveats, rollout + monitoring plan.
 
 > Full report: [`reports/experiment_001.md`](./reports/experiment_001.md). Numbers below are
 > emitted by `make experiment` on the real Olist cohort (99,092 delivered-eligible orders);
@@ -288,7 +294,7 @@ make experiment
 > Defined funnel metrics (conversion, AOV, D7-repeat) in versioned SQL over ~99k Olist
 > e-commerce orders; ran a simulated A/B test with hashed person-level assignment, 95% bootstrap
 > CIs, Welch/two-proportion tests, and MDE power analysis; auto-generated a ship/no-ship report
-> with a guardrail-validated, no-leakage pipeline (82 tests, 95% coverage, mypy strict).
+> with a guardrail-validated, no-leakage pipeline (95 tests, 96% coverage, mypy strict).
 
 ---
 

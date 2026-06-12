@@ -36,6 +36,9 @@ It complements ML-heavy repos (supply chain, stock, healthcare) without duplicat
 | **Architecture** | Clean `src/` layout with thin domain layer — **not full hexagonal v1** (YAGNI) |
 | **Honesty banner** | README must state experiment is simulated on historical data |
 
+- **Business framing (Plan 3):** installment-expansion test (6x→10x interest-free cap).
+  Free-shipping framing rejected for portfolio separation from supply-chain-ml (ADR 0008).
+
 ---
 
 ## 3. Why Olist (and why not DataCo)

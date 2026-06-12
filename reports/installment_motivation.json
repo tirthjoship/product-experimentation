@@ -1,0 +1,31 @@
+{
+  "cohort_window": [
+    "2017-01-01",
+    "2018-09-01"
+  ],
+  "n_orders": 99092,
+  "buckets": [
+    {
+      "bucket": "1",
+      "n_orders": 48122,
+      "aov": 120.976147
+    },
+    {
+      "bucket": "2-3",
+      "n_orders": 22717,
+      "aov": 136.110219
+    },
+    {
+      "bucket": "4-6",
+      "n_orders": 16141,
+      "aov": 182.686932
+    },
+    {
+      "bucket": "7+",
+      "n_orders": 12112,
+      "aov": 337.029458
+    }
+  ],
+  "share_multi_installment_orders": 0.5143704839946717,
+  "credit_card_value_share": 0.7835640462008666
+}
