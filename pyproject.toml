@@ -37,7 +37,7 @@ include = ["src*", "dashboard*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
-addopts = "-v --tb=short"
+addopts = "-v --tb=short --import-mode=importlib"
 
 [tool.black]
 line-length = 88
