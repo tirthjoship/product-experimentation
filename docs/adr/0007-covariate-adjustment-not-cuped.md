@@ -77,7 +77,8 @@ crash on legitimate small fixtures in tests; the ANCOVA adjustment corrects the 
 
 ## Consequences
 
-- Variance reduction: ~23% expected reduction in CI width, improving sensitivity.
+- Variance reduction: ~23% expected reduction in **variance**; CI **width** shrinks by the
+  square root — see the 2026-06-11 amendment below.
 - Verdicts use the adjusted CI as the decision object; raw CIs are always reported alongside.
 - θ is estimated pre-injection: the synthetic treatment effect cannot contaminate the
   covariate coefficient.
@@ -87,6 +88,24 @@ crash on legitimate small fixtures in tests; the ANCOVA adjustment corrects the 
   audit; it does not halt execution.
 - Classic CUPED remains documented here as the preferred method should repeat-customer data
   ever become available.
+
+## Amendment (2026-06-11): the ≤0.85 width target was a unit error, not a near-miss
+
+The original consequences section stated "~23% expected reduction in CI width". That conflated
+variance with width. Correct chain:
+
+- variance reduction factor = 1 − r² = 1 − 0.484² ≈ 0.766 (~23% less **variance**)
+- CI width scales with the **square root** of variance → expected width ratio
+  = √0.766 ≈ **0.875** (~12.5% narrower, not 23%)
+
+The measured `ci_width_ratio = 0.868` therefore slightly **beats** the theoretical
+expectation for r = 0.484. The ≤0.85 target — set when variance and width were conflated —
+was never attainable with this covariate: width ratio ≤ 0.85 requires r ≥ 0.527.
+
+**Standing record:** the adjustment performed at its theoretical optimum. Reaching ≤0.85
+would require a second covariate (item count per order, option 3 above) pushing multiple-R²
+past 0.278 — only worth building if a narrower CI would change a verdict, which it currently
+would not.
 
 ## Links
 
