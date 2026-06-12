@@ -7,11 +7,11 @@
 
 - **Plans 1–3 on main** (inference depth + covariate adjustment + installment narrative + PM memo).
 - **Plan 4 DiD INFRASTRUCTURE complete on branch `feat/plan4-did-natural-experiment`.**
-  128 tests · 93% coverage · mypy strict clean.
+  132 tests · 93% coverage · mypy strict clean.
   Shipped: event catalog · blinded panel builder · TWFE estimator · pre-trends check ·
   DiD gate · report writers · `make did-feasibility` / `make did-gate` / `make did` stage CLI.
 - **Event catalog committed BEFORE any Phase B query** — pre-registration timestamp is
-  git-verifiable (`git log --follow src/did/event_catalog.py`).
+  git-verifiable (`git log --follow src/did/catalog.py`).
 
 ## Plan 4 — phase status
 

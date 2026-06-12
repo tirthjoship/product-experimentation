@@ -79,10 +79,50 @@ def test_unblind_with_fail_verdict_raises(did_con, tmp_path):
 
 
 def test_unblind_with_go_verdict_includes_post(did_con, tmp_path):
+    import json as _json
+
     p = tmp_path / "v.json"
-    p.write_text('{"event": "truckers_strike_2018", "verdict": "GO"}')
+    p.write_text(
+        _json.dumps(
+            {
+                "event": "truckers_strike_2018",
+                "verdict": "GO",
+                "conditions": {
+                    "dated_boundary": {"passed": True},
+                    "exogenous_assignment": {"passed": True},
+                    "parallel_pretrends": {"passed": True},
+                    "adequate_n": {"passed": True},
+                },
+            }
+        )
+    )
     panel = build_panel(did_con, EVENT, unblind_post=True, verdict_path=p)
     assert panel["post"].any()
+
+
+def test_unblind_with_forged_go_missing_conditions_raises(did_con, tmp_path):
+    # a "GO" string without genuine passing conditions must NOT unlock
+    p = tmp_path / "v.json"
+    p.write_text('{"event": "truckers_strike_2018", "verdict": "GO"}')
+    with pytest.raises(BlindingError):
+        build_panel(did_con, EVENT, unblind_post=True, verdict_path=p)
+
+
+def test_unblind_with_go_and_failing_condition_raises(did_con, tmp_path):
+    import json as _json
+
+    p = tmp_path / "v.json"
+    p.write_text(
+        _json.dumps(
+            {
+                "event": "truckers_strike_2018",
+                "verdict": "GO",
+                "conditions": {"parallel_pretrends": {"passed": False}},
+            }
+        )
+    )
+    with pytest.raises(BlindingError):
+        build_panel(did_con, EVENT, unblind_post=True, verdict_path=p)
 
 
 def test_go_verdict_for_wrong_event_raises(did_con, tmp_path):
