@@ -39,8 +39,12 @@ events within the usable data window (§10). Each entry declares:
 - **Mechanism** — why it should move behavior.
 - **Hypothesis**: primary outcome + expected sign (e.g. truckers' strike May 21–30 2018 →
   `delivery_days` ↑; Black Friday Nov 24 2017 → weekly order volume ↑).
-- **Assignment rule**: treated vs control states defined by geography/timing only (e.g.
-  freight distance from Southeast hubs), never by the outcome.
+- **Assignment rule**: treated vs control states defined by geography/timing only, as a
+  **donut design**: named high-exposure bloc (treated), named low-exposure bloc (control),
+  and an explicit excluded-middle list (ambiguous-exposure states dropped entirely). All
+  three lists written from a map/public record in Phase A — no data input. Donut maximizes
+  exposure contrast (a median split on distance would dilute the estimate with
+  nearly-identical states straddling the cut); the n cost is what gate condition 4 polices.
 - **Known confounds** (seasonality collisions, concurrent events).
 
 Candidate starting set: truckers' strike (May 2018), Black Friday (Nov 2017), Carnival
@@ -82,8 +86,13 @@ estimation window, and the gate thresholds below. After this commit, no paramete
 1. **Dated boundary** — event date from public record, cited in catalog.
 2. **Exogenous assignment** — treated/control state lists derive from a geographic rule
    written in Phase A, mechanically applied (no outcome input).
-3. **Parallel pre-trends** — event-study on the pre-period (§8): joint Wald test that all
-   lead coefficients (≥3 leads) are zero; gate passes iff p > 0.10.
+3. **Parallel pre-trends** — event-study on the pre-period (§8), two-sided so noisy data
+   cannot pass by being uninformative (absence of evidence ≠ evidence of absence):
+   (a) joint Wald test that all lead coefficients (≥3 leads) are zero, p > 0.10; AND
+   (b) **magnitude band** — every lead's point estimate lies within ±0.25 of the pooled
+   pre-period group-week SD of the outcome. (a) catches real divergence; (b) catches the
+   case where cells are so thin that nothing is detectable and (a) passes vacuously. The
+   report must also state the minimal detectable pre-trend at the achieved n.
 4. **Adequate n** — all of: (a) each pre-period DiD cell (treated/control) has ≥1,000
    orders per feasibility counts, with post-period cells re-checked against the same
    threshold after unblinding (§5 caveat); (b) ≥80% of pre-period group×week cells have
@@ -159,7 +168,8 @@ sql/did/        # panel + feasibility queries
 ## 13. Out of scope
 
 - Synthetic control, staggered-adoption estimators (Callaway–Sant'Anna), wild cluster
-  bootstrap — noted as extensions in the report, not built.
+  bootstrap, continuous-exposure (dose-response) DiD — noted as extensions in the report,
+  not built.
 - Dashboard integration of DiD results (belongs to roadmap P2 if it happens).
 - Any second event after the first GO/FAIL cycle completes.
 
