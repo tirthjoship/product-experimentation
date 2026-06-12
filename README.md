@@ -1,8 +1,8 @@
 # Product Experimentation & Growth Metrics Platform
 
-**Status:** Plans 1–3 complete on `main` (BCa inference + scenario sweep · ANCOVA covariate
-adjustment · installment narrative + PM memo) · Plan 4 (gated DiD natural experiment) spec'd ·
-dashboard + repro CI gate on the backlog
+**Status:** Plans 1–3 complete on `main` · Plan 4 DiD implemented on branch
+`feat/plan4-did-natural-experiment` — feasibility ran, truckers'-strike candidate FAILED the
+pre-registered gate → documented rejection (ADR 0009) · dashboard + repro CI gate on the backlog
 **Portfolio:** Project 4 of 5 · Balanced DA/DS strategy
 
 > **Simulated RCT on historical Olist cohorts.** Variants are assigned by hashed
@@ -15,8 +15,8 @@ End-to-end **product analytics** for a classic hiring question: *Did a product c
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Phase](https://img.shields.io/badge/phase-1%20complete-brightgreen)](./reports/experiment_001.md)
-[![Tests](https://img.shields.io/badge/tests-95%20passing-brightgreen)](./tests/)
-[![Coverage](https://img.shields.io/badge/coverage-96%25-brightgreen)](./tests/)
+[![Tests](https://img.shields.io/badge/tests-132%20passing-brightgreen)](./tests/)
+[![Coverage](https://img.shields.io/badge/coverage-93%25-brightgreen)](./tests/)
 [![Portfolio](https://img.shields.io/badge/portfolio-4%20of%205-purple)](../README.md)
 
 > **Disclaimer:** Experiments in this repo are **simulated** on historical Olist data (hashed customer assignment or documented natural experiment). This is not employer A/B test data and does not claim causal lift from a real product rollout.
@@ -103,7 +103,7 @@ flowchart TD
     P1 --> PL1["Plan 1 — BCa bootstrap +<br/>3-verdict scenario sweep"]
     PL1 -->|"null (A/A) run exposed<br/>+2.06 BRL baseline imbalance"| PL2["Plan 2 — variance reduction.<br/>CUPED infeasible (no repeat customers) →<br/>ANCOVA on freight_value — ADR 0007"]
     PL2 -->|"statistically credible,<br/>but no product story"| PL3["Plan 3 — installment-expansion framing<br/>(free-shipping rejected: domain collision) — ADR 0008.<br/>PM memo + CI-enforced number integrity"]
-    PL3 --> PL4["Plan 4 — gated DiD natural experiment<br/>(spec'd; pre-registered gate; FAIL is a valid exit)"]
+    PL3 --> PL4["Plan 4 — gated DiD natural experiment<br/>implemented; feasibility FAILED the gate →<br/>honest rejection (ADR 0009)"]
 ```
 
 | Problem found | How it was triaged | Decision + artifact |
@@ -116,6 +116,7 @@ flowchart TD
 | `ci_width_ratio` 0.868 "missed" ≤0.85 target | re-derived: width shrinks by √(1−r²) ≈ 0.875 at r = 0.484 — the **target was a unit error** (variance vs width), not a miss | ADR 0007 amended; honest correction beats fake apology |
 | Generic "simulated lift" had no PM story | framing workshop; free-shipping collided with sibling repo's freight domain | installment-expansion test ([ADR 0008](docs/adr/0008-installment-framing-over-free-shipping.md)) |
 | Prose numbers go stale when pipelines re-run | memo numbers must match committed JSON, enforced in CI | `tests/test_readout_integrity.py` — and this README table was itself caught stale (CI upper 13.00 vs committed 13.11) and fixed |
+| Olist has no real intervention for causal work | gated DiD: pre-register, run outcome-blind feasibility, reject if assumptions fail | truckers'-strike DiD FAILS gate (sparse North/NE: 45% week-cells <20 orders; pre-trends diverge wald_p=0.018) → documented rejection ([ADR 0009](docs/adr/0009-gated-did-natural-experiment.md)) |
 
 ---
 
@@ -240,12 +241,28 @@ See [`CONTEXT.md`](./CONTEXT.md) §6 and [`docs/EXPERIMENT_DESIGN.md`](./docs/EX
 
 ---
 
-## What's next — Plan 4: gated DiD natural experiment (spec'd)
+## Plan 4 — gated DiD natural experiment (implemented → honest rejection)
 
-The simulated RCT proves pipeline mechanics against known truth. Plan 4 attempts the harder,
-observational skill: a difference-in-differences estimate of a real calendar shock, with a
-**pre-registered gate** so a causal claim can't be manufactured — rejection is an equally
-shippable result.
+The simulated RCT proves pipeline mechanics against known truth. Plan 4 attempted the harder,
+observational skill: a difference-in-differences estimate of a real calendar shock (the
+2018 Brazilian truckers' strike), with a **pre-registered gate** so a causal claim can't be
+manufactured — rejection is an equally shippable result.
+
+The full pipeline was built (Phases A–D): event catalog, blinded panel builder, TWFE estimator,
+pre-trends checker, and gate report writers. Phase B feasibility then ran on the real Olist data.
+The truckers'-strike candidate **FAILED the pre-registered gate on two conditions:**
+
+1. **Adequate n (FAIL):** Only 45.0% of week × state cells in the treated North/Northeast had
+   ≥20 orders (threshold: 80%). Treated pre-period: 3,604 orders across 16 states; control: 27,884
+   orders across 7 states — the geography is too sparse to support a credible DiD.
+2. **Parallel pre-trends (FAIL):** Wald test p = 0.018 (threshold: >0.10); max lead coefficient
+   absolute value 3.40 exceeds the magnitude band of 1.93 — pre-period trends diverge before the
+   strike, violating the core DiD assumption.
+
+Per protocol, **no post-period estimate was computed.** The rejection itself is the deliverable:
+it demonstrates the judgment to walk away from a technically runnable but statistically invalid
+analysis. A future GO candidate would need denser geography (or a log_orders volume outcome that
+smooths sparsity) and a pre-registration lock commit before any data query.
 
 ```mermaid
 flowchart TD
@@ -254,10 +271,11 @@ flowchart TD
     B --> C["Phase C — pre-registration lock<br/>one commit: event, outcome, arms, thresholds"]
     C --> D{"Phase D — gate (all 4):<br/>1 dated boundary · 2 geographic arms ·<br/>3 parallel pre-trends (Wald + magnitude band) ·<br/>4 adequate n"}
     D -->|GO| E1["TWFE DiD + cluster SE<br/>reports/experiment_002_did.md"]
-    D -->|FAIL| E2["documented rejection<br/>reports/natural_experiment_feasibility.md<br/>(deliberate judgment artifact)"]
+    D -->|"FAIL ← real outcome"| E2["documented rejection<br/>reports/natural_experiment_feasibility.md<br/>(deliberate judgment artifact — ADR 0009)"]
     D -.->|"verdict JSON is the key that<br/>unlocks post-period data in code"| E1
 ```
 
+Full decision record: [ADR 0009](docs/adr/0009-gated-did-natural-experiment.md).
 Spec: [`docs/superpowers/specs/2026-06-11-plan4-did-natural-experiment-design.md`](docs/superpowers/specs/2026-06-11-plan4-did-natural-experiment-design.md).
 
 ---

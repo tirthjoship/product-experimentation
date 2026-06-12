@@ -5,33 +5,37 @@
 
 ## Where we are
 
-- **Plans 1 + 2 on main** (inference depth + covariate adjustment). CI green on main.
-- **Plan 3 DONE on branch `feat/plan3-installment-narrative`** — not yet pushed/PR'd. 95 tests,
-  96% coverage, mypy strict clean.
+- **Plans 1–3 on main** (inference depth + covariate adjustment + installment narrative + PM memo).
+- **Plan 4 DiD implemented on branch `feat/plan4-did-natural-experiment`** — PR #23 open to dev
+  (CI green). 132 tests · 93% coverage · mypy strict clean.
+  Shipped: event catalog · blinded panel builder · TWFE estimator · pre-trends check ·
+  DiD gate · report writers · `make did-feasibility` / `make did-gate` / `make did` stage CLI.
+- **Event catalog committed BEFORE any Phase B query** — pre-registration timestamp is
+  git-verifiable (`git log --follow src/did/catalog.py`).
 
-## Plan 3 — what shipped (installment-expansion narrative)
+## Plan 4 — outcome
 
-- Framing locked: installment-expansion test (6x→10x interest-free cap). Free-shipping rejected
-  for portfolio separation from supply-chain-ml. **ADR 0008**.
-- `src/report/installment_motivation.py` + `sql/eda/installments*.sql` → committed descriptive
-  artifacts `reports/installment_motivation.{md,json}` (deterministic; aov rounded 6dp because
-  DuckDB AVG parallel-sum is float-nondeterministic). `make motivation`.
-- **PM decision memo** `reports/experiment_001_readout.md` (hand-written, judgment artifact).
-- **Memo↔artifact integrity test** `tests/test_readout_integrity.py` — every headline number in
-  the memo must match committed JSON (CI enforces "no invented metrics" forever).
-- Framing sweep: report intro lines, README, EXPERIMENT_DESIGN, CONTEXT §2, ADR 0008 index.
-- Experiment .json numbers UNCHANGED (only report .md framing lines + new artifacts).
+**Phase B feasibility ran on real Olist data. Truckers'-strike candidate FAILED the gate:**
 
-## Real motivation numbers (cohort window, full data)
+| Check | Result |
+|-------|--------|
+| adequate_n | **FAIL** — 45.0% week-cell density (threshold 80%); treated pre-period 3,604 orders / 16 states; control 27,884 / 7 states |
+| parallel_pretrends | **FAIL** — Wald p = 0.018 (threshold >0.10); max lead abs = 3.40 > band 1.93 |
+
+Per pre-registered protocol, **no post-period estimate was computed.** Rejection documented in
+[ADR 0009](adr/0009-gated-did-natural-experiment.md). The rejection is the deliverable.
+
+## Next actions
+
+1. Merge PR #23 → dev → main (in progress).
+2. Optional Phase E only if pursuing a GO — would need denser geography or log_orders volume
+   outcome + a pre-registration lock commit before any data query; needs explicit user sign-off.
+3. Earlier roadmap still pending: Plan 2 dashboard (Streamlit), Plan 3 reproducibility CI gate.
+
+## Real motivation numbers (cohort window, full data — Plan 3)
 
 - 51.4% of orders paid in >1 installment · credit cards = 78.4% of payment value · n=99,092.
 - AOV by bucket: 1→120.98, 2-3→136.11, 4-6→182.69, 7+→337.03 (affordability gradient is real).
-
-## Next action
-
-1. **Push + PR** `feat/plan3-installment-narrative` → dev, merge, promote dev → main.
-2. **Plan 4** — DiD natural experiment (calendar-shock × region), own spec, pre-registered gate.
-3. Earlier roadmap still pending: P2 dashboard + P3 reproducibility CI gate.
 
 ## Caveats / environment
 
@@ -44,5 +48,5 @@
 
 ## Pointers
 
-`CONTEXT.md` · `docs/adr/` (0007 covariate, 0008 framing) · `docs/superpowers/specs/` ·
-`docs/superpowers/plans/` (Plans 1–3).
+`CONTEXT.md` · `docs/adr/` (0007 covariate, 0008 framing, 0009 DiD rejection) · `docs/superpowers/specs/` ·
+`docs/superpowers/plans/` (Plans 1–4).
