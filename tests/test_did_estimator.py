@@ -14,7 +14,7 @@ def test_recovers_injected_effect():
     res = fit_twfe(panel, "delivery_days")
     assert res.beta == pytest.approx(5.0, abs=0.5)
     assert res.ci[0] < 5.0 < res.ci[1]
-    assert res.n_clusters == 12
+    assert res.n_clusters == 16
 
 
 def test_null_effect_ci_covers_zero():

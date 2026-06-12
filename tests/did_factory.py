@@ -8,13 +8,13 @@ BOUNDARY = pd.Timestamp("2018-05-21")
 
 
 def make_synthetic_panel(
-    n_treated: int = 6,
-    n_control: int = 6,
+    n_treated: int = 8,
+    n_control: int = 8,
     n_weeks: int = 24,
     boundary_week: int = 16,
     effect: float = 0.0,
     pre_trend: float = 0.0,  # extra per-week slope on treated states (breaks parallelism)
-    noise: float = 0.5,
+    noise: float = 0.25,
     base: float = 12.0,
     seed: int = 42,
 ) -> pd.DataFrame:
