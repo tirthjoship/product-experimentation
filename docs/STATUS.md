@@ -38,7 +38,8 @@
 - `.venv` (uv, py3.12); use `.venv/bin/pytest`, `.venv/bin/mypy`. `make scenarios`/`motivation`
   call bare `python` — run via `.venv/bin/python -m ...`.
 - Disk ~100% → commit `SKIP=gitleaks` (never `--no-verify`); CI runs gitleaks server-side.
-- ci_width_ratio = 0.868 (Plan 2) misses ≤0.85 target — honest, documented in ADR 0007.
+- ci_width_ratio = 0.868 (Plan 2) ≈ theoretical optimum √(1−r²)=0.875 for r=0.484; the old
+  ≤0.85 target was a variance-vs-width unit error — corrected in ADR 0007 amendment.
 - `caffeinate` running (keeps Mac awake) — `pkill caffeinate` to stop.
 
 ## Pointers
