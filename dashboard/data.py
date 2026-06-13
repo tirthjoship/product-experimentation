@@ -171,6 +171,14 @@ def load_scenarios(
     ]
 
 
+def load_grid(
+    path: Path = REPORTS_DIR / "experiment_grid.json",
+) -> list[ScenarioResult]:
+    """What-if grid: each point is a scenario element (same schema/writer as the
+    scenario sweep). Verdict is READ from JSON, never recomputed."""
+    return load_scenarios(path)
+
+
 @dataclass(frozen=True)
 class Bucket:
     bucket: str
