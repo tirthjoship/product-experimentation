@@ -115,18 +115,35 @@ question + verdict chip + concrete interpretation in the "$X invested → Y% pro
 
 ## What-if grid
 
-- **Offline script** `scripts/build_experiment_grid.py`: calls `run_scenarios(df, grid)` with
-  effects −10%…+10% @ 1% (21 points) → `reports/experiment_grid.json`.
-- **Schema** (list; per element): `{ effect, lift, ci, p, aov_adjusted:{lift, ci,
-  ci_width_ratio}, verdict, guardrail:{delta, ci} }` — mirrors `experiment_scenarios.json`
-  element shape so chart/types reuse.
-- **Loader** `load_grid()` in `data.py` — typed, fail-loud (`ReportSchemaError`).
-- Slider snaps to nearest grid point; persistent SIMULATED banner.
+VALIDATED against code — the grid is a thin wrapper over existing machinery:
+
+- **Offline script** `scripts/build_experiment_grid.py`: mirror `run_experiment.main_scenarios()`
+  but with a 21-point grid. Build `grid = tuple(("eff_%+d" % pct, pct/100) for pct in
+  range(-10, 11))`, then:
+  ```python
+  con = duckdb.connect(":memory:"); load_olist(con, RAW_DIR)
+  rows = run_scenarios(con, grid)              # duckdb connection, NOT a df
+  Path("reports/experiment_grid.json").write_text(results_to_json(rows) + "\n")
+  ```
+- **Schema = the existing scenario element shape, for free.** Because `results_to_json` is the
+  same writer used for `experiment_scenarios.json`, each grid element already has
+  `sample_sizes · aov · conversion · d7 · mde · simulated_effect · alpha · aov_adjusted ·
+  baseline_balance · scenario · verdict`. The dashboard reads `aov_adjusted.lift/ci` and
+  `verdict` per point (verdict comes from the existing `recommend(ci)` inside `run_scenarios`).
+  Do NOT invent a new flattened schema.
+- **Loader:** reuse the existing scenarios loader / `ScenarioResult` type in `data.py` — a grid
+  point IS a scenario element. `load_grid()` = load `experiment_grid.json` as
+  `list[ScenarioResult]`, fail-loud (`ReportSchemaError`). `simulated_effect` is the slider key.
+- Slider snaps to nearest grid `simulated_effect`; persistent SIMULATED banner.
+- **Runtime note:** the build loads full Olist and runs the full experiment (incl. 10k-bootstrap)
+  21×. Offline only; expect minutes, not seconds. Not run in the app or in pytest.
 
 ## Color logic (single source, documented)
 
-- **Verdict** (CI vs zero): all-above → SHIP/green; all-below → DO NOT SHIP/red; straddles →
-  NEED MORE DATA/amber. Applied to verdict chips and primary AOV forest dots.
+- **Verdict** (CI vs zero) already computed by `src/report/experiment_report.recommend(ci)`
+  (lo>0 SHIP / hi<0 DO NOT SHIP / else NEED MORE) and stored per scenario/grid element — the
+  dashboard maps verdict string → color, it does NOT recompute the rule. Applied to verdict
+  chips and primary AOV forest dots.
 - **Value coloring:** lift values take the verdict color; power ≥0.80 green / 0.50–0.80 amber /
   <0.50 red; MDE green when effect is detectable (|adjusted lift| ≥ MDE) else amber; motivation
   KPIs favorable→green (high installment share / cc share / large cohort). Guardrails &
