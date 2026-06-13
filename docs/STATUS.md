@@ -23,13 +23,26 @@
 - Fail-loud: missing/malformed field → `ReportSchemaError`, never a default. Per-section
   error isolation. `scripts/dashboard_smoke.py` + CI `dashboard-smoke` job guard schema drift.
 
+## Dashboard v3 — designed + planned (NEXT: implement in fresh session)
+
+Dashboard v2 is PR-ready (`db453b6`) but we're expanding it to **v3** before PR. v3 design is
+locked via a clickable mockup; spec + full TDD plan committed. **Implement v3 next.**
+- Spec: `docs/superpowers/specs/2026-06-13-dashboard-v3-descriptive-interactive-design.md`
+- Plan: `docs/superpowers/plans/2026-06-13-dashboard-v3.md` (19 tasks, TDD, fixtures-only)
+- Reference mockup (open it): `docs/mockups/dashboard-v3/index.html`
+- v3 = persistent header + 5 tabs · plain-language bottom-line tiles · chip rationale + chart ⓘ
+  + glossary hovers · value color-coding · diversified responsive charts · What-if effect grid
+  (`reports/experiment_grid.json` via `scripts/build_experiment_grid.py`) · power calculator.
+  De-AI theme: white · Space Grotesk · Inter · oxblood. Read-only/no-invented-metrics preserved.
+
 ## Next actions
 
-1. ~~Opus verification-before-completion pass~~ DONE — fixes committed `db453b6`, all gates green.
-2. **Manual (needs user):** run `make dashboard`, capture 2–3 screenshots → `docs/img/`,
-   uncomment the README block; deploy to Streamlit Community Cloud (entrypoint
-   `dashboard/app.py`, py3.12), replace `<APP_URL>`.
-3. Open PR `feat/plan5-dashboard` → dev → main once 2 done.
+1. **Implement v3** in a fresh session via `superpowers:subagent-driven-development` (or
+   executing-plans) against the plan above. Start at Phase 0 (baseline gate green on
+   `feat/plan5-dashboard`).
+2. **Manual (needs user):** capture screenshots → `docs/img/`; deploy to Streamlit Community
+   Cloud (entrypoint `dashboard/app.py`, py3.12), replace `<APP_URL>`.
+3. Open PR `feat/plan5-dashboard` → dev → main once v3 done.
 4. Backlog: Plan 3 reproducibility CI gate; optional Plan 4 Phase E GO path (needs denser
    geography or log_orders outcome + pre-registration lock — explicit sign-off required).
 
