@@ -1,4 +1,4 @@
-.PHONY: test test-cov lint typecheck setup check experiment scenarios motivation did-feasibility did-gate did dashboard dashboard-smoke
+.PHONY: test test-cov lint typecheck setup check experiment scenarios motivation did-feasibility did-gate did dashboard dashboard-smoke experiment-grid
 
 test:
 	pytest tests/ -v --tb=short
@@ -41,3 +41,6 @@ dashboard:
 
 dashboard-smoke:
 	.venv/bin/python scripts/dashboard_smoke.py
+
+experiment-grid:
+	.venv/bin/python scripts/build_experiment_grid.py
