@@ -239,6 +239,103 @@ code, pre, .stCode { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
   h1 { font-size: 24px !important; }
   h2 { font-size: 20px !important; }
 }
+
+/* ---- simbar (simulation notice banner) ---- */
+.simbar {
+  background: #f6f6cf;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #5b5b2c;
+  margin: 10px 0;
+}
+
+/* ---- box (chart card wrapper) ---- */
+.box {
+  background: #ffffff;
+  border: 1px solid #eaecef;
+  border-radius: 10px;
+  padding: 14px 14px 8px;
+  min-width: 0;
+  overflow: hidden;
+}
+.box .js-plotly-plot { min-width: 0; width: 100%; }
+.box h3 {
+  font: 600 13.5px 'Inter', system-ui, sans-serif;
+  margin: 2px 4px 2px;
+  color: #2a2f36;
+}
+
+/* ---- kicker (sub-section label) ---- */
+.kicker {
+  font: 500 12px 'IBM Plex Mono', monospace;
+  letter-spacing: 0.14em;
+  color: #7a1f2b;
+  text-transform: uppercase;
+  margin: 30px 0 12px;
+  border-top: 1px solid #eaecef;
+  padding-top: 18px;
+}
+.kicker:first-of-type { border-top: none; padding-top: 0; margin-top: 6px; }
+
+/* ---- grid layouts ---- */
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 980px) { .grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 720px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+
+/* ---- kpi (big-number KPI block) ---- */
+.kpi .lab {
+  font-size: 12.5px;
+  color: #6b727b;
+}
+.kpi .num {
+  font: 600 30px/1.1 'Space Grotesk', system-ui, sans-serif;
+}
+
+/* ---- cards (flex row of KPI blocks) ---- */
+.cards { display: flex; gap: 34px; flex-wrap: wrap; margin: 6px 0; }
+
+/* ---- cap (small muted caption) ---- */
+.cap { font-size: 13px; color: #6b727b; margin: 8px 2px 0; max-width: 820px; }
+
+/* ---- hero (large display number/heading) ---- */
+.hero {
+  font: 700 40px/1.05 'Space Grotesk', system-ui, sans-serif;
+  letter-spacing: -0.02em;
+  margin: 4px 0 6px;
+}
+
+/* ---- verdline (verdict + answer line inside takeaway) ---- */
+.verdline { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+.verdline .answer { font-weight: 600; }
+
+/* ---- q (question line inside takeaway) ---- */
+.q { font: 600 17px/1.3 'Space Grotesk', system-ui, sans-serif; margin: 6px 0 8px; }
+
+/* ---- means (control/treatment mean display) ---- */
+.means { display: flex; gap: 28px; flex-wrap: wrap; margin: 8px 0 2px; }
+.means .lab { font-size: 12px; color: #6b727b; }
+.means .num { font: 500 22px 'IBM Plex Mono', monospace; }
+
+/* ---- metrics (alias for means layout) ---- */
+.metrics { display: flex; gap: 28px; flex-wrap: wrap; margin: 8px 0 2px; }
+.metrics .lab { font-size: 12px; color: #6b727b; }
+.metrics .num { font: 500 22px 'IBM Plex Mono', monospace; }
+
+/* ---- checks / check (DiD gate rows) ---- */
+.checks { display: flex; gap: 14px; flex-wrap: wrap; margin: 8px 0; }
+.check {
+  background: #f6f7f9;
+  border: 1px solid #eaecef;
+  border-radius: 10px;
+  padding: 12px 14px;
+  min-width: 150px;
+}
+.check .t { font-size: 13px; color: #2a2f36; margin-bottom: 5px; }
+.check .ok { color: #2f7d4f; font-weight: 700; }
+.check .bad { color: #b3261e; font-weight: 700; }
+.check .d { font-size: 11.5px; color: #6b727b; margin-top: 3px; }
 </style>
 """
 
@@ -252,13 +349,15 @@ def verdict_color(verdict: str) -> str:
 
 
 def plotly_layout(**overrides: Any) -> dict[str, Any]:
-    """Base plotly layout: white card, body font, no legend, no clutter."""
+    """Base plotly layout: white card, mono font, tight margins — matches lay() in mockup."""
     base: dict[str, Any] = {
         "paper_bgcolor": "white",
         "plot_bgcolor": "white",
-        "font": {"family": FONT_BODY, "color": INK, "size": 14},
-        "margin": {"l": 60, "r": 30, "t": 50, "b": 44},
+        "font": {"family": FONT_MONO, "color": INK, "size": 11},
+        "margin": {"l": 60, "r": 18, "t": 10, "b": 36},
         "showlegend": False,
+        "xaxis": {"gridcolor": "#eef0f3", "zeroline": False},
+        "yaxis": {"gridcolor": "#eef0f3", "zeroline": False},
     }
     base.update(overrides)
     return base
