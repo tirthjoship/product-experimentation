@@ -77,3 +77,29 @@ All plan reference values verified against the venv before writing.
 **Documentation system.** Added ADRs 0001–0006 capturing the decisions above, `docs/STATUS.md`
 (Tier 0), this log, and project memory. Enriched `reports/eda_gate.md` with the investigation
 narrative (drill-down reasoning behind each decision).
+
+---
+
+## 2026-06-13 — Plan 5 v3 dashboard (subagent-driven) + ship to main
+
+**Implementation.** Executed the 19-task v3 plan via subagent-driven-development (Sonnet
+implementers per task, Opus reviews at phase boundaries + a final verification). Built the
+read-only Streamlit + Plotly dashboard: pure layer (`data.load_grid`, `glossary`, `valuecolor`,
+v3 `theme`, 7 diversified `charts` builders) + render-only `sections/*` (5 tabs, takeaway tiles,
+layered hovers, value colors) + `app.py` 5-tab shell. Offline `scripts/build_experiment_grid.py`
+generated `reports/experiment_grid.json` (21 points, real `run_scenarios`+`results_to_json`);
+smoke-guarded. Verdict READ from `recommend()`, no invented metrics. ADR 0010 records the
+read-only-over-committed-reports architecture.
+
+**Bugs caught only by launching the live app (smoke can't):** deprecated `use_container_width`
+→ `width="stretch"`; `st.tabs` runs all bodies → `DuplicateElementId` fixed with a unique `key=`
+per chart; forest/coef inline annotations overlapped the tight v3 plots (moved to captions);
+`overflow:hidden` clipped the `.ci`/`.term` hover tooltips (→ `overflow:visible`); dumbbell/
+diverging point labels clipped at the plot edge (padded x-range + `cliponaxis=False`, + regression
+tests). Card borders + chart `lay()` config ported to match the locked mockup pixel-for-pixel
+(IBM Plex Mono, tight margins, `#eaecef` borders, `.simbar`/`.box`/`.kpi` CSS).
+
+**Ship.** Pre-validated CI locally (coverage 95.59% ≥90, mypy strict, pre-commit, smoke), then
+PR #27 (feat→dev) and PR #28 (dev→main), both all-green (incl. gitleaks). Fast-forwarded `dev`
+to `main` — both at the same commit. 208 tests · pure-layer 100%. Remaining manual: deploy to
+Streamlit Community Cloud + set `<APP_URL>`.

@@ -1,7 +1,7 @@
 # Product Experimentation & Growth Metrics Platform
 
-**Status:** Plans 1–5 complete on `feat/plan5-dashboard` · Plan 4 DiD honest rejection on `main` ·
-dashboard v3 implemented, verified, screenshots committed · PR to dev → main pending
+**Status:** Plans 1–5 shipped to `main` (`dev` in sync) · read-only Streamlit + Plotly dashboard v3 ·
+208 tests · 95.6% coverage · all CI green · remaining: deploy to Streamlit Cloud + set `<APP_URL>`
 **Portfolio:** Project 4 of 5 · Balanced DA/DS strategy
 
 > **Simulated RCT on historical Olist cohorts.** Variants are assigned by hashed

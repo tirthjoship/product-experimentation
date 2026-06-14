@@ -5,51 +5,46 @@
 
 ## Where we are
 
-- **Plans 1–4 on `main`** (inference + covariate adjustment + installment narrative +
-  PM memo + Plan 4 DiD honest rejection). Shipped via PR #26.
-- **Plan 5 dashboard v3 IMPLEMENTED + VERIFIED on `feat/plan5-dashboard`.**
-  Read-only Streamlit + Plotly over committed `reports/*.json` + `reports/experiment_grid.json`.
-  Screenshots committed. PR to dev → main is the remaining manual step.
+- **Plans 1–5 all shipped to `main`.** `dev` and `main` are in sync at the same commit
+  (merged via PR #27 feat→dev, PR #28 dev→main, then dev fast-forwarded to main).
+- Plan 5 = **read-only Streamlit + Plotly dashboard v3** over committed `reports/*.json`.
+  All CI green (test, lint, mypy strict, dashboard-smoke, gitleaks). Branch
+  `feat/plan5-dashboard` is merged (kept on origin, can be deleted).
+- **Gate at ship:** 208 tests · pure-layer 100% · combined src+dashboard coverage 95.59%
+  (≥90 gate) · mypy --strict clean · `dashboard_smoke.py` green (21 grid points).
 
-## Gate numbers (all verified this session)
+## Plan 5 dashboard — what's live
 
-- `.venv/bin/pytest -q` → **206 passed**
-- Pure-layer coverage → **100%** (charts / data / glossary / theme / valuecolor)
-- `mypy dashboard src --strict` → **clean (50 files)**
-- `scripts/dashboard_smoke.py` → **green** (experiment + 3 scenarios + 4 buckets + DiD + 21 grid points)
-- Live app headless check → **0 render exceptions, 0 horizontal overflow** across all 5 tabs at 390 / 720 / 1280 px
+- 5 tabs: Overview · Experiment results · Scenario explorer (+ What-if grid slider) ·
+  Power & design (analytical calculator) · Natural experiment (DiD honest rejection).
+- Pure layer (`dashboard/data.py`,`charts.py`,`theme.py`,`glossary.py`,`valuecolor.py`)
+  carries logic + 90% gate; `sections/*`+`app.py` render-only (coverage-omitted).
+- Honest interactivity: What-if reads precomputed `reports/experiment_grid.json` (21 pts,
+  built offline by `scripts/build_experiment_grid.py`); power calc is analytical. Verdict
+  READ from `recommend()`, never recomputed. No invented metrics. See **ADR 0010**.
+- Mockup-faithful: matches `docs/mockups/dashboard-v3/index.html` (charts, `.box`/`.simbar`/
+  `.kpi` CSS, layered hovers). Verified live headless: 0 exceptions · 0 clipped labels ·
+  0 horizontal overflow @ 390/720/1280px. Screenshots in `docs/img/v3-*.png`.
 
-## Dashboard v3 — what's built
+## Next actions
 
-- **5 tabs:** Overview · Experiment results · Scenario explorer · Power & design · Natural experiment
-- **New features:** persistent header + chip rationale tooltips; plain-language bottom-line takeaway
-  tiles per tab; layered hovers (chip rationale + chart ⓘ + glossary term spans); semantic value
-  color-coding (good / average / poor); diversified responsive charts (dumbbell, range/variance,
-  split bar, diverging marker, lift forest, MDE-vs-n, power-vs-effect); What-if effect grid
-  (`scripts/build_experiment_grid.py` → `reports/experiment_grid.json`, 21 points, reuses
-  `run_scenarios` + `results_to_json`); analytical power calculator (`src.experiment.power`)
-- **De-AI theme:** white · Space Grotesk · Inter · IBM Plex Mono · oxblood accent
-- **Honesty preserved:** verdict read from `recommend()` in committed report, never recomputed;
-  SIMULATED + CALCULATOR banners on every synthetic figure; no invented metrics
-- **New make target:** `make experiment-grid` (builds the grid; requires full Olist)
-- **Screenshots committed:** `docs/img/v3-0-overview.png` through `v3-4-natural-experiment.png`
-  + `v3-phone-overview.png`
-
-## Remaining manual steps (not done — needs user)
-
-1. Deploy to Streamlit Community Cloud (entrypoint `dashboard/app.py`, py3.12), replace `<APP_URL>`
-   in README.md.
-2. Open PR `feat/plan5-dashboard` → dev → main.
+1. **Deploy (needs user):** Streamlit Community Cloud — entrypoint `dashboard/app.py`, py3.12,
+   editable install with `[dashboard]` extra. Then replace `<APP_URL>` in `README.md`.
+2. Optional: delete merged `feat/plan5-dashboard` on origin; prune stale `docs/*` / `spec/*`
+   branches.
+3. **Backlog:** Plan 3 reproducibility CI gate; optional Plan 4 Phase E GO path (needs denser
+   geography or log_orders outcome + pre-registration lock — explicit sign-off required).
 
 ## Caveats / environment
 
-- `.venv` (uv, py3.12); use `.venv/bin/pytest`, `.venv/bin/mypy`. `make dashboard` uses
-  `.venv/bin/python -m streamlit`. Editable install: `pip install -e ".[dev,dashboard]"`.
-- Disk ~100% → commit with `SKIP=gitleaks` (never `--no-verify`); CI runs gitleaks server-side.
-- `caffeinate` may be running — `pkill caffeinate` to stop.
+- `.venv` (uv, py3.12); use `.venv/bin/pytest`, `.venv/bin/mypy`. Editable install must include
+  the `[dashboard]` extra or the finder won't map `dashboard/` (`pip install -e ".[dev,dashboard]"`).
+- Disk ~100% → commit `SKIP=gitleaks` locally (never `--no-verify`); CI runs gitleaks server-side.
+- Charts use `width="stretch"` (not deprecated `use_container_width`); every `st.plotly_chart`
+  needs a unique `key=` (st.tabs renders all bodies → DuplicateElementId otherwise).
+- Run the app: `make dashboard`. Smoke: `.venv/bin/python scripts/dashboard_smoke.py`.
 
 ## Pointers
 
-`CONTEXT.md` · `docs/adr/` (0007 covariate, 0008 framing, 0009 DiD rejection) ·
-`docs/superpowers/specs/2026-06-13-dashboard-v3-descriptive-interactive-design.md` ·
-`docs/superpowers/plans/2026-06-13-dashboard-v3.md` (19 tasks, TDD, fixtures-only)
+`CONTEXT.md` · `docs/adr/` (0007 covariate · 0008 framing · 0009 DiD rejection · 0010 dashboard) ·
+specs+plans under `docs/superpowers/`. History → `docs/PHASE_LOG.md`.
