@@ -4,7 +4,7 @@ from pathlib import Path
 
 import plotly.graph_objects as go
 
-from dashboard import charts
+from dashboard import charts, theme
 from dashboard.data import load_did, load_experiment, load_motivation, load_scenarios
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -36,7 +36,7 @@ def test_coef_plot_has_band_and_flags_violating_lead() -> None:
     colors = list(fig.data[0].marker.color)
     # fixture leads: {-5: -2.48, -4: -1.32, -3: -0.83, -2: 3.4}, band=1.93
     # TWO leads exceed the band: -5 (abs=2.48) and -2 (abs=3.4)
-    assert colors.count("#C0392B") == 2  # both -5 and -2 break band 1.93
+    assert colors.count(theme.RED) == 2  # both -5 and -2 break band 1.93
 
 
 def test_guardrail_plot_one_row_per_scenario() -> None:
