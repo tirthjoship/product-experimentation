@@ -1,8 +1,13 @@
 """Tests for v3 chart builders — assert structure, not pixels."""
 
+from pathlib import Path
+
 import plotly.graph_objects as go
 
 from dashboard import charts, theme
+from dashboard.data import load_experiment
+
+FIXTURES = Path(__file__).parent / "fixtures"
 
 
 def test_dumbbell_has_two_endpoint_markers() -> None:
@@ -48,3 +53,10 @@ def test_mde_vs_n_marks_current() -> None:
 def test_power_vs_effect_has_target_line() -> None:
     fig = charts.power_vs_effect(sd=180.0, alpha=0.05, n=49000)
     assert len(fig.data) >= 2
+
+
+def test_forest_accepts_adjusted_color() -> None:
+    exp = load_experiment(FIXTURES / "experiment.json")
+    fig = charts.forest(exp, adj_color=theme.GREEN)
+    colors = [getattr(t.marker, "color", None) for t in fig.data if t.mode == "markers"]
+    assert theme.GREEN in colors
