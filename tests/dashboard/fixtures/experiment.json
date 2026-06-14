@@ -1,0 +1,11 @@
+{
+  "sample_sizes": {"control": 100, "treatment": 98},
+  "aov": {"control": 150.0, "treatment": 160.15, "lift": 10.15, "ci": [7.36, 13.11], "p": 0.001},
+  "conversion": {"control": 0.97, "treatment": 0.9718, "z": 1.71, "p": 0.087, "ci": [-0.0003, 0.0039]},
+  "d7": {"control": 0.0088, "treatment": 0.0084},
+  "mde": {"aov": 4.32, "conversion": 0.003},
+  "simulated_effect": 0.05,
+  "alpha": 0.05,
+  "aov_adjusted": {"control": 151.0, "treatment": 159.63, "lift": 8.63, "ci": [6.15, 11.15], "theta": 4.96, "ci_width_ratio": 0.868},
+  "baseline_balance": {"order_value_gap": 0.0129}
+}
