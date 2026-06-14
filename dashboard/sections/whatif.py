@@ -69,6 +69,7 @@ def render(grid: list[ScenarioResult]) -> None:
         options=[_fmt(v) for v in effect_values],
         value=_fmt(effect_values[mid_idx]),
         label_visibility="visible",
+        key="whatif_select_slider_effect",
     )
 
     # Snap: map chosen label back to index, then to grid point
@@ -103,6 +104,7 @@ def render(grid: list[ScenarioResult]) -> None:
             adj_color=color,
         ),
         width="stretch",
+        key="whatif_forest",
     )
 
     # --- Conversion lift_forest chart ---
@@ -119,6 +121,7 @@ def render(grid: list[ScenarioResult]) -> None:
             color=theme.SLATE,
         ),
         width="stretch",
+        key="whatif_lift",
     )
 
     st.markdown(

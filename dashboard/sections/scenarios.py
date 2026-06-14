@@ -84,6 +84,7 @@ def render(scenarios: list[ScenarioResult]) -> None:
         format_func=lambda n: _LABELS.get(n, n),
         horizontal=True,
         index=names.index("null") if "null" in names else 0,
+        key="scenarios_radio_scenario",
     )
     s = next(sc for sc in scenarios if sc.scenario == chosen)
     verdict = s.verdict
@@ -142,6 +143,7 @@ def render(scenarios: list[ScenarioResult]) -> None:
                 adj_color=color,
             ),
             width="stretch",
+            key="scenarios_forest",
         )
 
     with c2:
@@ -158,6 +160,7 @@ def render(scenarios: list[ScenarioResult]) -> None:
                 color=theme.SLATE,
             ),
             width="stretch",
+            key="scenarios_conv_lift",
         )
 
     with c3:
@@ -173,4 +176,5 @@ def render(scenarios: list[ScenarioResult]) -> None:
                 fmt="{:.3f}",
             ),
             width="stretch",
+            key="scenarios_d7_dumbbell",
         )

@@ -112,7 +112,9 @@ def render(did: DidFeasibility) -> None:
         f"{pre_info}</h3>",
         unsafe_allow_html=True,
     )
-    st.plotly_chart(charts.coef_plot(did.pretrends), width="stretch")
+    st.plotly_chart(
+        charts.coef_plot(did.pretrends), width="stretch", key="did_pretrends"
+    )
 
     # --- Sample adequacy dumbbell --------------------------------------------
     adequacy_info = info(
@@ -135,6 +137,7 @@ def render(did: DidFeasibility) -> None:
             fmt="{:,.0f}",
         ),
         width="stretch",
+        key="did_adequacy_dumbbell",
     )
 
     # --- Geography split bar -------------------------------------------------
@@ -160,6 +163,7 @@ def render(did: DidFeasibility) -> None:
             ]
         ),
         width="stretch",
+        key="did_geography_split",
     )
 
     # --- Closing note --------------------------------------------------------

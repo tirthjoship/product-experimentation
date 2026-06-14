@@ -95,6 +95,7 @@ def render(scenarios: list[ScenarioResult]) -> None:
         st.plotly_chart(
             charts.forest(result, adj_color=theme.verdict_color(verdict)),
             width="stretch",
+            key="results_aov_forest",
         )
 
     with col_var:
@@ -118,6 +119,7 @@ def render(scenarios: list[ScenarioResult]) -> None:
                 ]
             ),
             width="stretch",
+            key="results_variance_range",
         )
 
     unadj_width = result.aov.ci[1] - result.aov.ci[0]
@@ -170,6 +172,7 @@ def render(scenarios: list[ScenarioResult]) -> None:
                 color=theme.SLATE,
             ),
             width="stretch",
+            key="results_conv_lift",
         )
 
     with col_d7:
@@ -192,6 +195,7 @@ def render(scenarios: list[ScenarioResult]) -> None:
                 fmt="{:.2%}",
             ),
             width="stretch",
+            key="results_d7_dumbbell",
         )
 
     st.markdown(
@@ -235,6 +239,7 @@ def render(scenarios: list[ScenarioResult]) -> None:
                 ]
             ),
             width="stretch",
+            key="results_n_split",
         )
 
     with col_bal:
@@ -258,4 +263,5 @@ def render(scenarios: list[ScenarioResult]) -> None:
                 unit="BRL",
             ),
             width="stretch",
+            key="results_balance_diverging",
         )

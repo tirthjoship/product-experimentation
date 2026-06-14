@@ -150,6 +150,7 @@ def render(experiment: ExperimentResult) -> None:
             step=1_000,
             value=observed_n,
             help="Customers per arm. More n → narrower CI → smaller detectable effect.",
+            key="calc_slider_n_per_arm",
         )
 
     with col_a:
@@ -161,6 +162,7 @@ def render(experiment: ExperimentResult) -> None:
             value=0.05,
             format="%.2f",
             help="Significance level: tolerated false-positive rate.",
+            key="calc_slider_alpha",
         )
 
     with col_sd:
@@ -175,6 +177,7 @@ def render(experiment: ExperimentResult) -> None:
                 f"Default back-solved from committed mde_aov={experiment.mde_aov:.2f} "
                 f"at n={observed_n:,}, α={experiment.alpha}."
             ),
+            key="calc_slider_sd",
         )
 
     with col_pw:
@@ -186,6 +189,7 @@ def render(experiment: ExperimentResult) -> None:
             value=0.80,
             format="%.2f",
             help="Probability of detecting a true effect of the target size.",
+            key="calc_slider_power",
         )
 
     # ------------------------------------------------------------------
@@ -245,6 +249,7 @@ def render(experiment: ExperimentResult) -> None:
                 n_current=n_per_arm,
             ),
             width="stretch",
+            key="calc_mde_vs_n",
         )
 
     with col_pow:
@@ -265,6 +270,7 @@ def render(experiment: ExperimentResult) -> None:
                 n=n_per_arm,
             ),
             width="stretch",
+            key="calc_power_vs_effect",
         )
 
     # ------------------------------------------------------------------
