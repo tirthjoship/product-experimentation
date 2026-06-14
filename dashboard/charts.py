@@ -144,16 +144,8 @@ def coef_plot(pre: PreTrends) -> go.Figure:
         y0=-pre.band, y1=pre.band, fillcolor=theme.SLATE, opacity=0.12, line_width=0
     )
     fig.add_hline(y=0.0, line_dash="dash", line_color=theme.INK, line_width=1)
-    fig.add_annotation(
-        text=f"Wald p = {pre.wald_p:.3f} (gate needs > 0.10) · max |lead| = "
-        f"{pre.max_lead_abs:.2f} > band {pre.band:.2f}",
-        xref="paper",
-        yref="paper",
-        x=0.99,
-        y=1.08,
-        showarrow=False,
-        font={"family": theme.FONT_MONO, "size": 12, "color": theme.RED},
-    )
+    # Wald-p / max-lead callout lives in the section caption (mockup-faithful);
+    # the inline paper annotation overflowed the tight plot top and got clipped.
     fig.update_layout(
         **theme.plotly_layout(
             height=350,

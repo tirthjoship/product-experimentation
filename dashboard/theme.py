@@ -235,6 +235,16 @@ code, pre, .stCode { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
 .stColumns > div, [data-testid="column"] { min-width: 0; overflow: visible; }
 [data-testid="stVerticalBlockBorderWrapper"] { overflow: visible; }
 
+/* ---- chart cards (st.container border=True) → match mockup .box ---- */
+/* Streamlit's default card border is a dark rgba(49,51,63,.2) at radius 8;
+   the mockup .box is a subtle 1px #eaecef at radius 10. Recolouring + rounding
+   every vertical block is safe — the change is invisible on the borderless
+   layout blocks (border-width 0) and only re-skins the bordered chart cards. */
+[data-testid="stVerticalBlock"] {
+  border-color: #eaecef !important;
+  border-radius: 10px !important;
+}
+
 @media (max-width: 720px) {
   .stColumns { flex-direction: column !important; }
   .stColumns > div { min-width: 100% !important; }
