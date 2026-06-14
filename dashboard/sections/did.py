@@ -9,28 +9,21 @@ from dashboard.data import DidFeasibility
 from dashboard.sections._ui import CHIP_FOR_VALUE, info, takeaway, term
 
 # ---------------------------------------------------------------------------
-# Gate condition display helpers
+# Gate condition display helpers — emit .check cards (mockup .checks/.check)
 # ---------------------------------------------------------------------------
-_PASS_MARKER = '<span style="color:{green};font-weight:700">✓ PASS</span>'.format(
-    green=theme.GREEN
-)
-_FAIL_MARKER = '<span style="color:{red};font-weight:700">✗ FAIL</span>'.format(
-    red=theme.RED
-)
 
 
-def _marker(passed: bool) -> str:
-    return _PASS_MARKER if passed else _FAIL_MARKER
-
-
-def _gate_row(title: str, passed: bool, detail: str) -> str:
-    marker = _marker(passed)
+def _check_card(title: str, passed: bool, detail: str) -> str:
+    """Return a single .check card matching the mockup HTML structure."""
+    if passed:
+        status_html = '<div class="ok">✓ PASS</div>'
+    else:
+        status_html = '<div class="bad">✗ FAIL</div>'
     return (
-        f'<div style="display:flex;gap:12px;align-items:baseline;'
-        f'padding:6px 0;border-bottom:1px solid #eaecef;font-size:13.5px">'
-        f'<span style="min-width:200px;font-weight:500">{title}</span>'
-        f"{marker}"
-        f'<span style="color:#3a4047;margin-left:8px">{detail}</span>'
+        f'<div class="check">'
+        f'<div class="t">{title}</div>'
+        f"{status_html}"
+        f'<div class="d">{detail}</div>'
         f"</div>"
     )
 
@@ -42,142 +35,150 @@ def _gate_row(title: str, passed: bool, detail: str) -> str:
 
 def render(did: DidFeasibility) -> None:
     """Render the Natural experiment (DiD) tab — honest rejection story."""
-    st.markdown(
-        '<p class="section-label">04 / Natural experiment — honest rejection</p>',
-        unsafe_allow_html=True,
-    )
 
     # --- Bottom-line takeaway tile -------------------------------------------
     st.markdown(
         takeaway(
             kicker="The bottom line",
-            question="Can we use the 2018 truckers' strike as a natural experiment?",
+            question="Can a real-world event prove the change actually caused the lift?",
             verdict_label="No — we reject this test honestly",
             verdict_cls=CHIP_FOR_VALUE["poor"],
             body_html=(
-                "Pre-registered "
-                + term("DiD", "pre-trends")
-                + " on the <b>2018 truckers’ strike</b> (outcome: delivery days). "
-                "It <b>failed its own gate</b> — reporting the rejection is the honest deliverable."
+                "We hoped the 2018 truckers' strike could act as a natural experiment. "
+                "It failed two of four trust checks: the two regions were "
+                "<b>already drifting apart before</b> the strike (only a "
+                f'<span class="num">{did.pretrends.wald_p:.1%} chance</span> '
+                "that's coincidence), and just "
+                f'<span class="num">{did.adequate_n.treated_orders:,} orders</span> '
+                "were affected — too few to be reliable. Reporting “we couldn’t trust "
+                "this, so we won’t claim a number” <b>is</b> the deliverable — a "
+                "credible analyst says no when the evidence isn’t there."
             ),
         ),
         unsafe_allow_html=True,
     )
 
-    # --- Gate checklist ------------------------------------------------------
+    # --- Simbar — verbatim from mockup ---------------------------------------
+    did_term = term("DiD", "pre-trends")
     st.markdown(
-        "<div style='font-family:IBM Plex Mono,monospace;font-size:11px;"
-        "letter-spacing:.14em;text-transform:uppercase;color:#7A1F2B;"
-        "margin:18px 0 6px'>Feasibility gate — 2 of 4 conditions failed</div>",
+        f'<div class="simbar">Pre-registered {did_term} on the '
+        f"<b>2018 truckers' strike</b> (outcome: delivery days). It "
+        f"<b>failed its own gate</b> — reporting the rejection is the honest deliverable.</div>",
         unsafe_allow_html=True,
     )
 
-    gate_html = (
-        '<div style="border:1px solid #eaecef;border-radius:8px;'
-        'padding:8px 14px;margin-bottom:16px">'
-        + _gate_row(
-            "Dated boundary",
-            did.dated_boundary_passed,
-            did.boundary_date,
-        )
-        + _gate_row(
+    # --- .kicker + .checks gate cards (verbatim from mockup) -----------------
+    st.markdown(
+        '<div class="kicker">Feasibility gate — 2 of 4 conditions failed</div>',
+        unsafe_allow_html=True,
+    )
+
+    checks_html = (
+        '<div class="checks">'
+        + _check_card("Dated boundary", did.dated_boundary_passed, did.boundary_date)
+        + _check_card(
             "Exogenous assignment",
             did.exogenous_passed,
             "strike hit north/NE, not chosen by us",
         )
-        + _gate_row(
+        + _check_card(
             "Parallel pre-trends",
             did.pretrends.passed,
             f"Wald p={did.pretrends.wald_p:.3f}; a lead breaks the band",
         )
-        + _gate_row(
+        + _check_card(
             "Adequate n",
             did.adequate_n.passed,
             f"only {did.adequate_n.treated_orders:,} treated orders",
         )
         + "</div>"
     )
-    st.markdown(gate_html, unsafe_allow_html=True)
+    st.markdown(checks_html, unsafe_allow_html=True)
 
-    # --- Pre-trends chart ----------------------------------------------------
+    # --- .kicker "Why it failed" + 2 bordered chart cards --------------------
+    st.markdown('<div class="kicker">Why it failed</div>', unsafe_allow_html=True)
+
+    col_pre, col_n = st.columns(2)
+
     pre_info = info(
         "How to read: each point is the treated−control gap in a week before the "
         "event; the shaded band is the allowed range for a valid DiD. A point breaking "
         "the band (red) means the groups were already diverging — the "
         "parallel-trends assumption fails."
     )
-    st.markdown(
-        f"<h3 style='font-size:14px;margin:12px 0 4px'>"
-        f"{term('Pre-trends', 'pre-trends')} — leads must stay in band"
-        f"{pre_info}</h3>",
-        unsafe_allow_html=True,
-    )
-    st.plotly_chart(
-        charts.coef_plot(did.pretrends), width="stretch", key="did_pretrends"
-    )
-
-    # --- Sample adequacy dumbbell --------------------------------------------
     adequacy_info = info(
         "How to read: two connected dots showing orders available on each side. "
         f"The treated side is far smaller ({did.adequate_n.treated_orders:,}) "
         "— too few to power a trustworthy estimate."
     )
-    st.markdown(
-        f"<h3 style='font-size:14px;margin:16px 0 4px'>"
-        f"Sample adequacy — treated vs control orders"
-        f"{adequacy_info}</h3>",
-        unsafe_allow_html=True,
-    )
-    n = did.adequate_n
-    st.plotly_chart(
-        charts.dumbbell(
-            label="orders",
-            control=float(n.control_orders),
-            treatment=float(n.treated_orders),
-            fmt="{:,.0f}",
-        ),
-        width="stretch",
-        key="did_adequacy_dumbbell",
-    )
 
-    # --- Geography split bar -------------------------------------------------
-    geo_info = info(
-        "How to read: share of states in each role. Excluded states are those with "
-        "mixed exposure — neither cleanly treated nor cleanly control."
-    )
-    st.markdown(
-        f"<h3 style='font-size:14px;margin:16px 0 4px'>"
-        f"Geography — state allocation"
-        f"{geo_info}</h3>",
-        unsafe_allow_html=True,
-    )
-    n_treated = len(did.treated_state_codes)
-    n_control = len(did.control_state_codes)
-    n_excluded = len(did.excluded_state_codes)
-    st.plotly_chart(
-        charts.split_bar(
-            [
-                ("treated", float(n_treated), theme.RED),
-                ("control", float(n_control), theme.SLATE),
-                ("excluded", float(n_excluded), theme.AMBER),
-            ]
-        ),
-        width="stretch",
-        key="did_geography_split",
-    )
+    with col_pre:
+        with st.container(border=True):
+            st.markdown(
+                f"<h3>{term('Pre-trends', 'pre-trends')} — leads must stay in band"
+                f"{pre_info}</h3>",
+                unsafe_allow_html=True,
+            )
+            st.plotly_chart(
+                charts.coef_plot(did.pretrends), width="stretch", key="did_pretrends"
+            )
 
-    # --- Closing note --------------------------------------------------------
+    with col_n:
+        with st.container(border=True):
+            st.markdown(
+                f"<h3>{term('Sample adequacy', 'pre-trends')} — treated vs control orders"
+                f"{adequacy_info}</h3>",
+                unsafe_allow_html=True,
+            )
+            n = did.adequate_n
+            st.plotly_chart(
+                charts.dumbbell(
+                    label="orders",
+                    control=float(n.control_orders),
+                    treatment=float(n.treated_orders),
+                    fmt="{:,.0f}",
+                ),
+                width="stretch",
+                key="did_adequacy_dumbbell",
+            )
+
     st.markdown(
-        f"The −2 week lead ({did.pretrends.max_lead_abs:.2f}) breaks the "
+        f'<p class="cap">The −2 week lead ({did.pretrends.max_lead_abs:.2f}) breaks the '
         f"±{did.pretrends.band:.2f} band and the Wald test rejects parallel "
         f"pre-trends (p={did.pretrends.wald_p:.3f}) — so the strike is "
         f"<b>not</b> a clean natural experiment for this question. Combined with only "
-        f"{n.treated_orders:,} treated orders ({n.week_cell_share_ge_20:.1%} of "
-        f"week-cells had ≥20 orders; gate needs 80%), we reject the DiD design "
-        f"rather than report a number we don’t trust. "
-        f"<b>No post-period estimate was computed</b> — the event catalog was "
-        f"committed before any data query (git-verifiable). "
-        f"The rejection is the deliverable: it shows the gate has teeth. "
-        f"Full record: ADR 0009.",
+        f"{n.treated_orders:,} treated orders, we reject the DiD design "
+        f"rather than report a number we don't trust.</p>",
         unsafe_allow_html=True,
     )
+
+    # --- .kicker "Geography" + bordered chart card ---------------------------
+    st.markdown(
+        '<div class="kicker">Geography of the natural experiment</div>',
+        unsafe_allow_html=True,
+    )
+
+    geo_info = info(
+        "How to read: one bar split by strike exposure — treated (north/NE), "
+        "control (south/SE), excluded (ambiguous). Shows the geographic basis of "
+        "the natural experiment and how lopsided it is."
+    )
+    with st.container(border=True):
+        st.markdown(
+            f"<h3>{term('State assignment', 'pre-trends')}{geo_info}</h3>",
+            unsafe_allow_html=True,
+        )
+        n_treated = len(did.treated_state_codes)
+        n_control = len(did.control_state_codes)
+        n_excluded = len(did.excluded_state_codes)
+        st.plotly_chart(
+            charts.split_bar(
+                [
+                    ("treated", float(n_treated), theme.RED),
+                    ("control", float(n_control), theme.SLATE),
+                    ("excluded", float(n_excluded), theme.AMBER),
+                ]
+            ),
+            width="stretch",
+            key="did_geography_split",
+        )

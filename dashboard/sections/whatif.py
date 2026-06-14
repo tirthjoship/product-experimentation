@@ -23,9 +23,9 @@ _INFO_CONV = (
     "Across zero = guardrail unaffected. Slate = guardrail, not a verdict."
 )
 
-# Verbatim SIMULATED banner text from mockup
-_SIMULATED_BANNER = (
-    "**SIMULATED** — synthetic injection, same method as the committed scenarios. "
+# Verbatim SIMULATED banner text from mockup (HTML — <b> not markdown **)
+_SIMULATED_BANNER_HTML = (
+    "<b>SIMULATED</b> — synthetic injection, same method as the committed scenarios. "
     "Slider snaps to precomputed grid points (no number generated in the browser)."
 )
 
@@ -40,13 +40,13 @@ def render(grid: list[ScenarioResult]) -> None:
         Sorted ascending by ``result.simulated_effect`` before display.
     """
     st.markdown(
-        '<p class="section-label">What-if — find the flip</p>',
+        '<div class="kicker">What-if — find the flip</div>',
         unsafe_allow_html=True,
     )
 
-    # --- SIMULATED banner (verbatim mockup text) ---
+    # --- SIMULATED banner (verbatim mockup text, HTML bold) ---
     st.markdown(
-        f'<div class="simbar">{_SIMULATED_BANNER}</div>',
+        f'<div class="simbar">{_SIMULATED_BANNER_HTML}</div>',
         unsafe_allow_html=True,
     )
 
@@ -92,37 +92,39 @@ def render(grid: list[ScenarioResult]) -> None:
         unsafe_allow_html=True,
     )
 
-    # --- AOV forest chart ---
-    st.markdown(
-        f"<h3>AOV lift at the injected effect{info(_INFO_AOV)}</h3>",
-        unsafe_allow_html=True,
-    )
-    st.plotly_chart(
-        charts.forest(
-            pt.result,
-            title=f"AOV lift — injected {chosen_label}",
-            adj_color=color,
-        ),
-        width="stretch",
-        key="whatif_forest",
-    )
+    # --- AOV forest chart in bordered .box card ---
+    with st.container(border=True):
+        st.markdown(
+            f"<h3>AOV lift at the injected effect{info(_INFO_AOV)}</h3>",
+            unsafe_allow_html=True,
+        )
+        st.plotly_chart(
+            charts.forest(
+                pt.result,
+                title=f"AOV lift — injected {chosen_label}",
+                adj_color=color,
+            ),
+            width="stretch",
+            key="whatif_forest",
+        )
 
-    # --- Conversion lift_forest chart ---
+    # --- Conversion lift_forest chart in bordered .box card ---
     diff = pt.result.conversion.treatment - pt.result.conversion.control
-    st.markdown(
-        f"<h3>Conversion (c vs t){info(_INFO_CONV)}</h3>",
-        unsafe_allow_html=True,
-    )
-    st.plotly_chart(
-        charts.lift_forest(
-            label="conversion diff",
-            est=diff,
-            ci=pt.result.conversion.ci,
-            color=theme.SLATE,
-        ),
-        width="stretch",
-        key="whatif_lift",
-    )
+    with st.container(border=True):
+        st.markdown(
+            f"<h3>Conversion (c vs t){info(_INFO_CONV)}</h3>",
+            unsafe_allow_html=True,
+        )
+        st.plotly_chart(
+            charts.lift_forest(
+                label="conversion diff",
+                est=diff,
+                ci=pt.result.conversion.ci,
+                color=theme.SLATE,
+            ),
+            width="stretch",
+            key="whatif_lift",
+        )
 
     st.markdown(
         '<p class="cap">Drag: the verdict crosses DO NOT SHIP → NEED MORE DATA → SHIP'

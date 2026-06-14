@@ -63,15 +63,6 @@ def render(scenarios: list[ScenarioResult]) -> None:
     scenarios:
         The 3 committed ScenarioResult objects (adverse / null / large).
     """
-    st.markdown(
-        '<p class="section-label">05 / Scenario explorer</p>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        "What this answers: how does the decision change as the true effect gets smaller"
-        " — and where exactly does the verdict flip?"
-    )
-
     # --- Bottom-line tile (live variant, keyed by selected scenario) ---
     # Show the null tile by default; update below once selection is known.
     # (radio default matches the mockup's "null" checked state)
@@ -103,6 +94,12 @@ def render(scenarios: list[ScenarioResult]) -> None:
     )
     st.markdown(tile_html, unsafe_allow_html=True)
 
+    # --- .kicker label (verbatim from mockup) ---
+    st.markdown(
+        '<div class="kicker">The three committed scenarios</div>',
+        unsafe_allow_html=True,
+    )
+
     # --- Verdict chip + raw metrics row ---
     raw_lift = s.result.aov.lift
     adj_lift = s.result.aov_adjusted.lift
@@ -128,53 +125,56 @@ def render(scenarios: list[ScenarioResult]) -> None:
         unsafe_allow_html=True,
     )
 
-    # --- Three charts in columns ---
+    # --- Three charts in bordered .box cards ---
     c1, c2, c3 = st.columns(3)
 
     with c1:
-        st.markdown(
-            f"<h3>AOV lift (unadj vs adj){info(_INFO_AOV)}</h3>",
-            unsafe_allow_html=True,
-        )
-        st.plotly_chart(
-            charts.forest(
-                s.result,
-                title=f"AOV lift — {chosen}",
-                adj_color=color,
-            ),
-            width="stretch",
-            key="scenarios_forest",
-        )
+        with st.container(border=True):
+            st.markdown(
+                f"<h3>AOV lift (unadj vs adj){info(_INFO_AOV)}</h3>",
+                unsafe_allow_html=True,
+            )
+            st.plotly_chart(
+                charts.forest(
+                    s.result,
+                    title=f"AOV lift — {chosen}",
+                    adj_color=color,
+                ),
+                width="stretch",
+                key="scenarios_forest",
+            )
 
     with c2:
         diff = s.result.conversion.treatment - s.result.conversion.control
-        st.markdown(
-            f"<h3>Conversion (c vs t){info(_INFO_CONV)}</h3>",
-            unsafe_allow_html=True,
-        )
-        st.plotly_chart(
-            charts.lift_forest(
-                label="conversion diff",
-                est=diff,
-                ci=s.result.conversion.ci,
-                color=theme.SLATE,
-            ),
-            width="stretch",
-            key="scenarios_conv_lift",
-        )
+        with st.container(border=True):
+            st.markdown(
+                f"<h3>Conversion (c vs t){info(_INFO_CONV)}</h3>",
+                unsafe_allow_html=True,
+            )
+            st.plotly_chart(
+                charts.lift_forest(
+                    label="conversion diff",
+                    est=diff,
+                    ci=s.result.conversion.ci,
+                    color=theme.SLATE,
+                ),
+                width="stretch",
+                key="scenarios_conv_lift",
+            )
 
     with c3:
-        st.markdown(
-            f"<h3>D7 repeat (c vs t){info(_INFO_D7)}</h3>",
-            unsafe_allow_html=True,
-        )
-        st.plotly_chart(
-            charts.dumbbell(
-                label="D7 repeat",
-                control=s.result.d7_control,
-                treatment=s.result.d7_treatment,
-                fmt="{:.3f}",
-            ),
-            width="stretch",
-            key="scenarios_d7_dumbbell",
-        )
+        with st.container(border=True):
+            st.markdown(
+                f"<h3>D7 repeat (c vs t){info(_INFO_D7)}</h3>",
+                unsafe_allow_html=True,
+            )
+            st.plotly_chart(
+                charts.dumbbell(
+                    label="D7 repeat",
+                    control=s.result.d7_control,
+                    treatment=s.result.d7_treatment,
+                    fmt="{:.3f}",
+                ),
+                width="stretch",
+                key="scenarios_d7_dumbbell",
+            )

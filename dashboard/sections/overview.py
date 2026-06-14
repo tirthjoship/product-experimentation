@@ -2,10 +2,10 @@
 
 Sections (top -> bottom):
 1. Bottom-line takeaway tile (static SHIP copy, large-scenario framing)
-2. Verdict hero (colored h2 + sub-line)
-3. Why-it-matters motivation KPIs (3 colored values with vtags)
-4. AOV-by-installment bucket bar + info caption
-5. Headline forest (large scenario, adjusted row colored by verdict) + info caption
+2. Verdict hero (.kicker "Decision" + colored verdict word + "— installment cap 6× → 10×" suffix)
+3. Why-it-matters motivation KPIs (.kicker + 3 colored values with vtags)
+4. AOV-by-installment bucket bar in bordered .box card + info caption
+5. Headline forest in bordered .box card + info caption
 """
 
 import streamlit as st
@@ -39,10 +39,10 @@ def render(
     body_html = (
         f"If the change really lifts spending by about 5%, customers spend on average "
         f'<span class="num">R${experiment.aov_adjusted.lift:.2f} more per order</span>, '
-        f"and we're 95% sure the true gain is between "
+        f"and we’re 95% sure the true gain is between "
         f'<span class="num">R${lo:.0f} and R${hi:.0f}</span> — across '
-        f"{motivation.n_orders:,} orders that more than pays for the change, so we'd "
-        f"roll it out. <b>But that's the optimistic case.</b> If the real effect is "
+        f"{motivation.n_orders:,} orders that more than pays for the change, so we’d "
+        f"roll it out. <b>But that’s the optimistic case.</b> If the real effect is "
         f"small or zero, the recommendation flips — see the Scenario explorer for "
         f"exactly when."
     )
@@ -59,7 +59,7 @@ def render(
     )
 
     # ------------------------------------------------------------------
-    # 2. Verdict hero
+    # 2. Verdict hero — .kicker + colored verdict word + suffix (verbatim from mockup)
     # ------------------------------------------------------------------
     large_sc = next(s for s in scenarios if s.scenario == "large")
     verdict = large_sc.verdict
@@ -68,21 +68,21 @@ def render(
     adj_def = glossary.define("adjusted lift")
     ci_def = glossary.define("CI")
 
-    st.markdown('<p class="section-label">Decision</p>', unsafe_allow_html=True)
+    st.markdown('<div class="kicker">Decision</div>', unsafe_allow_html=True)
     st.markdown(
-        f'<h2 class="hero" style="color:{hero_color}">{verdict}</h2>'
-        f'<p style="font-family:IBM Plex Mono,monospace;font-size:1rem;'
-        f'color:{theme.SLATE}">'
+        f'<h2 class="hero"><span style="color:{hero_color}">{verdict}</span>'
+        f" — installment cap 6× → 10×</h2>"
+        f'<div class="sub">'
         f"AOV +{experiment.aov_adjusted.lift:.2f} BRL · "
         f'<span class="term" data-def="{adj_def}">covariate-adjusted</span> 95% '
         f'<span class="term" data-def="{ci_def}">CI</span> '
         f"({lo:.2f}, {hi:.2f}) · "
-        f"n = {experiment.n_control:,} / {experiment.n_treatment:,}"
-        f"</p>"
+        f"n = {experiment.n_control:,} / {experiment.n_treatment:,}"
+        f"</div>"
         f'<p class="cap">Plain English: in the optimistic scenario, treated customers '
         f"spent about <b>R${experiment.aov_adjusted.lift:.2f} more</b> per order; "
-        f"we're 95% confident the true gain is "
-        f"R${lo:.0f}–{hi:.0f} — clear of zero, so we'd ship. "
+        f"we’re 95% confident the true gain is "
+        f"R${lo:.0f}–{hi:.0f} — clear of zero, so we’d ship. "
         f"The other scenarios (below) show how the call changes when the effect is "
         f"smaller.</p>",
         unsafe_allow_html=True,
@@ -92,7 +92,7 @@ def render(
     # 3. Why it matters -- installment affordability KPIs
     # ------------------------------------------------------------------
     st.markdown(
-        '<p class="section-label">Why it matters — installment affordability</p>',
+        '<div class="kicker">Why it matters — installment affordability</div>',
         unsafe_allow_html=True,
     )
 
@@ -136,7 +136,7 @@ def render(
     st.markdown(kpi_html, unsafe_allow_html=True)
 
     # ------------------------------------------------------------------
-    # 4. Bucket bar + info caption
+    # 4. Bucket bar in bordered .box card + info caption
     # ------------------------------------------------------------------
     bucket_info = _ui.info(
         "How to read: average order value for orders grouped by how many installments "
@@ -144,15 +144,17 @@ def render(
         "— a correlation that motivates the test, not proof the cap causes more "
         "spend."
     )
-    st.markdown(
-        f"<h3>AOV by installment bucket "
-        f'<span style="font-weight:400;color:{theme.SLATE}">'
-        f"(descriptive, not causal)</span>{bucket_info}</h3>",
-        unsafe_allow_html=True,
-    )
-    st.plotly_chart(
-        charts.bucket_bar(motivation), width="stretch", key="overview_bucket"
-    )
+    with st.container(border=True):
+        st.markdown(
+            f"<h3>AOV by installment bucket "
+            f'<span class="term" data-def="Descriptive only: shows the affordability '
+            f"pattern exists; it does not prove the cap change causes more spend."
+            f'">(descriptive, not causal)</span>{bucket_info}</h3>',
+            unsafe_allow_html=True,
+        )
+        st.plotly_chart(
+            charts.bucket_bar(motivation), width="stretch", key="overview_bucket"
+        )
     st.markdown(
         '<p class="cap">Bigger baskets already use more installments — the '
         "mechanism is plausible. The experiment tests whether "
@@ -161,7 +163,7 @@ def render(
     )
 
     # ------------------------------------------------------------------
-    # 5. Headline forest (large scenario) + info caption
+    # 5. Headline forest in bordered .box card + info caption
     # ------------------------------------------------------------------
     forest_info = _ui.info(
         "How to read: each dot is the estimated lift in BRL; the horizontal line is "
@@ -169,19 +171,20 @@ def render(
         "line, the effect is positive and significant. The adjusted row is colored by "
         "the verdict and is tighter because covariate correction removes noise."
     )
-    st.markdown('<p class="section-label">Headline result</p>', unsafe_allow_html=True)
-    st.markdown(
-        f"<h3>AOV lift — unadjusted vs covariate-adjusted "
-        f"(large scenario){forest_info}</h3>",
-        unsafe_allow_html=True,
-    )
-    adj_color = theme.verdict_color(large_sc.verdict)
-    fig = charts.forest(
-        large_sc.result,
-        title="AOV lift (BRL) — 95% CI",
-        adj_color=adj_color,
-    )
-    st.plotly_chart(fig, width="stretch", key="overview_forest")
+    st.markdown('<div class="kicker">Headline result</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown(
+            f"<h3>AOV lift — unadjusted vs covariate-adjusted "
+            f"(large scenario){forest_info}</h3>",
+            unsafe_allow_html=True,
+        )
+        adj_color = theme.verdict_color(large_sc.verdict)
+        fig = charts.forest(
+            large_sc.result,
+            title="AOV lift (BRL) — 95% CI",
+            adj_color=adj_color,
+        )
+        st.plotly_chart(fig, width="stretch", key="overview_forest")
     st.markdown(
         '<p class="cap">Two estimates of the same effect: the raw difference and the '
         "tighter ANCOVA-adjusted one. Full metric set in <b>Experiment results</b>.</p>",
