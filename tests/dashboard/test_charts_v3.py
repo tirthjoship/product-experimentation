@@ -60,3 +60,12 @@ def test_forest_accepts_adjusted_color() -> None:
     fig = charts.forest(exp, adj_color=theme.GREEN)
     colors = [getattr(t.marker, "color", None) for t in fig.data if t.mode == "markers"]
     assert theme.GREEN in colors
+
+
+def test_power_at_matches_mde_definition() -> None:
+    from src.experiment.power import mde_mean
+
+    sd, n, alpha = 180.0, 49000, 0.05
+    mde = mde_mean(sd, n, alpha, 0.80)
+    assert abs(charts._power_at(mde, sd, n, alpha) - 0.80) < 1e-3
+    assert abs(charts._power_at(0.0, sd, n, alpha) - alpha) < 1e-3

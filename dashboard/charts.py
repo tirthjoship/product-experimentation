@@ -244,7 +244,9 @@ def split_bar(parts: list[tuple[str, float, str]]) -> go.Figure:
                 name=name,
                 orientation="h",
                 marker_color=color,
-                text=[f"{name} {val:,.0f} ({100 * val / total:.1f}%)"],
+                text=[
+                    f"{name} {val:,.0f} ({(100 * val / total if total else 0.0):.1f}%)"
+                ],
                 textposition="inside",
                 insidetextanchor="middle",
                 textfont={"color": "white", "family": theme.FONT_MONO},
