@@ -60,7 +60,7 @@ with story_tab:
     st.divider()
     _render("notes", notes.render)
     st.divider()
-    _render("results", lambda: results.render(_experiment()))
+    _render("results", lambda: results.render(_scenarios()))
     st.divider()
     _render("did", lambda: did.render(_did()))
 
