@@ -212,6 +212,7 @@ def dumbbell(label: str, control: float, treatment: float, fmt: str) -> go.Figur
             text=["control"],
             textposition="top center",
             textfont={"family": theme.FONT_MONO, "size": 10, "color": theme.SLATE},
+            cliponaxis=False,
             hovertemplate="control " + fmt.format(control) + "<extra></extra>",
         )
     )
@@ -224,15 +225,22 @@ def dumbbell(label: str, control: float, treatment: float, fmt: str) -> go.Figur
             text=["treatment"],
             textposition="bottom center",
             textfont={"family": theme.FONT_MONO, "size": 10, "color": theme.GREEN},
+            cliponaxis=False,
             hovertemplate="treatment " + fmt.format(treatment) + "<extra></extra>",
         )
     )
+    # Pad the x-range so the endpoint dots sit INWARD — otherwise plotly fits the
+    # range tightly to [control, treatment] and the centered "control"/"treatment"
+    # labels overflow the plot edge and get clipped (esp. when the two values are
+    # far apart). Combined with cliponaxis=False this keeps both labels inside.
+    lo, hi = min(control, treatment), max(control, treatment)
+    pad = (hi - lo) * 0.45 or (abs(hi) * 0.1 or 1.0)
     fig.update_layout(
         **theme.plotly_layout(
             height=130,
             showlegend=False,
-            margin={"l": 50, "r": 28, "t": 14, "b": 30},
-            xaxis={"automargin": True, "gridcolor": "#eef0f3"},
+            margin={"l": 56, "r": 56, "t": 16, "b": 30},
+            xaxis={"range": [lo - pad, hi + pad], "gridcolor": "#eef0f3"},
             yaxis={"automargin": True, "gridcolor": "#fff"},
         )
     )
@@ -330,15 +338,21 @@ def diverging_marker(value: float, band: float, unit: str) -> go.Figure:
             text=[f"{value:.3f} {unit}"],
             textposition="top center",
             textfont={"family": theme.FONT_MONO, "size": 11},
+            cliponaxis=False,
             hovertemplate=f"gap {value:.3f}<extra></extra>",
         )
     )
+    # Range spans the band and the marker, padded so the centered value label
+    # (which may sit at/beyond the band edge) never clips the plot edge.
+    span = max(band, abs(value))
+    pad = span * 0.35 or 1.0
     fig.update_layout(
         **theme.plotly_layout(
             height=96,
             showlegend=False,
-            margin={"l": 14, "r": 14, "t": 22, "b": 24},
+            margin={"l": 24, "r": 24, "t": 24, "b": 24},
             xaxis={
+                "range": [-span - pad, span + pad],
                 "zeroline": True,
                 "zerolinecolor": "#9aa0a8",
                 "zerolinewidth": 1.5,
