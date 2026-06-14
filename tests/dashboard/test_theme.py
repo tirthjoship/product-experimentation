@@ -21,3 +21,20 @@ def test_plotly_layout_merges_overrides() -> None:
     assert layout["title"] == "x"
     assert layout["showlegend"] is False
     assert layout["paper_bgcolor"] == "white"
+
+
+# v3 theme tests
+def test_value_color_maps_classes() -> None:
+    assert theme.value_color("good") == theme.GREEN
+    assert theme.value_color("average") == theme.AMBER
+    assert theme.value_color("poor") == theme.RED
+    assert theme.value_color("neutral") == theme.INK
+
+
+def test_verdict_color_still_works() -> None:
+    assert theme.verdict_color("SHIP") == theme.GREEN
+
+
+def test_css_imports_new_fonts() -> None:
+    assert "Space+Grotesk" in theme.CSS
+    assert "Inter" in theme.CSS
