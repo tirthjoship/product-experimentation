@@ -1,8 +1,7 @@
 # Product Experimentation & Growth Metrics Platform
 
-**Status:** Plans 1–3 complete on `main` · Plan 4 DiD implemented on branch
-`feat/plan4-did-natural-experiment` — feasibility ran, truckers'-strike candidate FAILED the
-pre-registered gate → documented rejection (ADR 0009) · dashboard + repro CI gate on the backlog
+**Status:** Plans 1–5 complete on `feat/plan5-dashboard` · Plan 4 DiD honest rejection on `main` ·
+dashboard v3 implemented, verified, screenshots committed · PR to dev → main pending
 **Portfolio:** Project 4 of 5 · Balanced DA/DS strategy
 
 > **Simulated RCT on historical Olist cohorts.** Variants are assigned by hashed
@@ -15,33 +14,46 @@ End-to-end **product analytics** for a classic hiring question: *Did a product c
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Phase](https://img.shields.io/badge/phase-1%20complete-brightgreen)](./reports/experiment_001.md)
-[![Tests](https://img.shields.io/badge/tests-132%20passing-brightgreen)](./tests/)
-[![Coverage](https://img.shields.io/badge/coverage-93%25-brightgreen)](./tests/)
+[![Tests](https://img.shields.io/badge/tests-206%20passing-brightgreen)](./tests/)
+[![Coverage](https://img.shields.io/badge/coverage-100%25%20pure--layer-brightgreen)](./tests/)
 [![Portfolio](https://img.shields.io/badge/portfolio-4%20of%205-purple)](../README.md)
 
 > **Disclaimer:** Experiments in this repo are **simulated** on historical Olist data (hashed customer assignment or documented natural experiment). This is not employer A/B test data and does not claim causal lift from a real product rollout.
 
 ---
 
-## 📊 Dashboard
+## 📊 Dashboard (v3)
 
-A read-only **Streamlit + Plotly** dashboard renders the committed `reports/*.json` — no
-recompute, every number traceable to a report. Two tabs: a **Story** tab (the SHIP decision
-with covariate-adjusted CIs, the installment-affordability motivation, and the Plan 4 DiD
-*honest rejection* with its pre-trends evidence) and an **Interactive** tab (a scenario
-explorer where the verdict flips across adverse / null / large injected effects).
+A read-only **Streamlit + Plotly** dashboard (Plan 5 v3) renders the committed `reports/*.json`
+and `reports/experiment_grid.json` — no recompute at runtime; every number is traceable to a
+committed report or a labeled analytical formula. Five tabs:
 
-<!-- Screenshots + live URL added after first deploy:
-![Story tab — verdict, forest plot](docs/img/dashboard-story.png)
-![Interactive tab — scenario explorer](docs/img/dashboard-scenarios.png)
+| Tab | What it shows |
+|-----|---------------|
+| **Overview** | Plain-language verdict tile, key metric summary with semantic color-coding (good / average / poor), and the business motivation for the installment-expansion test |
+| **Experiment results** | Dumbbell CI chart (raw vs ANCOVA-adjusted), range/variance plot, split bar for conversion, diverging-marker guardrail chart — all with layered ⓘ how-to-read hovers and glossary term spans |
+| **Scenario explorer** | Verdict-flip across adverse / null / base / large injected effects + **What-if effect grid** (21 grid points; `reports/experiment_grid.json`) — lift forest + MDE-vs-n heat map controlled by a slider |
+| **Power & design** | Analytical MDE calculator (`src.experiment.power`) with power-vs-effect curve; labeled **CALCULATOR** banner; no experiment data involved |
+| **Natural experiment** | Plan 4 DiD honest rejection — pre-trends coefficient plot, 2 leads breaking the band highlighted red, gate checklist with FAIL badges |
+
+**Design principles:** persistent header with chip rationale tooltips; plain-language bottom-line
+takeaway tiles per tab; self-explaining chart ⓘ hovers; semantic value color-coding; de-AI theme
+(white · Space Grotesk · Inter · IBM Plex Mono · oxblood accent). Loud **SIMULATED** and
+**CALCULATOR** banners on every synthetic figure. Verdict always read from `recommend()` in the
+committed report — never recomputed.
+
+![Overview tab — verdict, key metrics](docs/img/v3-0-overview.png)
+![Experiment results — dumbbell CI, variance, split bar](docs/img/v3-1-experiment-results.png)
+![Scenario explorer — verdict flip + what-if grid](docs/img/v3-2-scenario-explorer.png)
+
 [Open the live dashboard ↗](<APP_URL>)
--->
 
 Run locally:
 
 ```bash
 pip install -e ".[dashboard]"
 make dashboard        # streamlit run dashboard/app.py
+make experiment-grid  # rebuild reports/experiment_grid.json (requires full Olist)
 ```
 
 ---
@@ -165,7 +177,7 @@ flowchart TD
 | **Power** | MDE + sample-size reasoning | AOV MDE 4.32, conversion MDE 0.0030 in report | ✅ |
 | **Integrity** | Balance guard + no-leakage design | 0.6% arm gap (within 5% tol); guardrail flat | ✅ |
 | **Honesty** | README + report banners | Simulation labeled; SHIP/HOLD/MORE-DATA all valid | ✅ |
-| **Dashboard** | Streamlit variant comparison | Control vs treatment with CIs visible | ⏳ Phase 2 |
+| **Dashboard v3** | 5-tab Streamlit+Plotly over committed JSON | 5 tabs · what-if grid · power calculator · self-explaining hovers | ✅ |
 
 ---
 
@@ -394,6 +406,12 @@ make experiment     # writes reports/experiment_001.md
 
 # 4. Run the full test suite (fixtures only — no full Olist in tests)
 make test
+
+# 5. Launch the dashboard (reads committed reports/*.json — no Olist needed)
+make dashboard
+
+# 6. (Optional) Rebuild the what-if experiment grid (requires full Olist)
+make experiment-grid  # writes reports/experiment_grid.json (21 grid points)
 ```
 
 Generated outputs:
@@ -434,7 +452,10 @@ make experiment
 > Defined funnel metrics (conversion, AOV, D7-repeat) in versioned SQL over ~99k Olist
 > e-commerce orders; ran a simulated A/B test with hashed person-level assignment, 95% bootstrap
 > CIs, Welch/two-proportion tests, and MDE power analysis; auto-generated a ship/no-ship report
-> with a guardrail-validated, no-leakage pipeline (95 tests, 96% coverage, mypy strict).
+> with a guardrail-validated, no-leakage pipeline; implemented a gated DiD natural experiment
+> (honest rejection documented); shipped a 5-tab Streamlit+Plotly dashboard with a what-if
+> scenario grid, analytical power calculator, and self-explaining hovers (206 tests, 100%
+> pure-layer coverage, mypy strict).
 
 ---
 
