@@ -3,7 +3,7 @@
 **Repo:** `product-experimentation-analytics`  
 **Owner:** Tirth Joshi  
 **Created:** 2026-05-30  
-**Phase:** 0 — EDA gate → then implementation  
+**Phase:** Plans 1–5 shipped to `main` (EDA → simulated RCT → installment narrative → DiD honest rejection → read-only dashboard v3). Remaining: deploy + `<APP_URL>`.  
 **Portfolio slot:** Project 4 of 5 (balanced DA/DS strategy)
 
 **Read first:** [`../PORTFOLIO_LOCKED_DECISIONS.md`](../PORTFOLIO_LOCKED_DECISIONS.md) · [`../PORTFOLIO_EDA_SPRINT.md`](../PORTFOLIO_EDA_SPRINT.md)  
@@ -32,7 +32,7 @@ It complements ML-heavy repos (supply chain, stock, healthcare) without duplicat
 | **Primary metrics** | Conversion (order delivered), AOV, D7 repeat purchase rate |
 | **Analysis** | Lift + 95% CI; power analysis documented |
 | **SQL engine** | DuckDB (local); SQL files versioned in `sql/` |
-| **Dashboard** | Streamlit v1 (Power BI optional v2) |
+| **Dashboard** | **Streamlit + Plotly v3, read-only over committed `reports/*.json`** (shipped; ADR 0010) |
 | **Architecture** | Clean `src/` layout with thin domain layer — **not full hexagonal v1** (YAGNI) |
 | **Honesty banner** | README must state experiment is simulated on historical data |
 
