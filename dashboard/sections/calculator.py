@@ -231,47 +231,49 @@ def render(experiment: ExperimentResult) -> None:
     col_curve, col_pow = st.columns(2)
 
     with col_curve:
-        curve_title_html = (
-            "<h3>MDE vs sample size"
-            + _ui.info(
-                "How to read: each point is the smallest effect detectable at that "
-                "sample size. The curve falls as n grows — bigger studies catch smaller "
-                "effects. The accent dot marks your current slider setting."
+        with st.container(border=True):
+            curve_title_html = (
+                "<h3>MDE vs sample size"
+                + _ui.info(
+                    "How to read: each point is the smallest effect detectable at that "
+                    "sample size. The curve falls as n grows — bigger studies catch smaller "
+                    "effects. The accent dot marks your current slider setting."
+                )
+                + "</h3>"
             )
-            + "</h3>"
-        )
-        st.markdown(curve_title_html, unsafe_allow_html=True)
-        st.plotly_chart(
-            charts.mde_vs_n(
-                sd=float(sd),
-                alpha=alpha,
-                power=power_target,
-                n_current=n_per_arm,
-            ),
-            width="stretch",
-            key="calc_mde_vs_n",
-        )
+            st.markdown(curve_title_html, unsafe_allow_html=True)
+            st.plotly_chart(
+                charts.mde_vs_n(
+                    sd=float(sd),
+                    alpha=alpha,
+                    power=power_target,
+                    n_current=n_per_arm,
+                ),
+                width="stretch",
+                key="calc_mde_vs_n",
+            )
 
     with col_pow:
-        pow_title_html = (
-            "<h3>Power vs true effect size"
-            + _ui.info(
-                "How to read: for each possible true effect (x-axis), the chance the "
-                "study would detect it (y-axis). The dotted line is the 80% target; "
-                "effects right of where the curve crosses it are reliably detectable."
+        with st.container(border=True):
+            pow_title_html = (
+                "<h3>Power vs true effect size"
+                + _ui.info(
+                    "How to read: for each possible true effect (x-axis), the chance the "
+                    "study would detect it (y-axis). The dotted line is the 80% target; "
+                    "effects right of where the curve crosses it are reliably detectable."
+                )
+                + "</h3>"
             )
-            + "</h3>"
-        )
-        st.markdown(pow_title_html, unsafe_allow_html=True)
-        st.plotly_chart(
-            charts.power_vs_effect(
-                sd=float(sd),
-                alpha=alpha,
-                n=n_per_arm,
-            ),
-            width="stretch",
-            key="calc_power_vs_effect",
-        )
+            st.markdown(pow_title_html, unsafe_allow_html=True)
+            st.plotly_chart(
+                charts.power_vs_effect(
+                    sd=float(sd),
+                    alpha=alpha,
+                    n=n_per_arm,
+                ),
+                width="stretch",
+                key="calc_power_vs_effect",
+            )
 
     # ------------------------------------------------------------------
     # 6. Footer caption
