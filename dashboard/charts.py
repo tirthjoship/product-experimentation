@@ -18,21 +18,26 @@ def bucket_bar(stats: MotivationStats) -> go.Figure:
     """AOV by installment bucket — the affordability gradient."""
     labels = [b.bucket for b in stats.buckets]
     values = [b.aov for b in stats.buckets]
+    bar_width = 0.42 if len(labels) <= 2 else 0.6
     fig = go.Figure(
         go.Bar(
             x=labels,
             y=values,
             marker_color=theme.SLATE,
+            width=[bar_width] * len(labels),
             text=[f"R${v:,.2f}" for v in values],
             textposition="outside",
-            textfont={"family": theme.FONT_MONO, "size": 13},
+            textfont={"family": theme.FONT_MONO, "size": 11},
+            cliponaxis=False,
         )
     )
     fig.update_layout(
         **theme.plotly_layout(
-            title="AOV by installment bucket (descriptive, not causal)",
-            xaxis_title="installments per order",
-            yaxis_title="AOV (BRL)",
+            height=190,
+            margin={"l": 56, "r": 16, "t": 26, "b": 34},
+            bargap=0.55,
+            xaxis={"gridcolor": "#fff"},
+            yaxis={"title": "AOV (BRL)", "gridcolor": "#eef0f3"},
         )
     )
     return fig
@@ -110,8 +115,30 @@ def forest(
         showarrow=False,
         font={"family": theme.FONT_MONO, "size": 12, "color": theme.SLATE},
     )
+    # Compute x-range with 12% padding over all CI endpoints + 0
+    all_x = [
+        result.aov.ci[0],
+        result.aov.ci[1],
+        result.aov.lift,
+        result.aov_adjusted.ci[0],
+        result.aov_adjusted.ci[1],
+        result.aov_adjusted.lift,
+        0.0,
+    ]
+    lo, hi = min(all_x), max(all_x)
+    pad = (hi - lo) * 0.12 or 1.0
     fig.update_layout(
-        **theme.plotly_layout(title=title, xaxis_title="lift (BRL)", height=300)
+        **theme.plotly_layout(
+            height=150,
+            xaxis={
+                "title": "lift (BRL)",
+                "range": [lo - pad, hi + pad],
+                "zeroline": True,
+                "zerolinecolor": "#c9ccd1",
+                "gridcolor": "#eef0f3",
+            },
+            yaxis={"automargin": True, "gridcolor": "#eef0f3"},
+        )
     )
     return fig
 
@@ -146,10 +173,17 @@ def coef_plot(pre: PreTrends) -> go.Figure:
     )
     fig.update_layout(
         **theme.plotly_layout(
-            title="Pre-trends: lead coefficients (treated − control)",
-            xaxis_title="weeks before boundary",
-            yaxis_title="coefficient (delivery days)",
             height=350,
+            xaxis={
+                "title": "weeks before boundary",
+                "gridcolor": "#eef0f3",
+                "zeroline": False,
+            },
+            yaxis={
+                "title": "coefficient (delivery days)",
+                "gridcolor": "#eef0f3",
+                "zeroline": False,
+            },
         )
     )
     return fig
@@ -165,9 +199,13 @@ def guardrail_plot(scenarios: list[ScenarioResult]) -> go.Figure:
     fig.add_vline(x=0.0, line_dash="dash", line_color=theme.INK, line_width=1)
     fig.update_layout(
         **theme.plotly_layout(
-            title="Guardrail: delivered-rate difference — 95% CI",
-            xaxis_title="treatment − control (delivered rate)",
             height=300,
+            xaxis={
+                "title": "treatment − control (delivered rate)",
+                "gridcolor": "#eef0f3",
+                "zeroline": False,
+            },
+            yaxis={"gridcolor": "#eef0f3", "zeroline": False},
         )
     )
     return fig
@@ -179,14 +217,14 @@ def guardrail_plot(scenarios: list[ScenarioResult]) -> go.Figure:
 
 
 def dumbbell(label: str, control: float, treatment: float, fmt: str) -> go.Figure:
-    """Single-row dumbbell: connector line + two endpoint markers."""
+    """Single-row dumbbell: connector line + two endpoint markers with text labels."""
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
             x=[control, treatment],
             y=[label, label],
             mode="lines",
-            line={"color": "#CDD2D8", "width": 3},
+            line={"color": "#cdd2d8", "width": 3},
             hoverinfo="skip",
         )
     )
@@ -194,8 +232,11 @@ def dumbbell(label: str, control: float, treatment: float, fmt: str) -> go.Figur
         go.Scatter(
             x=[control],
             y=[label],
-            mode="markers",
+            mode="markers+text",
             marker={"size": 14, "color": theme.SLATE},
+            text=["control"],
+            textposition="top center",
+            textfont={"family": theme.FONT_MONO, "size": 10, "color": theme.SLATE},
             hovertemplate="control " + fmt.format(control) + "<extra></extra>",
         )
     )
@@ -203,12 +244,23 @@ def dumbbell(label: str, control: float, treatment: float, fmt: str) -> go.Figur
         go.Scatter(
             x=[treatment],
             y=[label],
-            mode="markers",
+            mode="markers+text",
             marker={"size": 14, "color": theme.GREEN},
+            text=["treatment"],
+            textposition="bottom center",
+            textfont={"family": theme.FONT_MONO, "size": 10, "color": theme.GREEN},
             hovertemplate="treatment " + fmt.format(treatment) + "<extra></extra>",
         )
     )
-    fig.update_layout(**theme.plotly_layout(height=130, showlegend=False))
+    fig.update_layout(
+        **theme.plotly_layout(
+            height=130,
+            showlegend=False,
+            margin={"l": 50, "r": 28, "t": 14, "b": 30},
+            xaxis={"automargin": True, "gridcolor": "#eef0f3"},
+            yaxis={"automargin": True, "gridcolor": "#fff"},
+        )
+    )
     return fig
 
 
@@ -228,7 +280,24 @@ def range_plot(rows: list[tuple[str, tuple[float, float], str]]) -> go.Figure:
                 ),
             )
         )
-    fig.update_layout(**theme.plotly_layout(height=130, xaxis_title="lift (BRL)"))
+    # x-range with 10% padding over all CI endpoints
+    all_x = [v for _, ci, _ in rows for v in ci]
+    lo, hi = min(all_x), max(all_x)
+    pad = (hi - lo) * 0.1
+    fig.update_layout(
+        **theme.plotly_layout(
+            height=130,
+            margin={"l": 86, "r": 20, "t": 12, "b": 32},
+            xaxis={
+                "title": "lift (BRL)",
+                "range": [lo - pad, hi + pad],
+                "gridcolor": "#eef0f3",
+                "zeroline": True,
+                "zerolinecolor": "#c9ccd1",
+            },
+            yaxis={"automargin": True, "gridcolor": "#fff"},
+        )
+    )
     return fig
 
 
@@ -253,10 +322,15 @@ def split_bar(parts: list[tuple[str, float, str]]) -> go.Figure:
             )
         )
     fig.update_layout(
-        barmode="stack", **theme.plotly_layout(height=86, showlegend=False)
+        **theme.plotly_layout(
+            height=86,
+            showlegend=False,
+            barmode="stack",
+            margin={"l": 10, "r": 10, "t": 8, "b": 18},
+            xaxis={"visible": False},
+            yaxis={"visible": False},
+        )
     )
-    fig.update_xaxes(visible=False)
-    fig.update_yaxes(visible=False)
     return fig
 
 
@@ -268,7 +342,7 @@ def diverging_marker(value: float, band: float, unit: str) -> go.Figure:
             x=[-band, band],
             y=["", ""],
             mode="lines",
-            line={"color": "#E0C9CC", "width": 14},
+            line={"color": "#e0c9cc", "width": 14},
             hoverinfo="skip",
         )
     )
@@ -280,11 +354,24 @@ def diverging_marker(value: float, band: float, unit: str) -> go.Figure:
             marker={"size": 16, "color": theme.ACCENT, "symbol": "diamond"},
             text=[f"{value:.3f} {unit}"],
             textposition="top center",
+            textfont={"family": theme.FONT_MONO, "size": 11},
             hovertemplate=f"gap {value:.3f}<extra></extra>",
         )
     )
-    fig.update_layout(**theme.plotly_layout(height=96, showlegend=False))
-    fig.update_yaxes(visible=False)
+    fig.update_layout(
+        **theme.plotly_layout(
+            height=96,
+            showlegend=False,
+            margin={"l": 14, "r": 14, "t": 22, "b": 24},
+            xaxis={
+                "zeroline": True,
+                "zerolinecolor": "#9aa0a8",
+                "zerolinewidth": 1.5,
+                "gridcolor": "#f2f3f5",
+            },
+            yaxis={"visible": False},
+        )
+    )
     return fig
 
 
@@ -312,8 +399,22 @@ def lift_forest(
             ),
         )
     )
-    fig.update_layout(**theme.plotly_layout(height=150, xaxis_title="lift"))
-    fig.update_xaxes(zeroline=True)
+    lo = min(ci[0], est, 0.0)
+    hi = max(ci[1], est, 0.0)
+    pad = (hi - lo) * 0.12 or 1.0
+    fig.update_layout(
+        **theme.plotly_layout(
+            height=150,
+            xaxis={
+                "title": "lift",
+                "range": [lo - pad, hi + pad],
+                "zeroline": True,
+                "zerolinecolor": "#c9ccd1",
+                "gridcolor": "#eef0f3",
+            },
+            yaxis={"automargin": True, "gridcolor": "#eef0f3"},
+        )
+    )
     return fig
 
 
@@ -347,7 +448,9 @@ def mde_vs_n(sd: float, alpha: float, power: float, n_current: int) -> go.Figure
     )
     fig.update_layout(
         **theme.plotly_layout(
-            height=220, xaxis_title="n per arm", yaxis_title="MDE (BRL)"
+            height=220,
+            xaxis={"title": "n per arm", "gridcolor": "#eef0f3", "zeroline": False},
+            yaxis={"title": "MDE (BRL)", "gridcolor": "#eef0f3", "zeroline": False},
         )
     )
     return fig
@@ -376,7 +479,13 @@ def power_vs_effect(sd: float, alpha: float, n: int) -> go.Figure:
     )
     fig.update_layout(
         **theme.plotly_layout(
-            height=220, xaxis_title="true effect (BRL)", yaxis_title="power"
+            height=220,
+            xaxis={
+                "title": "true effect (BRL)",
+                "gridcolor": "#eef0f3",
+                "zeroline": False,
+            },
+            yaxis={"title": "power", "gridcolor": "#eef0f3", "zeroline": False},
         )
     )
     return fig
