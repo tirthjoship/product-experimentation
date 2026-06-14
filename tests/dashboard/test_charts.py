@@ -17,15 +17,15 @@ def test_bucket_bar_returns_figure_with_all_buckets() -> None:
     assert list(fig.data[0].x) == ["1", "2-3", "4-6", "7+"]
 
 
-def test_forest_has_two_rows_zero_line_and_annotations() -> None:
+def test_forest_has_two_rows_and_zero_line() -> None:
     exp = load_experiment(FIXTURES / "experiment.json")
     fig = charts.forest(exp)
     assert isinstance(fig, go.Figure)
     assert len(fig.data) == 2  # unadjusted + adjusted
     assert len(fig.layout.shapes) >= 1  # zero line
-    texts = " ".join(a.text for a in fig.layout.annotations)
-    assert "tighter" in texts  # variance-reduction callout
-    assert "MDE" in texts  # power callout
+    # Forest stays clean (mockup-faithful): variance-reduction / MDE callouts
+    # are surfaced in the section captions, not painted over the plot.
+    assert len(fig.layout.annotations) == 0
 
 
 def test_coef_plot_has_band_and_flags_violating_lead() -> None:

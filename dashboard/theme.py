@@ -226,9 +226,14 @@ code, pre, .stCode { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
 }
 
 /* ---- responsive: no horizontal scroll ---- */
+/* Page-level guard only: .stApp clips horizontal overflow. Inner containers
+   keep overflow VISIBLE so the .ci / .term / .pill hover tooltip clouds can
+   escape their column / chart box instead of being clipped (the agreed-upon
+   layered-hover behaviour). */
 .js-plotly-plot, .plot-container { max-width: 100% !important; }
-.stPlotlyChart { min-width: 0; overflow: hidden; }
-.stColumns > div, [data-testid="column"] { min-width: 0; overflow: hidden; }
+.stPlotlyChart { min-width: 0; overflow: visible; }
+.stColumns > div, [data-testid="column"] { min-width: 0; overflow: visible; }
+[data-testid="stVerticalBlockBorderWrapper"] { overflow: visible; }
 
 @media (max-width: 720px) {
   .stColumns { flex-direction: column !important; }

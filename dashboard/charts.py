@@ -95,26 +95,9 @@ def forest(
         3.5,
     )
     fig.add_vline(x=0.0, line_dash="dash", line_color=theme.RED, line_width=1)
-    shrink = round((1.0 - result.aov_adjusted.ci_width_ratio) * 100)
-    fig.add_annotation(
-        text=f"adjusted CI {shrink}% tighter (ratio {result.aov_adjusted.ci_width_ratio:.3f}"
-        " ≈ √(1−r²) optimum)",
-        xref="paper",
-        yref="paper",
-        x=0.99,
-        y=1.12,
-        showarrow=False,
-        font={"family": theme.FONT_MONO, "size": 12, "color": theme.SLATE},
-    )
-    fig.add_annotation(
-        text=f"MDE ≥ R${result.mde_aov:.2f} at α={result.alpha}",
-        xref="paper",
-        yref="paper",
-        x=0.99,
-        y=1.04,
-        showarrow=False,
-        font={"family": theme.FONT_MONO, "size": 12, "color": theme.SLATE},
-    )
+    # Mockup keeps the forest clean: the variance-reduction and MDE callouts
+    # live in the section captions, not painted over the plot (the inline
+    # annotations overlapped the box header at the tight v3 height).
     # Compute x-range with 12% padding over all CI endpoints + 0
     all_x = [
         result.aov.ci[0],
