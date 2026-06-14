@@ -1,0 +1,12 @@
+{
+  "cohort_window": ["2017-01-01", "2018-09-01"],
+  "n_orders": 1000,
+  "buckets": [
+    {"bucket": "1", "n_orders": 480, "aov": 120.98},
+    {"bucket": "2-3", "n_orders": 230, "aov": 136.11},
+    {"bucket": "4-6", "n_orders": 160, "aov": 182.69},
+    {"bucket": "7+", "n_orders": 130, "aov": 337.03}
+  ],
+  "share_multi_installment_orders": 0.514,
+  "credit_card_value_share": 0.784
+}

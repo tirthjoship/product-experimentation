@@ -18,12 +18,27 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+          pip install -e ".[dev,dashboard]"
       - name: Run tests with coverage
         run: |
           if [ -d "src" ]; then
-            pytest tests/ -v --tb=short --cov=src --cov-fail-under=90
+            pytest tests/ -v --tb=short --cov=src --cov=dashboard --cov-fail-under=90
           else
             echo "src/ not yet created (Phase 0) — running tests without coverage gate"
             pytest tests/ -v --tb=short || true
           fi
+
+  dashboard-smoke:
+    name: Dashboard smoke (schema drift)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,dashboard]"
+      - name: Run loaders against committed reports
+        run: python scripts/dashboard_smoke.py

@@ -1,52 +1,55 @@
 # STATUS — Product Experimentation Analytics
 
 > **Tier 0, authoritative.** Current state only. Read first. Overwrite at session end;
-> finished history → `PHASE_LOG.md`. ~40 lines. Last updated: 2026-06-11.
+> finished history → `PHASE_LOG.md`. ~40 lines. Last updated: 2026-06-13.
 
 ## Where we are
 
-- **Plans 1–3 on main** (inference depth + covariate adjustment + installment narrative + PM memo).
-- **Plan 4 DiD implemented on branch `feat/plan4-did-natural-experiment`** — PR #23 open to dev
-  (CI green). 132 tests · 93% coverage · mypy strict clean.
-  Shipped: event catalog · blinded panel builder · TWFE estimator · pre-trends check ·
-  DiD gate · report writers · `make did-feasibility` / `make did-gate` / `make did` stage CLI.
-- **Event catalog committed BEFORE any Phase B query** — pre-registration timestamp is
-  git-verifiable (`git log --follow src/did/catalog.py`).
+- **Plans 1–4 on `main`** (inference + covariate adjustment + installment narrative +
+  PM memo + Plan 4 DiD honest rejection). Shipped via PR #26.
+- **Plan 5 dashboard v3 IMPLEMENTED + VERIFIED on `feat/plan5-dashboard`.**
+  Read-only Streamlit + Plotly over committed `reports/*.json` + `reports/experiment_grid.json`.
+  Screenshots committed. PR to dev → main is the remaining manual step.
 
-## Plan 4 — outcome
+## Gate numbers (all verified this session)
 
-**Phase B feasibility ran on real Olist data. Truckers'-strike candidate FAILED the gate:**
+- `.venv/bin/pytest -q` → **206 passed**
+- Pure-layer coverage → **100%** (charts / data / glossary / theme / valuecolor)
+- `mypy dashboard src --strict` → **clean (50 files)**
+- `scripts/dashboard_smoke.py` → **green** (experiment + 3 scenarios + 4 buckets + DiD + 21 grid points)
+- Live app headless check → **0 render exceptions, 0 horizontal overflow** across all 5 tabs at 390 / 720 / 1280 px
 
-| Check | Result |
-|-------|--------|
-| adequate_n | **FAIL** — 45.0% week-cell density (threshold 80%); treated pre-period 3,604 orders / 16 states; control 27,884 / 7 states |
-| parallel_pretrends | **FAIL** — Wald p = 0.018 (threshold >0.10); max lead abs = 3.40 > band 1.93 |
+## Dashboard v3 — what's built
 
-Per pre-registered protocol, **no post-period estimate was computed.** Rejection documented in
-[ADR 0009](adr/0009-gated-did-natural-experiment.md). The rejection is the deliverable.
+- **5 tabs:** Overview · Experiment results · Scenario explorer · Power & design · Natural experiment
+- **New features:** persistent header + chip rationale tooltips; plain-language bottom-line takeaway
+  tiles per tab; layered hovers (chip rationale + chart ⓘ + glossary term spans); semantic value
+  color-coding (good / average / poor); diversified responsive charts (dumbbell, range/variance,
+  split bar, diverging marker, lift forest, MDE-vs-n, power-vs-effect); What-if effect grid
+  (`scripts/build_experiment_grid.py` → `reports/experiment_grid.json`, 21 points, reuses
+  `run_scenarios` + `results_to_json`); analytical power calculator (`src.experiment.power`)
+- **De-AI theme:** white · Space Grotesk · Inter · IBM Plex Mono · oxblood accent
+- **Honesty preserved:** verdict read from `recommend()` in committed report, never recomputed;
+  SIMULATED + CALCULATOR banners on every synthetic figure; no invented metrics
+- **New make target:** `make experiment-grid` (builds the grid; requires full Olist)
+- **Screenshots committed:** `docs/img/v3-0-overview.png` through `v3-4-natural-experiment.png`
+  + `v3-phone-overview.png`
 
-## Next actions
+## Remaining manual steps (not done — needs user)
 
-1. Merge PR #23 → dev → main (in progress).
-2. Optional Phase E only if pursuing a GO — would need denser geography or log_orders volume
-   outcome + a pre-registration lock commit before any data query; needs explicit user sign-off.
-3. Earlier roadmap still pending: Plan 2 dashboard (Streamlit), Plan 3 reproducibility CI gate.
-
-## Real motivation numbers (cohort window, full data — Plan 3)
-
-- 51.4% of orders paid in >1 installment · credit cards = 78.4% of payment value · n=99,092.
-- AOV by bucket: 1→120.98, 2-3→136.11, 4-6→182.69, 7+→337.03 (affordability gradient is real).
+1. Deploy to Streamlit Community Cloud (entrypoint `dashboard/app.py`, py3.12), replace `<APP_URL>`
+   in README.md.
+2. Open PR `feat/plan5-dashboard` → dev → main.
 
 ## Caveats / environment
 
-- `.venv` (uv, py3.12); use `.venv/bin/pytest`, `.venv/bin/mypy`. `make scenarios`/`motivation`
-  call bare `python` — run via `.venv/bin/python -m ...`.
-- Disk ~100% → commit `SKIP=gitleaks` (never `--no-verify`); CI runs gitleaks server-side.
-- ci_width_ratio = 0.868 (Plan 2) ≈ theoretical optimum √(1−r²)=0.875 for r=0.484; the old
-  ≤0.85 target was a variance-vs-width unit error — corrected in ADR 0007 amendment.
-- `caffeinate` running (keeps Mac awake) — `pkill caffeinate` to stop.
+- `.venv` (uv, py3.12); use `.venv/bin/pytest`, `.venv/bin/mypy`. `make dashboard` uses
+  `.venv/bin/python -m streamlit`. Editable install: `pip install -e ".[dev,dashboard]"`.
+- Disk ~100% → commit with `SKIP=gitleaks` (never `--no-verify`); CI runs gitleaks server-side.
+- `caffeinate` may be running — `pkill caffeinate` to stop.
 
 ## Pointers
 
-`CONTEXT.md` · `docs/adr/` (0007 covariate, 0008 framing, 0009 DiD rejection) · `docs/superpowers/specs/` ·
-`docs/superpowers/plans/` (Plans 1–4).
+`CONTEXT.md` · `docs/adr/` (0007 covariate, 0008 framing, 0009 DiD rejection) ·
+`docs/superpowers/specs/2026-06-13-dashboard-v3-descriptive-interactive-design.md` ·
+`docs/superpowers/plans/2026-06-13-dashboard-v3.md` (19 tasks, TDD, fixtures-only)
