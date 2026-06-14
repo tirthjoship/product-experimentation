@@ -11,13 +11,13 @@ import streamlit as st
 
 from dashboard import data, theme
 from dashboard.sections import (
+    calculator,
     did,
-    guardrail,
-    hero,
-    motivation,
-    notes,
+    header,
+    overview,
     results,
     scenarios,
+    whatif,
 )
 
 st.set_page_config(
@@ -29,6 +29,7 @@ _experiment = st.cache_data(data.load_experiment)
 _scenarios = st.cache_data(data.load_scenarios)
 _motivation = st.cache_data(data.load_motivation)
 _did = st.cache_data(data.load_did)
+_grid = st.cache_data(data.load_grid)
 
 
 def _render(name: str, fn: Callable[[], None]) -> None:
@@ -44,27 +45,32 @@ def _render(name: str, fn: Callable[[], None]) -> None:
         st.error(f"Section '{name}': schema error — {exc}")
 
 
-def _headline_verdict() -> str:
-    """Hero verdict is READ from the 'large' scenario in scenarios JSON —
-    experiment_001.json carries no verdict field and we never recompute one."""
-    large = next(s for s in _scenarios() if s.scenario == "large")
-    return large.verdict
+_render("header", header.render)
 
+overview_t, results_t, scenarios_t, power_t, did_t = st.tabs(
+    [
+        "Overview",
+        "Experiment results",
+        "Scenario explorer",
+        "Power & design",
+        "Natural experiment",
+    ]
+)
 
-story_tab, interactive_tab = st.tabs(["Story", "Interactive"])
+with overview_t:
+    _render(
+        "overview", lambda: overview.render(_experiment(), _scenarios(), _motivation())
+    )
 
-with story_tab:
-    _render("hero", lambda: hero.render(_experiment(), _headline_verdict()))
-    st.divider()
-    _render("motivation", lambda: motivation.render(_motivation()))
-    st.divider()
-    _render("notes", notes.render)
-    st.divider()
+with results_t:
     _render("results", lambda: results.render(_scenarios()))
-    st.divider()
-    _render("did", lambda: did.render(_did()))
 
-with interactive_tab:
+with scenarios_t:
     _render("scenarios", lambda: scenarios.render(_scenarios()))
-    st.divider()
-    _render("guardrail", lambda: guardrail.render(_scenarios()))
+    _render("whatif", lambda: whatif.render(_grid()))
+
+with power_t:
+    _render("calculator", lambda: calculator.render(_experiment()))
+
+with did_t:
+    _render("did", lambda: did.render(_did()))
