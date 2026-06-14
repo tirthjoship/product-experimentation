@@ -150,7 +150,9 @@ def render(
         f"(descriptive, not causal)</span>{bucket_info}</h3>",
         unsafe_allow_html=True,
     )
-    st.plotly_chart(charts.bucket_bar(motivation), width="stretch")
+    st.plotly_chart(
+        charts.bucket_bar(motivation), width="stretch", key="overview_bucket"
+    )
     st.markdown(
         '<p class="cap">Bigger baskets already use more installments — the '
         "mechanism is plausible. The experiment tests whether "
@@ -179,7 +181,7 @@ def render(
         title="AOV lift (BRL) — 95% CI",
         adj_color=adj_color,
     )
-    st.plotly_chart(fig, width="stretch")
+    st.plotly_chart(fig, width="stretch", key="overview_forest")
     st.markdown(
         '<p class="cap">Two estimates of the same effect: the raw difference and the '
         "tighter ANCOVA-adjusted one. Full metric set in <b>Experiment results</b>.</p>",
