@@ -68,9 +68,17 @@ def _ci_row(
 
 
 def forest(
-    result: ExperimentResult, title: str = "AOV lift (BRL) — 95% CI"
+    result: ExperimentResult,
+    title: str = "AOV lift (BRL) — 95% CI",
+    adj_color: str = theme.INK,
 ) -> go.Figure:
-    """Unadjusted vs adjusted CI overlay; the bias story in one plot."""
+    """Unadjusted vs adjusted CI overlay; the bias story in one plot.
+
+    Pass ``adj_color`` (e.g. ``theme.GREEN``) to colour the adjusted-row marker
+    with a verdict signal (SHIP / NEED MORE DATA / DO NOT SHIP).  Omitting it
+    keeps the original ``theme.INK`` appearance — no visual change for existing
+    callers.
+    """
     fig = go.Figure()
     _ci_row(fig, "unadjusted", result.aov.lift, result.aov.ci, theme.SLATE, 1.5)
     _ci_row(
@@ -78,7 +86,7 @@ def forest(
         "adjusted (ANCOVA)",
         result.aov_adjusted.lift,
         result.aov_adjusted.ci,
-        theme.INK,
+        adj_color,
         3.5,
     )
     fig.add_vline(x=0.0, line_dash="dash", line_color=theme.RED, line_width=1)
