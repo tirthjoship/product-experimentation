@@ -4,10 +4,14 @@ Every number plotted comes from a loaded dataclass — charts never compute
 statistics, only draw them.
 """
 
+import math
+from statistics import NormalDist
+
 import plotly.graph_objects as go
 
 from dashboard import theme
 from dashboard.data import ExperimentResult, MotivationStats, PreTrends, ScenarioResult
+from src.experiment.power import mde_mean
 
 
 def bucket_bar(stats: MotivationStats) -> go.Figure:
@@ -156,6 +160,213 @@ def guardrail_plot(scenarios: list[ScenarioResult]) -> go.Figure:
             title="Guardrail: delivered-rate difference — 95% CI",
             xaxis_title="treatment − control (delivered rate)",
             height=300,
+        )
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# v3 diversified builders
+# ---------------------------------------------------------------------------
+
+
+def dumbbell(label: str, control: float, treatment: float, fmt: str) -> go.Figure:
+    """Single-row dumbbell: connector line + two endpoint markers."""
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=[control, treatment],
+            y=[label, label],
+            mode="lines",
+            line={"color": "#CDD2D8", "width": 3},
+            hoverinfo="skip",
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=[control],
+            y=[label],
+            mode="markers",
+            marker={"size": 14, "color": theme.SLATE},
+            hovertemplate="control " + fmt.format(control) + "<extra></extra>",
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=[treatment],
+            y=[label],
+            mode="markers",
+            marker={"size": 14, "color": theme.GREEN},
+            hovertemplate="treatment " + fmt.format(treatment) + "<extra></extra>",
+        )
+    )
+    fig.update_layout(**theme.plotly_layout(height=130, showlegend=False))
+    return fig
+
+
+def range_plot(rows: list[tuple[str, tuple[float, float], str]]) -> go.Figure:
+    """Thick horizontal CI lines — one per row, coloured by caller."""
+    fig = go.Figure()
+    for label, ci, color in rows:
+        fig.add_trace(
+            go.Scatter(
+                x=list(ci),
+                y=[label, label],
+                mode="lines",
+                line={"color": color, "width": 6},
+                hovertemplate=(
+                    f"{label}: [{ci[0]:.2f}, {ci[1]:.2f}]"
+                    f" width {ci[1] - ci[0]:.2f}<extra></extra>"
+                ),
+            )
+        )
+    fig.update_layout(**theme.plotly_layout(height=130, xaxis_title="lift (BRL)"))
+    return fig
+
+
+def split_bar(parts: list[tuple[str, float, str]]) -> go.Figure:
+    """100%-stacked horizontal bar decomposed into named segments."""
+    total = sum(v for _, v, _ in parts)
+    fig = go.Figure()
+    for name, val, color in parts:
+        fig.add_trace(
+            go.Bar(
+                x=[val],
+                y=[""],
+                name=name,
+                orientation="h",
+                marker_color=color,
+                text=[f"{name} {val:,.0f} ({100 * val / total:.1f}%)"],
+                textposition="inside",
+                insidetextanchor="middle",
+                textfont={"color": "white", "family": theme.FONT_MONO},
+            )
+        )
+    fig.update_layout(
+        barmode="stack", **theme.plotly_layout(height=86, showlegend=False)
+    )
+    fig.update_xaxes(visible=False)
+    fig.update_yaxes(visible=False)
+    return fig
+
+
+def diverging_marker(value: float, band: float, unit: str) -> go.Figure:
+    """Diamond marker on a symmetric band — shows how far a gap sits from zero."""
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=[-band, band],
+            y=["", ""],
+            mode="lines",
+            line={"color": "#E0C9CC", "width": 14},
+            hoverinfo="skip",
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=[value],
+            y=[""],
+            mode="markers+text",
+            marker={"size": 16, "color": theme.ACCENT, "symbol": "diamond"},
+            text=[f"{value:.3f} {unit}"],
+            textposition="top center",
+            hovertemplate=f"gap {value:.3f}<extra></extra>",
+        )
+    )
+    fig.update_layout(**theme.plotly_layout(height=96, showlegend=False))
+    fig.update_yaxes(visible=False)
+    return fig
+
+
+def lift_forest(
+    label: str, est: float, ci: tuple[float, float], color: str
+) -> go.Figure:
+    """Single-row forest plot with asymmetric error bar and zeroline."""
+    fig = go.Figure(
+        go.Scatter(
+            x=[est],
+            y=[label],
+            mode="markers",
+            marker={"size": 11, "color": color},
+            error_x={
+                "type": "data",
+                "symmetric": False,
+                "array": [ci[1] - est],
+                "arrayminus": [est - ci[0]],
+                "color": color,
+                "thickness": 2,
+                "width": 7,
+            },
+            hovertemplate=(
+                f"{label}: %{{x:.2f}}<br>CI [{ci[0]:.2f}, {ci[1]:.2f}]<extra></extra>"
+            ),
+        )
+    )
+    fig.update_layout(**theme.plotly_layout(height=150, xaxis_title="lift"))
+    fig.update_xaxes(zeroline=True)
+    return fig
+
+
+def _power_at(effect: float, sd: float, n: int, alpha: float) -> float:
+    """Compute power for a two-sided z-test."""
+    z = NormalDist().inv_cdf(1 - alpha / 2)
+    se = sd * math.sqrt(2 / n)
+    nd = NormalDist()
+    return 1 - nd.cdf(z - abs(effect) / se) + nd.cdf(-z - abs(effect) / se)
+
+
+def mde_vs_n(sd: float, alpha: float, power: float, n_current: int) -> go.Figure:
+    """MDE curve vs sample size with a marker at the current n."""
+    ns = list(range(4000, 80001, 4000))
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=ns,
+            y=[mde_mean(sd, n, alpha, power) for n in ns],
+            mode="lines",
+            line={"color": theme.SLATE, "width": 2},
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=[n_current],
+            y=[mde_mean(sd, n_current, alpha, power)],
+            mode="markers",
+            marker={"size": 11, "color": theme.ACCENT},
+        )
+    )
+    fig.update_layout(
+        **theme.plotly_layout(
+            height=220, xaxis_title="n per arm", yaxis_title="MDE (BRL)"
+        )
+    )
+    return fig
+
+
+def power_vs_effect(sd: float, alpha: float, n: int) -> go.Figure:
+    """Power curve vs true effect size with an 80% target reference line."""
+    effs = [e / 2 for e in range(0, 31)]
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=effs,
+            y=[_power_at(e, sd, n, alpha) for e in effs],
+            mode="lines",
+            line={"color": theme.ACCENT, "width": 2},
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=[0, 15],
+            y=[0.8, 0.8],
+            mode="lines",
+            line={"color": "#C9CCD1", "width": 1, "dash": "dot"},
+            hoverinfo="skip",
+        )
+    )
+    fig.update_layout(
+        **theme.plotly_layout(
+            height=220, xaxis_title="true effect (BRL)", yaxis_title="power"
         )
     )
     return fig
