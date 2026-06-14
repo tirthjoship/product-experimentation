@@ -14,7 +14,7 @@ End-to-end **product analytics** for a classic hiring question: *Did a product c
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Phase](https://img.shields.io/badge/phase-1%20complete-brightgreen)](./reports/experiment_001.md)
-[![Tests](https://img.shields.io/badge/tests-206%20passing-brightgreen)](./tests/)
+[![Tests](https://img.shields.io/badge/tests-208%20passing-brightgreen)](./tests/)
 [![Coverage](https://img.shields.io/badge/coverage-100%25%20pure--layer-brightgreen)](./tests/)
 [![Portfolio](https://img.shields.io/badge/portfolio-4%20of%205-purple)](../README.md)
 
@@ -334,7 +334,7 @@ product-experimentation-analytics/
 └── docs/                 # METRICS.md, EXPERIMENT_DESIGN.md
 ```
 
-**Stack:** Python 3.12+, DuckDB (local SQL), scipy, pytest, Streamlit (v1 dashboard).
+**Stack:** Python 3.12+, DuckDB (local SQL), scipy, pytest, Streamlit (v3 dashboard).
 
 **Explicitly out of scope v1:** Airflow, dbt, Snowflake, cloud warehouse — GitHub Actions covers orchestration narrative.
 
