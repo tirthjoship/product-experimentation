@@ -33,5 +33,4 @@ in the implementation plan were computed against the real scipy/numpy implementa
 
 ## Links
 
-`docs/superpowers/specs/2026-06-09-metrics-and-experiment-design.md`,
-`docs/superpowers/plans/2026-06-09-metrics-and-experiment.md` (Task 9), ADR-0005.
+ADR-0005.
