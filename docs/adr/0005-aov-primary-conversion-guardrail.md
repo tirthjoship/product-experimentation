@@ -37,5 +37,4 @@ guardrail flag, D7 as a watched number. The metric definitions are promoted to `
 
 ## Links
 
-`reports/eda_gate.md` (power/MDE table), ADR-0004, ADR-0006,
-`docs/superpowers/specs/2026-06-09-metrics-and-experiment-design.md`.
+`reports/eda_gate.md` (power/MDE table), ADR-0004, ADR-0006.

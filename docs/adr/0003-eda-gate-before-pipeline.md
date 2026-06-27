@@ -32,4 +32,4 @@ is too sparse to be primary. Those findings drive ADR-0005. Gate passed GO on 20
 
 ## Links
 
-`reports/eda_gate.md`, `CONTEXT.md` §7, `../../PORTFOLIO_EDA_SPRINT.md`.
+`reports/eda_gate.md`, `CONTEXT.md` §7.

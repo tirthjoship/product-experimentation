@@ -1,11 +1,10 @@
 # Architecture Decision Records
 
 One file per decision that was non-obvious or expensive to reverse. Each records the context,
-the options weighed, and the consequences — so a future reader (or a returning Claude session)
-understands *why*, not just *what*. Append-only: supersede with a new ADR rather than rewriting.
+the options weighed, and the consequences — so a future reader understands *why*, not just
+*what*. Append-only: supersede with a new ADR rather than rewriting.
 
-This is **Tier 2** documentation (read on demand). For current state read `docs/STATUS.md`;
-for the stable "why + locked decisions" read `CONTEXT.md`.
+This is **Tier 2** documentation (read on demand). For the stable "why + locked decisions" read `CONTEXT.md`.
 
 | ADR | Title | Status |
 |-----|-------|--------|
