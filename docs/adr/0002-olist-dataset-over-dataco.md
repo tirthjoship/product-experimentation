@@ -33,4 +33,4 @@ experiment must be simulated (see ADR-0004). Raw CSVs are gitignored; only schem
 
 ## Links
 
-`CONTEXT.md` §3 (Why Olist), `reports/eda_gate.md`, `../../PORTFOLIO_LOCKED_DECISIONS.md`.
+`CONTEXT.md` §3 (Why Olist), `reports/eda_gate.md`.

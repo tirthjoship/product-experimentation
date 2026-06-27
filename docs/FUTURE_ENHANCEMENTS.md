@@ -2,7 +2,6 @@
 
 **Repo:** `product-experimentation-analytics`  
 **Updated:** 2026-05-30  
-**Portfolio reference:** [`../PORTFOLIO_TOOLS_PLAYBOOK.md`](../PORTFOLIO_TOOLS_PLAYBOOK.md) · Project 4 diagram
 
 **Dataset:** Olist Brazilian E-Commerce (`data/raw/olist/` — 9 CSVs onboarded)
 
@@ -77,14 +76,4 @@ flowchart TB
   OL --> EDA --> SQL --> AB --> RPT
   RPT --> ST & GHA
   RPT -.-> S3
-```
-
----
-
-## Claude Code prompt
-
-```text
-Read docs/FUTURE_ENHANCEMENTS.md and CONTEXT.md. Phase 0 EDA if eda_gate missing.
-Then metric SQL + experiment report + Streamlit. GitHub Action for report regen.
-Label simulated A/B clearly. Skip Databricks and Airflow.
 ```

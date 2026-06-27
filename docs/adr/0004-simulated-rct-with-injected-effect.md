@@ -36,4 +36,4 @@ the report reaches a clean SHIP recommendation. Seed 42 is pinned for assignment
 
 ## Links
 
-`docs/superpowers/specs/2026-06-09-metrics-and-experiment-design.md`, `CONTEXT.md` §6, ADR-0005.
+`CONTEXT.md` §6, ADR-0005.

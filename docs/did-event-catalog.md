@@ -3,8 +3,7 @@
 **Written from public record only. Committed before any Phase B query ran — git history is the
 timestamp.**
 
-This is the Phase A pre-registration artifact for Plan 4 (gated DiD natural experiment).
-Design spec: [`docs/superpowers/specs/2026-06-11-plan4-did-natural-experiment-design.md`](./2026-06-11-plan4-did-natural-experiment-design.md)
+This is the Phase A pre-registration artifact for Plan 4 (gated DiD natural experiment) — see ADR-0009.
 
 ---
 
