@@ -1,8 +1,7 @@
 # Product Experimentation & Growth Metrics Platform
 
-**Status:** Plans 1–5 shipped to `main` (`dev` in sync) · read-only Streamlit + Plotly dashboard v3 ·
+**Status:** read-only Streamlit + Plotly dashboard v3 ·
 208 tests · 95.6% coverage · all CI green · remaining: deploy to Streamlit Cloud + set `<APP_URL>`
-**Portfolio:** Project 4 of 5 · Balanced DA/DS strategy
 
 > **Simulated RCT on historical Olist cohorts.** Variants are assigned by hashed
 > `customer_unique_id` (seed 42) on historical data — Olist has no native A/B column.
@@ -16,13 +15,31 @@ End-to-end **product analytics** for a classic hiring question: *Did a product c
 [![Phase](https://img.shields.io/badge/phase-1%20complete-brightgreen)](./reports/experiment_001.md)
 [![Tests](https://img.shields.io/badge/tests-208%20passing-brightgreen)](./tests/)
 [![Coverage](https://img.shields.io/badge/coverage-100%25%20pure--layer-brightgreen)](./tests/)
-[![Portfolio](https://img.shields.io/badge/portfolio-4%20of%205-purple)](../README.md)
 
 > **Disclaimer:** Experiments in this repo are **simulated** on historical Olist data (hashed customer assignment or documented natural experiment). This is not employer A/B test data and does not claim causal lift from a real product rollout.
 
 ---
 
-## 📊 Dashboard (v3)
+## The project journey
+
+The end-to-end arc, with a decision in both directions: a SHIP call on the simulated RCT and an honest rejection of the natural experiment at its pre-registered gate.
+
+```mermaid
+flowchart LR
+    Q["Hiring question:<br/>did a product change move conversion,<br/>or was it noise?"] --> G0{"EDA gate"}
+    G0 -->|"GO with caveats"| MET["SQL metric layer<br/>conversion · AOV · D7 repeat"]
+    MET --> RCT["Simulated RCT<br/>hashed assignment seed 42<br/>labeled synthetic effect"]
+    RCT --> VR["Variance reduction<br/>ANCOVA adopted · CUPED rejected<br/>ADR 0007"]
+    VR --> PM{"PM readout:<br/>adjusted AOV CI excludes 0<br/>and guardrails flat?"}
+    PM -->|"yes"| SHIP["SHIP decision<br/>PM memo + committed JSON"]
+    SHIP --> DID{"DiD natural experiment<br/>pre-registered feasibility gate"}
+    DID -->|"FAIL"| REJ["Honest rejection<br/>sparse geography + diverging pre-trends<br/>ADR 0009"]
+    REJ --> DASH["5-tab read-only dashboard"]
+```
+
+---
+
+## Dashboard
 
 A read-only **Streamlit + Plotly** dashboard (Plan 5 v3) renders the committed `reports/*.json`
 and `reports/experiment_grid.json` — no recompute at runtime; every number is traceable to a
@@ -67,7 +84,7 @@ A product team ships a checkout or onboarding change. Leadership asks:
 3. Was the test **powered** enough to detect a meaningful effect?
 4. Should we **ship**, **hold**, or **collect more data**?
 
-Most ML portfolio projects prove modeling depth. This one proves **metric definitions + statistics + product judgment** — the skill cluster that rose fastest in 2026 DS postings (experimentation, causal framing, SQL case studies).
+Most ML portfolio projects prove modeling depth. This one proves metric definitions, statistics, and product judgment — the experimentation, causal framing, and SQL case-study skills product DS interviews test.
 
 ---
 
@@ -126,6 +143,8 @@ guardrail *should* stay flat — and it does, validating no leakage).
 Every pivot in this project came from a problem the data or the pipeline surfaced. The trail
 is the portfolio artifact: each problem was triaged, a decision was recorded (ADR), and the
 pipeline moved on.
+
+Diagram: each problem the data or pipeline surfaced, the triage, and the ADR it produced.
 
 ```mermaid
 flowchart TD
@@ -202,6 +221,8 @@ flowchart TD
 
 ### Entity relationship (simplified)
 
+Diagram: the order-centric tables the metric SQL joins across.
+
 ```mermaid
 erDiagram
     customers ||--o{ orders : places
@@ -251,6 +272,8 @@ future options in [`docs/FUTURE_ENHANCEMENTS.md`](./docs/FUTURE_ENHANCEMENTS.md)
 
 ### Statistical flow (where each safeguard sits)
 
+Diagram: cohort to verdict, showing where assignment, injection, adjustment, and the guardrail gate sit.
+
 ```mermaid
 flowchart LR
     COHORT["Olist cohort<br/>99,092 delivered-eligible orders"] --> HASH["hash(customer_unique_id, seed 42)<br/>→ control / treatment"]
@@ -299,6 +322,8 @@ it demonstrates the judgment to walk away from a technically runnable but statis
 analysis. A future GO candidate would need denser geography (or a log_orders volume outcome that
 smooths sparsity) and a pre-registration lock commit before any data query.
 
+Diagram: the pre-registration gate, with post-period data unlocked by a genuine GO verdict only.
+
 ```mermaid
 flowchart TD
     A["Phase A — event catalog<br/>public record ONLY, zero data access:<br/>hypothesis + outcome + donut state-lists per candidate"]
@@ -311,7 +336,7 @@ flowchart TD
 ```
 
 Full decision record: [ADR 0009](docs/adr/0009-gated-did-natural-experiment.md).
-Spec: [`docs/superpowers/specs/2026-06-11-plan4-did-natural-experiment-design.md`](docs/superpowers/specs/2026-06-11-plan4-did-natural-experiment-design.md).
+See [ADR-0009](docs/adr/0009-gated-did-natural-experiment.md) for the design and gate rationale.
 
 ---
 
@@ -375,7 +400,7 @@ The gate verdict was **GO with design caveats** — and every caveat above becam
 constraint in a later plan. Full investigation narrative:
 [`reports/eda_gate.md`](./reports/eda_gate.md) ("How we got to GO").
 
-Full checklist: [`../PORTFOLIO_EDA_SPRINT.md`](../PORTFOLIO_EDA_SPRINT.md)
+Full checklist: [`reports/eda_gate.md`](./reports/eda_gate.md)
 
 ---
 
@@ -428,11 +453,9 @@ Metric and design documentation:
 
 ## Developer entry points
 
-1. [`CONTEXT.md`](./CONTEXT.md) — mission, locked decisions, session playbook
+1. [`CONTEXT.md`](./CONTEXT.md) — mission, locked decisions, anti-hallucination rules
 2. [`docs/METRICS.md`](./docs/METRICS.md) — metric definitions
 3. [`docs/EXPERIMENT_DESIGN.md`](./docs/EXPERIMENT_DESIGN.md) — experiment design
-4. [`CLAUDE.md`](./CLAUDE.md) — rules and commands
-5. [`../PORTFOLIO_LOCKED_DECISIONS.md`](../PORTFOLIO_LOCKED_DECISIONS.md) — anti-hallucination rules
 
 ### Quick setup
 

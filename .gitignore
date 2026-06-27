@@ -35,8 +35,16 @@ build/
 .kiro/
 LOCAL_PROJECT_STORY.md
 
-# Claude local config
-.claude/settings.local.json
+# AI assistant scaffolding & internal process docs — keep local, never push
+.claude/
+CLAUDE.md
+AGENTS.md
+MEMORY.md
+docs/superpowers/
+docs/STATUS.md
+docs/PHASE_LOG.md
+docs/SKILL_ROUTING.md
+docs/mockups/
 
 # DuckDB
 *.duckdb
