@@ -1,0 +1,14 @@
+# Streamlit Cloud / local theme. Matches the dashboard's de-AI palette
+# (white paper · oxblood accent) so chrome agrees with the custom CSS in
+# dashboard/theme.py. Safe to delete — the app sets its own CSS regardless.
+
+[theme]
+base = "light"
+primaryColor = "#7A1F2B"        # oxblood accent
+backgroundColor = "#FFFFFF"     # PAPER
+secondaryBackgroundColor = "#F5F6F7"
+textColor = "#0D0F12"           # INK
+font = "sans serif"
+
+[server]
+headless = true

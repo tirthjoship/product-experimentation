@@ -1,0 +1,15 @@
+# Runtime dependencies for the Streamlit Cloud deployment of dashboard/app.py.
+#
+# Scope: ONLY what the dashboard imports at render time. The dashboard reads
+# committed reports/*.json (no recompute), so the heavy data deps (pandas,
+# duckdb, statsmodels, matplotlib) used by the offline pipeline in src/ are
+# intentionally excluded. The two src modules the dashboard touches
+# (src.experiment.power -> numpy, scipy) are covered below.
+#
+# Versions pinned to the local set verified working on 2026-06-26.
+# Dev/test/pipeline deps live in pyproject.toml ([project] + [dev]).
+
+streamlit==1.58.0
+plotly==6.8.0
+numpy==2.4.6
+scipy==1.17.1
