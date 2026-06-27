@@ -8,7 +8,7 @@
 Plans 1–4 produce deterministic artifacts (`reports/*.json` + `.md`) whose every number traces
 to a seeded run. A dashboard is the portfolio's public face, so its central risk is **drift**:
 a UI that recomputes statistics can silently diverge from the committed results, or worse,
-invent numbers the reports never produced. The non-negotiable project rule (CLAUDE.md, ADR
+invent numbers the reports never produced. The non-negotiable project rule (ADR
 [0004]) is *no invented metrics* — every figure shown must already exist in a committed report
 or be a clearly-labeled analytical formula. The dashboard must also stay cheap to test (the 90%
 coverage gate) without forcing UI glue through unit tests.
@@ -54,7 +54,6 @@ normal power formula), loudly banner-labeled CALCULATOR. A `dashboard_smoke.py` 
 
 ## Links
 
-Spec `docs/superpowers/specs/2026-06-13-dashboard-v3-descriptive-interactive-design.md` ·
-plan `docs/superpowers/plans/2026-06-13-dashboard-v3.md` · locked mockup
+Locked mockup
 `docs/mockups/dashboard-v3/index.html` · ADR [0004] (simulated RCT / no invented metrics) ·
 ADR [0009] (DiD honest rejection — the Natural-experiment tab) · PRs #27, #28.

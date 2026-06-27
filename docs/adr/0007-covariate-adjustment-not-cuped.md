@@ -112,5 +112,4 @@ would not.
 - Deng, A., Xu, Y., Kohavi, R., Walker, T. (2013). "Improving the Sensitivity of Online
   Controlled Experiments by Utilizing Pre-Experiment Data." WSDM.
 - `docs/EXPERIMENT_DESIGN.md` — "Covariate adjustment (Plan 2)" section
-- `docs/superpowers/specs/` — Plan 2 covariate-adjustment spec
 - ADR-0006 (inference methods), ADR-0005 (metrics)

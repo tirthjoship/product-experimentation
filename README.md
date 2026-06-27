@@ -1,8 +1,7 @@
 # Product Experimentation & Growth Metrics Platform
 
-**Status:** Plans 1–5 shipped to `main` (`dev` in sync) · read-only Streamlit + Plotly dashboard v3 ·
+**Status:** read-only Streamlit + Plotly dashboard v3 ·
 208 tests · 95.6% coverage · all CI green · remaining: deploy to Streamlit Cloud + set `<APP_URL>`
-**Portfolio:** Project 4 of 5 · Balanced DA/DS strategy
 
 > **Simulated RCT on historical Olist cohorts.** Variants are assigned by hashed
 > `customer_unique_id` (seed 42) on historical data — Olist has no native A/B column.
@@ -16,13 +15,12 @@ End-to-end **product analytics** for a classic hiring question: *Did a product c
 [![Phase](https://img.shields.io/badge/phase-1%20complete-brightgreen)](./reports/experiment_001.md)
 [![Tests](https://img.shields.io/badge/tests-208%20passing-brightgreen)](./tests/)
 [![Coverage](https://img.shields.io/badge/coverage-100%25%20pure--layer-brightgreen)](./tests/)
-[![Portfolio](https://img.shields.io/badge/portfolio-4%20of%205-purple)](../README.md)
 
 > **Disclaimer:** Experiments in this repo are **simulated** on historical Olist data (hashed customer assignment or documented natural experiment). This is not employer A/B test data and does not claim causal lift from a real product rollout.
 
 ---
 
-## 📊 Dashboard (v3)
+## Dashboard
 
 A read-only **Streamlit + Plotly** dashboard (Plan 5 v3) renders the committed `reports/*.json`
 and `reports/experiment_grid.json` — no recompute at runtime; every number is traceable to a
@@ -311,7 +309,7 @@ flowchart TD
 ```
 
 Full decision record: [ADR 0009](docs/adr/0009-gated-did-natural-experiment.md).
-Spec: [`docs/superpowers/specs/2026-06-11-plan4-did-natural-experiment-design.md`](docs/superpowers/specs/2026-06-11-plan4-did-natural-experiment-design.md).
+See [ADR-0009](docs/adr/0009-gated-did-natural-experiment.md) for the design and gate rationale.
 
 ---
 
@@ -375,7 +373,7 @@ The gate verdict was **GO with design caveats** — and every caveat above becam
 constraint in a later plan. Full investigation narrative:
 [`reports/eda_gate.md`](./reports/eda_gate.md) ("How we got to GO").
 
-Full checklist: [`../PORTFOLIO_EDA_SPRINT.md`](../PORTFOLIO_EDA_SPRINT.md)
+Full checklist: [`reports/eda_gate.md`](./reports/eda_gate.md)
 
 ---
 
@@ -428,11 +426,9 @@ Metric and design documentation:
 
 ## Developer entry points
 
-1. [`CONTEXT.md`](./CONTEXT.md) — mission, locked decisions, session playbook
+1. [`CONTEXT.md`](./CONTEXT.md) — mission, locked decisions, anti-hallucination rules
 2. [`docs/METRICS.md`](./docs/METRICS.md) — metric definitions
 3. [`docs/EXPERIMENT_DESIGN.md`](./docs/EXPERIMENT_DESIGN.md) — experiment design
-4. [`CLAUDE.md`](./CLAUDE.md) — rules and commands
-5. [`../PORTFOLIO_LOCKED_DECISIONS.md`](../PORTFOLIO_LOCKED_DECISIONS.md) — anti-hallucination rules
 
 ### Quick setup
 

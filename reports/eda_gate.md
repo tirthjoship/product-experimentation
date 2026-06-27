@@ -151,5 +151,4 @@ labeled `SIMULATED_EFFECT` is required to demonstrate detectable lift.
 
 ## Next phase (gate = GO → open Phase 1)
 
-Per `docs/SKILL_ROUTING.md`: `brainstorming` → `writing-plans` to lock `docs/METRICS.md`
-and `docs/EXPERIMENT_DESIGN.md`, then scaffold `src/` + `sql/`.
+Next: lock `docs/METRICS.md` and `docs/EXPERIMENT_DESIGN.md`, then scaffold `src/` + `sql/`.
