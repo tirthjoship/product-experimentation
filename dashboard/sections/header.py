@@ -1,6 +1,6 @@
 """Persistent project header: eyebrow, title, subtitle, and 5 context chips.
 
-Render-only — coverage omitted (no unit tests per AGENTS.md convention for
+Render-only — coverage omitted (no unit tests per project convention for
 sections).  All copy is verbatim from docs/mockups/dashboard-v3/index.html
 (the LOCKED source of truth).  No live data argument needed: every chip label
 and tooltip is static text drawn from the mockup.

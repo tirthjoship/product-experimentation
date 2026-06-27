@@ -3,10 +3,8 @@
 **Repo:** `product-experimentation-analytics`  
 **Owner:** Tirth Joshi  
 **Created:** 2026-05-30  
-**Phase:** Plans 1–5 shipped to `main` (EDA → simulated RCT → installment narrative → DiD honest rejection → read-only dashboard v3). Remaining: deploy + `<APP_URL>`.  
-**Portfolio slot:** Project 4 of 5 (balanced DA/DS strategy)
+**Phase:** Plans 1–5 complete (EDA → simulated RCT → installment narrative → DiD honest rejection → read-only dashboard v3). Remaining: deploy + `<APP_URL>`.
 
-**Read first:** [`../PORTFOLIO_LOCKED_DECISIONS.md`](../PORTFOLIO_LOCKED_DECISIONS.md) · [`../PORTFOLIO_EDA_SPRINT.md`](../PORTFOLIO_EDA_SPRINT.md)  
 **Future enhancements:** [`docs/FUTURE_ENHANCEMENTS.md`](docs/FUTURE_ENHANCEMENTS.md)
 
 ---
@@ -51,7 +49,7 @@ It complements ML-heavy repos (supply chain, stock, healthcare) without duplicat
 **DataCo lesson (sibling repo `supply-chain-optimization-ml`):**
 - Single categorical feature dominated outcome after leakage removal
 - Demo dataset → weak business story
-- **Gate:** Do not proceed to modeling/reporting until `reports/eda_gate.md` passes checks in `PORTFOLIO_EDA_SPRINT.md`
+- **Gate:** Do not proceed to modeling/reporting until `reports/eda_gate.md` passes its GO checks
 
 ---
 
@@ -121,9 +119,7 @@ If pure hash assignment with no treatment effect: experiment shows **null result
 
 ---
 
-## 7. Phase 0 — EDA gate (START HERE)
-
-**Claude Code first task:** Complete Phase 0 only unless user says proceed.
+## 7. Phase 0 — EDA gate
 
 ```
 notebooks/00_eda_gate.ipynb   → exploratory
@@ -131,7 +127,7 @@ reports/eda_gate.md           → GO/NO-GO verdict
 docs/DATA_DICTIONARY.md       → column notes from EDA
 ```
 
-### EDA checklist (from PORTFOLIO_EDA_SPRINT.md)
+### EDA checklist
 
 - Row counts per table; date ranges
 - Join integrity orders↔payments↔items (% orphans)
@@ -215,7 +211,7 @@ product-experimentation-analytics/
 |---------|-------------|
 | Makefile + pytest rigor | `supply-chain-optimization-ml/` |
 | Report generation | `../multi-modal-stock-recommender/application/evaluation.py` |
-| Anti-hallucination | `../PORTFOLIO_LOCKED_DECISIONS.md` |
+| Anti-hallucination | `CONTEXT.md` §2 (locked decisions) |
 
 ---
 
@@ -225,32 +221,7 @@ product-experimentation-analytics/
 
 ---
 
-## 14. Claude Code — session playbook
-
-### Session 1 (EDA only)
-```text
-Read CONTEXT.md and ../PORTFOLIO_EDA_SPRINT.md.
-Phase 0 only: assume data in data/raw/olist/. Create notebooks/00_eda_gate.ipynb,
-docs/DATA_DICTIONARY.md, reports/eda_gate.md. Do not scaffold full src/ yet.
-Do not invent row counts — if data missing, document download steps in README.
-```
-
-### Session 2 (after GO)
-```text
-EDA gate passed. Scaffold src/, sql/, tests/fixtures/.
-Implement conversion + AOV + D7 repeat metrics with DuckDB + pytest.
-```
-
-### Session 3
-```text
-Implement experiment assignment + analysis + reports/experiment_001.md generator.
-Add Streamlit app reading from reports/.
-Update README with reproduction steps.
-```
-
----
-
-## 15. User background (for narrative)
+## 14. User background (for narrative)
 
 - 5+ years analytics: VGH, BCCNM, Walmart Canada
 - UBC MDS (2025–2026)

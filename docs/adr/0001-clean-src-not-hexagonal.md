@@ -35,4 +35,4 @@ second data source — that would justify ports.
 
 ## Links
 
-`CONTEXT.md` §2 (locked decisions), `AGENTS.md` (architecture rules), `../SKILL_ROUTING.md`.
+`CONTEXT.md` §2 (locked decisions).

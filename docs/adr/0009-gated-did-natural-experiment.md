@@ -74,7 +74,6 @@ rather than ship a number.
 
 ## Links
 
-- `docs/superpowers/specs/2026-06-11-plan4-did-natural-experiment-design.md` — design
-- `docs/superpowers/specs/2026-06-11-plan4-event-catalog.md` — Phase A pre-registration
+- `docs/did-event-catalog.md` — Phase A pre-registration
 - `reports/did_feasibility.{md,json}` — the committed FAIL artifact
 - ADR-0004 (simulated RCT — the contrast this plan completes)
