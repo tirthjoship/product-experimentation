@@ -46,7 +46,7 @@ committed report — never recomputed.
 ![Experiment results — dumbbell CI, variance, split bar](docs/img/v3-1-experiment-results.png)
 ![Scenario explorer — verdict flip + what-if grid](docs/img/v3-2-scenario-explorer.png)
 
-[Open the live dashboard ↗](<APP_URL>)
+[Open the live dashboard ↗](<APP_URL>) &nbsp;·&nbsp; **Not deployed yet?** See **[docs/DEPLOY.md](docs/DEPLOY.md)** — repo is deploy-ready (pinned `requirements.txt`, `.streamlit/config.toml`, all report JSONs committed; `AppTest` boots clean with 5 tabs). Last step is a 3-minute Streamlit Cloud deploy that needs your login.
 
 Run locally:
 
