@@ -62,9 +62,9 @@ Keeping `requirements.txt` minimal makes the Cloud build fast and avoids resolve
 
 | Symptom | Cause / fix |
 |---------|-------------|
-| `ModuleNotFoundError: src` or `dashboard` | Streamlit runs from the repo root, so absolute imports resolve. Confirm **Main file path** is `dashboard/app.py` (not a copy elsewhere) and the deploy branch is the repo root. |
+| `ModuleNotFoundError: src` or `dashboard` | Cloud puts `dashboard/` (script dir) on `sys.path`, not the repo root. `dashboard/app.py` must bootstrap the repo root onto `sys.path` before local imports (already done). Confirm **Main file path** is `dashboard/app.py` and branch is repo root. |
 | A single tab shows a red "Section … schema error" | A `reports/*.json` is stale/missing on the deployed branch. Regenerate locally (`make experiment` / `scenarios` / `motivation` / `did-feasibility`) and push. Other tabs are isolated and keep working. |
-| Build fails on a dependency | Confirm **Python version = 3.12** in Advanced settings; the pins in `requirements.txt` were verified on 3.12. |
+| Build fails on a dependency | Confirm **Python version = 3.12** in Advanced settings (Cloud may default to a newer runtime). Pins in `requirements.txt` were verified on 3.12. |
 | Want a custom subdomain | Streamlit Cloud → app settings → rename; then re-update the `<APP_URL>` links. |
 
 ---

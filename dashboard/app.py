@@ -5,12 +5,24 @@ pure and fixture-testable. Cached returns are frozen dataclasses of plain
 primitives — safe for Streamlit's serialized cache.
 """
 
+from __future__ import annotations
+
+import sys
 from collections.abc import Callable
+from pathlib import Path
 
-import streamlit as st
+# Streamlit (incl. Community Cloud) prepends the *script* directory
+# (dashboard/) to sys.path — not the repo root. Absolute imports like
+# `from dashboard import …` / `from src…` therefore fail unless the root
+# is on the path. Local `pip install -e .` masks this; Cloud does not.
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
 
-from dashboard import data, theme
-from dashboard.sections import (
+import streamlit as st  # noqa: E402
+
+from dashboard import data, theme  # noqa: E402
+from dashboard.sections import (  # noqa: E402
     calculator,
     did,
     header,
