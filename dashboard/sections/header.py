@@ -58,13 +58,12 @@ _CHIPS: list[tuple[str, str, str]] = [
         ),
     ),
     (
-        "Plans 1–4 shipped",
+        "Pipeline shipped",
         "go",
         (
-            "Plans 1–4 are merged to main: inference depth, covariate adjustment, the "
-            "installment product narrative + PM memo, and the DiD natural-experiment "
-            "honest rejection. This dashboard (Plan 5) reads only their committed report "
-            "outputs — it never recomputes."
+            "Inference depth, covariate adjustment, the installment product narrative + PM memo, "
+            "and the DiD natural-experiment honest rejection are all merged. This dashboard reads "
+            "only their committed report outputs — it never recomputes."
         ),
     ),
 ]

@@ -1,9 +1,9 @@
-# Plan 4 — Phase A Event Catalog (Pre-Registration Artifact)
+# DiD Event Catalog (Pre-Registration Artifact)
 
-**Written from public record only. Committed before any Phase B query ran — git history is the
+**Written from public record only. Committed before any feasibility query ran — git history is the
 timestamp.**
 
-This is the Phase A pre-registration artifact for Plan 4 (gated DiD natural experiment) — see ADR-0009.
+Pre-registration artifact for the gated DiD natural experiment — see [ADR 0009](adr/0009-gated-did-natural-experiment.md).
 
 ---
 
