@@ -3,7 +3,7 @@
 **Repo:** `product-experimentation-analytics`  
 **Owner:** Tirth Joshi  
 **Created:** 2026-05-30  
-**Phase:** Plans 1–5 complete (EDA → simulated RCT → installment narrative → DiD honest rejection → read-only dashboard v3). Remaining: deploy + `<APP_URL>`.
+**Phase:** v1 complete — EDA → simulated RCT → installment narrative → DiD honest rejection → live dashboard on [Streamlit Cloud](https://product-experimentation-analytics.streamlit.app/).
 
 **Future enhancements:** [`docs/FUTURE_ENHANCEMENTS.md`](docs/FUTURE_ENHANCEMENTS.md)
 
@@ -15,7 +15,8 @@ Build an **end-to-end product experimentation analytics system** that answers:
 
 > *We shipped a change to the checkout experience. Did conversion improve beyond random noise—and should we roll out?*
 
-This project proves **SQL + statistics + product judgment** for Seattle/SF product DS roles and **retail funnel analytics** for Vancouver (Walmart background).
+This project demonstrates **SQL + statistics + product judgment** for experimentation analytics:
+metric definitions, inference, power reasoning, and ship/no-ship decision writing.
 
 It complements ML-heavy repos (supply chain, stock, healthcare) without duplicating them.
 
@@ -30,12 +31,12 @@ It complements ML-heavy repos (supply chain, stock, healthcare) without duplicat
 | **Primary metrics** | Conversion (order delivered), AOV, D7 repeat purchase rate |
 | **Analysis** | Lift + 95% CI; power analysis documented |
 | **SQL engine** | DuckDB (local); SQL files versioned in `sql/` |
-| **Dashboard** | **Streamlit + Plotly v3, read-only over committed `reports/*.json`** (shipped; ADR 0010) |
+| **Dashboard** | **Streamlit + Plotly, read-only over committed `reports/*.json`** (shipped; ADR 0010) |
 | **Architecture** | Clean `src/` layout with thin domain layer — **not full hexagonal v1** (YAGNI) |
 | **Honesty banner** | README must state experiment is simulated on historical data |
 
-- **Business framing (Plan 3):** installment-expansion test (6x→10x interest-free cap).
-  Free-shipping framing rejected for portfolio separation from supply-chain-ml (ADR 0008).
+- **Business framing:** installment-expansion test (6x→10x interest-free cap).
+  Free-shipping framing rejected for portfolio separation from supply-chain ML (ADR 0008).
 
 ---
 
@@ -46,7 +47,7 @@ It complements ML-heavy repos (supply chain, stock, healthcare) without duplicat
 - Multi-table relational model → credible SQL joins, funnels, cohorts
 - Stable enough for metric definitions and simulated A/B
 
-**DataCo lesson (sibling repo `supply-chain-optimization-ml`):**
+**DataCo lesson (sibling repo [late-delivery-risk-prediction](https://github.com/tirthjoship/late-delivery-risk-prediction)):**
 - Single categorical feature dominated outcome after leakage removal
 - Demo dataset → weak business story
 - **Gate:** Do not proceed to modeling/reporting until `reports/eda_gate.md` passes its GO checks
@@ -102,12 +103,10 @@ Olist has **no native A/B column**. v1 approach:
    - **Option A (recommended):** Compare pre-defined segments as pseudo-treatment (document clearly), OR
    - **Option B:** Apply synthetic lift to treatment group for **methodology demo only** — must be labeled `SIMULATED_EFFECT` in code constants
 
-**Preferred for portfolio honesty:** Use a **natural experiment** if EDA finds one (e.g. payment type rollout by state) OR compare **two time periods** with diff-in-diff assumptions documented.
-
-**Plan 4 outcome (executed):** This path was pursued as a gated DiD in Plan 4. The truckers'-strike
-candidate (2018) failed the pre-registered gate on Olist sparsity (45.0% week-cell density vs 80%
-threshold) and diverging pre-trends (Wald p=0.018). No estimate was computed; rejection is the
-deliverable. See [ADR 0009](docs/adr/0009-gated-did-natural-experiment.md).
+**Natural experiment path (executed):** A gated DiD on the 2018 truckers'-strike shock was
+pursued with pre-registered feasibility. The candidate failed on Olist sparsity (45.0% week-cell
+density vs 80% threshold) and diverging pre-trends (Wald p=0.018). No estimate was computed;
+rejection is the deliverable. See [ADR 0009](docs/adr/0009-gated-did-natural-experiment.md).
 
 If pure hash assignment with no treatment effect: experiment shows **null result** — still valuable if power analysis and CIs are correct.
 
@@ -159,17 +158,17 @@ product-experimentation-analytics/
 ├── tests/                # pytest on fixtures (tiny CSV/duckdb)
 ├── notebooks/            # EDA only; not production path
 ├── reports/              # generated outputs (commit md + json, not raw data)
+├── dashboard/            # Streamlit app (reads committed reports/*.json)
 ├── docs/
 │   ├── METRICS.md
 │   └── EXPERIMENT_DESIGN.md
-├── app/                  # Streamlit dashboard (Phase 2)
 ├── data/raw/             # gitignored
 ├── Makefile
 ├── pyproject.toml
 └── README.md
 ```
 
-**Dependencies (initial):** pandas, duckdb, scipy, matplotlib, pytest, streamlit (phase 2)
+**Dependencies (initial):** pandas, duckdb, scipy, matplotlib, pytest, streamlit
 
 ---
 
@@ -189,8 +188,8 @@ product-experimentation-analytics/
 | EDA gate passed | `reports/eda_gate.md` says GO |
 | ≥3 metrics defined in SQL | Files in `sql/metrics/` + tests pass |
 | One experiment report | `reports/experiment_001.md` with CI |
-| Power analysis | `docs/POWER_ANALYSIS.md` or section in report |
-| Streamlit or static HTML | Variant comparison visible |
+| Power analysis | Section in report + calculator tab |
+| Streamlit dashboard | Live on Streamlit Cloud |
 | README | Problem, dataset, honest simulation disclaimer, how to reproduce |
 | No invented metrics | All numbers from reproducible command |
 
@@ -209,23 +208,8 @@ product-experimentation-analytics/
 
 | Pattern | Source repo |
 |---------|-------------|
-| Makefile + pytest rigor | `supply-chain-optimization-ml/` |
-| Report generation | `../multi-modal-stock-recommender/application/evaluation.py` |
-| Anti-hallucination | `CONTEXT.md` §2 (locked decisions) |
-
----
-
-## 13. Resume bullet (fill after v1)
-
-> Defined funnel metrics in SQL on 100k+ e-commerce orders (Olist); analyzed simulated A/B test with 95% CIs and power analysis; documented ship/no-ship recommendation.
-
----
-
-## 14. User background (for narrative)
-
-- 5+ years analytics: VGH, BCCNM, Walmart Canada
-- UBC MDS (2025–2026)
-- Target roles: DA / DS / BI — Vancouver, Seattle, SF, remote Canada/US
-- Certifications: AZ-900, PL-900, IBM DA
+| Makefile + pytest rigor | [late-delivery-risk-prediction](https://github.com/tirthjoship/late-delivery-risk-prediction) |
+| Report generation | [multi-modal-stock-recommender](https://github.com/tirthjoship/multi-modal-stock-recommender) |
+| Locked decisions doc | `CONTEXT.md` §2 |
 
 Do **not** claim Olist or simulated experiments as employer work.

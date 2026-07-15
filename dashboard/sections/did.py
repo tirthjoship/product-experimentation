@@ -1,4 +1,4 @@
-"""Plan 4 DiD: the honest rejection — gate checklist + pre-trends plot."""
+"""Gated DiD natural experiment: honest rejection — gate checklist + pre-trends plot."""
 
 from __future__ import annotations
 
