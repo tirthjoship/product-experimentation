@@ -54,8 +54,8 @@ committed report or a labeled analytical formula. Five tabs:
 | **Natural experiment** | Gated DiD honest rejection — pre-trends coefficient plot, 2 leads breaking the band highlighted red, gate checklist with FAIL badges |
 
 **Design principles:** persistent header with chip rationale tooltips; plain-language bottom-line
-takeaway tiles per tab; self-explaining chart ⓘ hovers; semantic value color-coding; de-AI theme
-(white · Space Grotesk · Inter · IBM Plex Mono · oxblood accent). Loud **SIMULATED** and
+takeaway tiles per tab; self-explaining chart ⓘ hovers; semantic value color-coding; custom light
+theme (white · Space Grotesk · Inter · IBM Plex Mono · oxblood accent). Loud **SIMULATED** and
 **CALCULATOR** banners on every synthetic figure. Verdict always read from `recommend()` in the
 committed report — never recomputed.
 
@@ -133,7 +133,7 @@ guardrail *should* stay flat — and it does, validating no leakage).
 5. **Reproducibility finding (Phase F).** The bootstrap CI was initially *non-deterministic* —
    the cohort SQL had no `ORDER BY`, so DuckDB returned rows in arbitrary order and the
    positional bootstrap resampled differently each run (CI wandered at the 2nd decimal). Fixed by
-   pinning frame order (`ORDER BY order_id`); the CI `(7.35, 13.00)` is now byte-stable across
+   pinning frame order (`ORDER BY order_id`); the CI `(7.36, 13.11)` is now byte-stable across
    runs and guarded by a determinism test. A committed `reports/experiment_001.json` snapshot
    makes the result a regression-testable contract — not a number you have to trust.
 
@@ -187,7 +187,7 @@ flowchart TD
 
 ---
 
-## What's delivered (Phase 1, v1)
+## What's delivered (v1)
 
 | Component | Deliverable | Evidence | Status |
 |-----------|-------------|----------|--------|
@@ -218,7 +218,7 @@ flowchart TD
 | `olist_order_reviews_dataset.csv` | Optional v2 |
 | `olist_geolocation_dataset.csv` | Optional v2 |
 
-**Why Olist (not DataCo):** Multi-table relational data supports credible SQL joins, funnels, and cohorts. The supply chain sibling repo taught that single dominant categorical features and tutorial-grade semantics weaken the business story — this project runs an **EDA gate** before any reporting.
+**Why Olist (not DataCo):** Multi-table relational data supports credible SQL joins, funnels, and cohorts. The sibling [late-delivery-risk-prediction](https://github.com/tirthjoship/late-delivery-risk-prediction) repo taught that single dominant categorical features and tutorial-grade semantics weaken the business story — this project runs an **EDA gate** before any reporting.
 
 ### Entity relationship (simplified)
 
@@ -268,8 +268,9 @@ Olist has **no native A/B column**. The locked v1 approach:
 
 **Locked approach: Labeled synthetic lift.** A `SIMULATED_EFFECT = 0.05` is injected on
 `order_value` for the treatment arm *after* assignment — methodology demo only, marked in code
-constants and every report banner. Natural-experiment and pure-null variants are documented as
-future options in [`docs/FUTURE_ENHANCEMENTS.md`](./docs/FUTURE_ENHANCEMENTS.md).
+constants and every report banner. A pure-null (A/A) scenario ships alongside the headline run;
+the gated DiD natural experiment was implemented and honestly rejected (ADR 0009). Optional v2
+ideas live in [`docs/FUTURE_ENHANCEMENTS.md`](./docs/FUTURE_ENHANCEMENTS.md).
 
 ### Statistical flow (where each safeguard sits)
 
@@ -332,12 +333,11 @@ flowchart TD
     B --> C["Phase C — pre-registration lock<br/>one commit: event, outcome, arms, thresholds"]
     C --> D{"Phase D — gate (all 4):<br/>1 dated boundary · 2 geographic arms ·<br/>3 parallel pre-trends (Wald + magnitude band) ·<br/>4 adequate n"}
     D -->|GO| E1["TWFE DiD + cluster SE<br/>reports/experiment_002_did.md"]
-    D -->|"FAIL ← real outcome"| E2["documented rejection<br/>reports/natural_experiment_feasibility.md<br/>(deliberate judgment artifact — ADR 0009)"]
+    D -->|"FAIL ← real outcome"| E2["documented rejection<br/>reports/did_feasibility.md<br/>(deliberate judgment artifact — ADR 0009)"]
     D -.->|"verdict JSON is the key that<br/>unlocks post-period data in code"| E1
 ```
 
 Full decision record: [ADR 0009](docs/adr/0009-gated-did-natural-experiment.md).
-See [ADR-0009](docs/adr/0009-gated-did-natural-experiment.md) for the design and gate rationale.
 
 ---
 
@@ -433,7 +433,8 @@ make experiment     # writes reports/experiment_001.md
 # 4. Run the full test suite (fixtures only — no full Olist in tests)
 make test
 
-# 5. Launch the dashboard (reads committed reports/*.json — no Olist needed)
+# 5. Launch the dashboard (reads committed reports/*.json — no Olist needed;
+#    data/sample/ is also committed for smoke checks without a full Kaggle download)
 make dashboard
 
 # 6. (Optional) Rebuild the what-if experiment grid (requires full Olist)
