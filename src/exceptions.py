@@ -18,7 +18,7 @@ class ImbalanceError(ExperimentError):
 
 
 class UnknownEventError(ExperimentError):
-    """Requested event name is not in the Plan 4 catalog."""
+    """Requested event name is not in the DiD event catalog."""
 
 
 class BlindingError(ExperimentError):

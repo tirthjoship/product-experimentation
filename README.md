@@ -1,7 +1,7 @@
 # Product Experimentation & Growth Metrics Platform
 
-**Status:** read-only Streamlit + Plotly dashboard v3 ·
-208 tests · 95.6% coverage · all CI green · remaining: deploy to Streamlit Cloud + set `<APP_URL>`
+**Status:** live [Streamlit dashboard](https://product-experimentation-analytics.streamlit.app/) ·
+208 tests · 95.6% coverage · all CI green
 
 > **Simulated RCT on historical Olist cohorts.** Variants are assigned by hashed
 > `customer_unique_id` (seed 42) on historical data — Olist has no native A/B column.
@@ -12,9 +12,9 @@
 End-to-end **product analytics** for a classic hiring question: *Did a product change actually improve conversion, or was it noise?* Built on the [Olist Brazilian E-Commerce](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) dataset — SQL metric definitions, simulated experiment analysis, confidence intervals, and a ship/no-ship recommendation.
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![Phase](https://img.shields.io/badge/phase-1%20complete-brightgreen)](./reports/experiment_001.md)
+[![Live demo](https://img.shields.io/badge/demo-streamlit-brightgreen)](https://product-experimentation-analytics.streamlit.app/)
 [![Tests](https://img.shields.io/badge/tests-208%20passing-brightgreen)](./tests/)
-[![Coverage](https://img.shields.io/badge/coverage-100%25%20pure--layer-brightgreen)](./tests/)
+[![Coverage](https://img.shields.io/badge/coverage-95.6%25-brightgreen)](./tests/)
 
 > **Disclaimer:** Experiments in this repo are **simulated** on historical Olist data (hashed customer assignment or documented natural experiment). This is not employer A/B test data and does not claim causal lift from a real product rollout.
 
@@ -41,7 +41,7 @@ flowchart LR
 
 ## Dashboard
 
-A read-only **Streamlit + Plotly** dashboard (Plan 5 v3) renders the committed `reports/*.json`
+A read-only **Streamlit + Plotly** dashboard renders the committed `reports/*.json`
 and `reports/experiment_grid.json` — no recompute at runtime; every number is traceable to a
 committed report or a labeled analytical formula. Five tabs:
 
@@ -51,7 +51,7 @@ committed report or a labeled analytical formula. Five tabs:
 | **Experiment results** | Dumbbell CI chart (raw vs ANCOVA-adjusted), range/variance plot, split bar for conversion, diverging-marker guardrail chart — all with layered ⓘ how-to-read hovers and glossary term spans |
 | **Scenario explorer** | Verdict-flip across adverse / null / base / large injected effects + **What-if effect grid** (21 grid points; `reports/experiment_grid.json`) — lift forest + MDE-vs-n heat map controlled by a slider |
 | **Power & design** | Analytical MDE calculator (`src.experiment.power`) with power-vs-effect curve; labeled **CALCULATOR** banner; no experiment data involved |
-| **Natural experiment** | Plan 4 DiD honest rejection — pre-trends coefficient plot, 2 leads breaking the band highlighted red, gate checklist with FAIL badges |
+| **Natural experiment** | Gated DiD honest rejection — pre-trends coefficient plot, 2 leads breaking the band highlighted red, gate checklist with FAIL badges |
 
 **Design principles:** persistent header with chip rationale tooltips; plain-language bottom-line
 takeaway tiles per tab; self-explaining chart ⓘ hovers; semantic value color-coding; de-AI theme
@@ -63,7 +63,7 @@ committed report — never recomputed.
 ![Experiment results — dumbbell CI, variance, split bar](docs/img/v3-1-experiment-results.png)
 ![Scenario explorer — verdict flip + what-if grid](docs/img/v3-2-scenario-explorer.png)
 
-[Open the live dashboard ↗](<APP_URL>) &nbsp;·&nbsp; **Not deployed yet?** See **[docs/DEPLOY.md](docs/DEPLOY.md)** — repo is deploy-ready (pinned `requirements.txt`, `.streamlit/config.toml`, all report JSONs committed; `AppTest` boots clean with 5 tabs). Last step is a 3-minute Streamlit Cloud deploy that needs your login.
+[Open the live dashboard ↗](https://product-experimentation-analytics.streamlit.app/) &nbsp;·&nbsp; Redeploy or fork: **[docs/DEPLOY.md](docs/DEPLOY.md)**
 
 Run locally:
 
@@ -108,7 +108,8 @@ verdict, guardrail readout, caveats, rollout + monitoring plan.
 | **Conversion** (guardrail) | 0.9700 | 0.9718 | +0.0018 | (−0.0003, 0.0039) | 0.087 | CI spans 0 → no harm |
 | **D7 repeat** (exploratory) | 0.0088 | 0.0084 | — | — | — | descriptive only |
 
-**Recommendation: SHIP** — the **adjusted** AOV 95% CI lies entirely above zero (since Plan 2 /
+**Recommendation: SHIP** — the **adjusted** AOV 95% CI lies entirely above zero (since the
+covariate-adjustment pass /
 [ADR 0007](docs/adr/0007-covariate-adjustment-not-cuped.md), verdicts are decided on the
 ANCOVA-adjusted CI; raw numbers are always reported for audit). The conversion guardrail shows
 no significant movement (the synthetic effect was injected on `order_value` only, so the
@@ -118,7 +119,7 @@ guardrail *should* stay flat — and it does, validating no leakage).
 
 1. **Why is raw lift +10.15 when the injected effect should add ~8.1?** Random hash assignment
    left the treatment arm with a slightly higher pre-effect baseline (~161.9 vs 159.9). The ×1.05
-   multiplier adds ~8.1; the ~2.0 baseline gap is sampling noise. The ANCOVA adjustment (Plan 2)
+   multiplier adds ~8.1; the ~2.0 baseline gap is sampling noise. The ANCOVA adjustment
    pulls that imbalance back out: adjusted lift **+8.63** lands near the known truth — the
    adjustment demonstrably corrects the bias, which is the whole point of having injected a
    known effect. Decompose before you trust a lift.
@@ -154,10 +155,10 @@ flowchart TD
     P0 -->|"boundary months near-empty<br/>(2016-12 has 1 order)"| C3["cohort window trimmed"]
     P0 --> P1["Phase 1 + F — metrics, simulated RCT,<br/>committed JSON snapshot"]
     P1 -->|"bootstrap CI wandered<br/>between runs"| C4["root cause: SQL had no ORDER BY →<br/>positional resampling differed.<br/>Fix: pin frame order + determinism test"]
-    P1 --> PL1["Plan 1 — BCa bootstrap +<br/>3-verdict scenario sweep"]
-    PL1 -->|"null (A/A) run exposed<br/>+2.06 BRL baseline imbalance"| PL2["Plan 2 — variance reduction.<br/>CUPED infeasible (no repeat customers) →<br/>ANCOVA on freight_value — ADR 0007"]
-    PL2 -->|"statistically credible,<br/>but no product story"| PL3["Plan 3 — installment-expansion framing<br/>(free-shipping rejected: domain collision) — ADR 0008.<br/>PM memo + CI-enforced number integrity"]
-    PL3 --> PL4["Plan 4 — gated DiD natural experiment<br/>implemented; feasibility FAILED the gate →<br/>honest rejection (ADR 0009)"]
+    P1 --> PL1["Inference depth — BCa bootstrap +<br/>3-verdict scenario sweep"]
+    PL1 -->|"null (A/A) run exposed<br/>+2.06 BRL baseline imbalance"| PL2["Variance reduction.<br/>CUPED infeasible (no repeat customers) →<br/>ANCOVA on freight_value — ADR 0007"]
+    PL2 -->|"statistically credible,<br/>but no product story"| PL3["Installment-expansion framing<br/>(free-shipping rejected: domain collision) — ADR 0008.<br/>PM memo + CI-enforced number integrity"]
+    PL3 --> PL4["Gated DiD natural experiment<br/>implemented; feasibility FAILED the gate →<br/>honest rejection (ADR 0009)"]
 ```
 
 | Problem found | How it was triaged | Decision + artifact |
@@ -289,7 +290,7 @@ flowchart LR
 ```
 
 Why each box matters: **θ pre-injection** keeps the treatment effect out of the adjustment
-(same leakage principle as Plan 4's blinding); **seed 42 everywhere** makes every number
+(same leakage principle as the gated DiD blinding); **seed 42 everywhere** makes every number
 byte-reproducible; the **null scenario** re-runs this whole graph with no injection as a
 permanent A/A regression test; **guardrails** stop a pretty primary metric from shipping a
 worse business (delivered-rate is load-bearing under the installment framing — easier credit
@@ -299,9 +300,9 @@ See [`CONTEXT.md`](./CONTEXT.md) §6 and [`docs/EXPERIMENT_DESIGN.md`](./docs/EX
 
 ---
 
-## Plan 4 — gated DiD natural experiment (implemented → honest rejection)
+## Gated DiD natural experiment (implemented → honest rejection)
 
-The simulated RCT proves pipeline mechanics against known truth. Plan 4 attempted the harder,
+The simulated RCT proves pipeline mechanics against known truth. A follow-on pass attempted the harder,
 observational skill: a difference-in-differences estimate of a real calendar shock (the
 2018 Brazilian truckers' strike), with a **pre-registered gate** so a causal claim can't be
 manufactured — rejection is an equally shippable result.
@@ -355,7 +356,7 @@ product-experimentation-analytics/
 ├── tests/fixtures/       # ≤100 rows — no full Olist in unit tests
 ├── notebooks/            # EDA only
 ├── reports/              # eda_gate.md, experiment_001.md
-├── app/                  # Streamlit (Phase 2)
+├── dashboard/            # Streamlit app (reads committed reports/*.json)
 └── docs/                 # METRICS.md, EXPERIMENT_DESIGN.md
 ```
 
@@ -391,13 +392,13 @@ Implementation was gated on EDA. The gate returned **GO**; full `src/` then buil
 | Finding | Number | Design consequence |
 |---|---|---|
 | Repeat purchase is near-absent | 0.214% of persons reorder within 7 days | D7 → exploratory only; **CUPED impossible later** (no per-customer pre-period) — chain reaction into ADR 0007 |
-| AOV is heavily right-skewed | median 105.29 vs mean 160.99, max 13,664 | bootstrap CI preferred; BCa added in Plan 1 for skew correction |
-| Boundary months unusable | 2016-09 has 4 orders; 2016-12 has 1 | cohort window trimmed; same trim logic carries into Plan 4's panel window |
+| AOV is heavily right-skewed | median 105.29 vs mean 160.99, max 13,664 | bootstrap CI preferred; BCa added for skew correction |
+| Boundary months unusable | 2016-09 has 4 orders; 2016-12 has 1 | cohort window trimmed; same trim logic carries into the DiD panel window |
 | Joins are clean | max orphan group 0.78% | GO — multi-table SQL story is credible |
 | Status ambiguity low | 2.98% non-delivered | conversion metric computable as guardrail |
 
 The gate verdict was **GO with design caveats** — and every caveat above became a real
-constraint in a later plan. Full investigation narrative:
+constraint in a later phase. Full investigation narrative:
 [`reports/eda_gate.md`](./reports/eda_gate.md) ("How we got to GO").
 
 Full checklist: [`reports/eda_gate.md`](./reports/eda_gate.md)
@@ -408,10 +409,10 @@ Full checklist: [`reports/eda_gate.md`](./reports/eda_gate.md)
 
 | Repo | Focus |
 |------|-------|
-| `supply-chain-optimization-ml` | Interpretable ML, leakage control — **not** experimentation |
-| `multi-modal-stock-recommender` | Time series, falsification gates — **not** product funnels |
-| `healthcare-noshow-predictor` | Regulated health ops, calibration — **not** A/B |
-| `medallion-analytics-pipeline` | Lakehouse + Power BI — **not** statistical testing |
+| [late-delivery-risk-prediction](https://github.com/tirthjoship/late-delivery-risk-prediction) | Interpretable ML, leakage control — **not** experimentation |
+| [multi-modal-stock-recommender](https://github.com/tirthjoship/multi-modal-stock-recommender) | Time series, falsification gates — **not** product funnels |
+| [healthcare-noshow-predictor](https://github.com/tirthjoship/healthcare-noshow-predictor) | Regulated health ops, calibration — **not** A/B |
+| [medallion-analytics-pipeline](https://github.com/tirthjoship/medallion-analytics-pipeline) | Lakehouse + Power BI — **not** statistical testing |
 
 ---
 
@@ -453,7 +454,7 @@ Metric and design documentation:
 
 ## Developer entry points
 
-1. [`CONTEXT.md`](./CONTEXT.md) — mission, locked decisions, anti-hallucination rules
+1. [`CONTEXT.md`](./CONTEXT.md) — mission and locked decisions
 2. [`docs/METRICS.md`](./docs/METRICS.md) — metric definitions
 3. [`docs/EXPERIMENT_DESIGN.md`](./docs/EXPERIMENT_DESIGN.md) — experiment design
 
@@ -477,8 +478,8 @@ make experiment
 > CIs, Welch/two-proportion tests, and MDE power analysis; auto-generated a ship/no-ship report
 > with a guardrail-validated, no-leakage pipeline; implemented a gated DiD natural experiment
 > (honest rejection documented); shipped a 5-tab Streamlit+Plotly dashboard with a what-if
-> scenario grid, analytical power calculator, and self-explaining hovers (206 tests, 100%
-> pure-layer coverage, mypy strict).
+> scenario grid, analytical power calculator, and self-explaining hovers (208 tests, 95.6%
+> coverage on `src/`, mypy strict).
 
 ---
 
@@ -492,4 +493,4 @@ Do **not** claim Olist or simulated experiments as employer work.
 
 ## License
 
-MIT License. See [`LICENSE`](LICENSE) when added.
+MIT License. See [`LICENSE`](LICENSE).

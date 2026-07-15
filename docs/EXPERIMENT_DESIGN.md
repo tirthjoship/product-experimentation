@@ -13,7 +13,7 @@
 
 ---
 
-## Business framing (Plan 3): installment-expansion test
+## Business framing: installment-expansion test
 
 The simulated change: checkout caps interest-free installments at 6x; treatment raises the cap
 to 10x. Mechanism: in Brazilian e-commerce the binding constraint is the monthly payment —
@@ -134,10 +134,10 @@ narrative).
 
 ---
 
-## Covariate adjustment (Plan 2)
+## Covariate adjustment (ANCOVA)
 
-Plan 2 adds ANCOVA adjustment on `freight_value` to reduce variance and correct the +2.06 BRL
-baseline arm imbalance exposed by the null scenario in Plan 1.
+ANCOVA adjustment on `freight_value` reduces variance and corrects the +2.06 BRL baseline arm
+imbalance exposed by the null (A/A) scenario sweep.
 
 ### Formula
 
