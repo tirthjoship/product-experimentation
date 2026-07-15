@@ -59,10 +59,6 @@ theme (white · Space Grotesk · Inter · IBM Plex Mono · oxblood accent). Loud
 **CALCULATOR** banners on every synthetic figure. Verdict always read from `recommend()` in the
 committed report — never recomputed.
 
-![Dashboard walkthrough — five tabs over committed experiment reports](docs/img/dashboard-demo.gif)
-
-Still frames:
-
 ![Overview tab — verdict, key metrics](docs/img/v3-0-overview.png)
 ![Experiment results — dumbbell CI, variance, split bar](docs/img/v3-1-experiment-results.png)
 ![Scenario explorer — verdict flip + what-if grid](docs/img/v3-2-scenario-explorer.png)
