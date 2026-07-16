@@ -218,7 +218,7 @@ flowchart TD
 | `olist_order_reviews_dataset.csv` | Optional v2 |
 | `olist_geolocation_dataset.csv` | Optional v2 |
 
-**Why Olist (not DataCo):** Multi-table relational data supports credible SQL joins, funnels, and cohorts. The sibling [late-delivery-risk-prediction](https://github.com/tirthjoship/late-delivery-risk-prediction) repo taught that single dominant categorical features and tutorial-grade semantics weaken the business story — this project runs an **EDA gate** before any reporting.
+**Why Olist (not DataCo):** Multi-table relational data supports credible SQL joins, funnels, and cohorts. The sibling [risk-prediction](https://github.com/tirthjoship/risk-prediction) repo taught that single dominant categorical features and tutorial-grade semantics weaken the business story — this project runs an **EDA gate** before any reporting.
 
 ### Entity relationship (simplified)
 
@@ -344,7 +344,7 @@ Full decision record: [ADR 0009](docs/adr/0009-gated-did-natural-experiment.md).
 ## Target architecture (post-EDA)
 
 ```
-product-experimentation-analytics/
+product-experimentation/
 ├── src/
 │   ├── metrics/          # Python wrappers → sql/
 │   ├── experiment/       # assignment, analysis, power
@@ -409,10 +409,10 @@ Full checklist: [`reports/eda_gate.md`](./reports/eda_gate.md)
 
 | Repo | Focus |
 |------|-------|
-| [late-delivery-risk-prediction](https://github.com/tirthjoship/late-delivery-risk-prediction) | Interpretable ML, leakage control — **not** experimentation |
-| [multi-modal-stock-recommender](https://github.com/tirthjoship/multi-modal-stock-recommender) | Time series, falsification gates — **not** product funnels |
-| [healthcare-noshow-predictor](https://github.com/tirthjoship/healthcare-noshow-predictor) | Regulated health ops, calibration — **not** A/B |
-| [medallion-analytics-pipeline](https://github.com/tirthjoship/medallion-analytics-pipeline) | Lakehouse + Power BI — **not** statistical testing |
+| [risk-prediction](https://github.com/tirthjoship/risk-prediction) | Interpretable ML, leakage control — **not** experimentation |
+| [research-instrument](https://github.com/tirthjoship/research-instrument) | Quant equity research, falsification gates — **not** product funnels |
+| healthcare-noshow-predictor *(private)* | Regulated health ops, calibration — **not** A/B |
+| medallion-analytics-pipeline *(private)* | Lakehouse + Power BI — **not** statistical testing |
 
 ---
 
@@ -462,7 +462,7 @@ Metric and design documentation:
 ### Quick setup
 
 ```bash
-cd product-experimentation-analytics
+cd product-experimentation
 make setup
 make test
 make experiment
