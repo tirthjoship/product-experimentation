@@ -1,6 +1,6 @@
 # Deploying the dashboard to Streamlit Community Cloud
 
-**Live app:** [product-experimentation-analytics.streamlit.app](https://product-experimentation-analytics.streamlit.app/)
+**Live app:** [experimentation-analytics.streamlit.app](https://experimentation-analytics.streamlit.app/)
 
 The dashboard renders only committed `reports/*.json` — no secrets, no database, and no Olist
 raw data. Use this guide to redeploy, fork, or troubleshoot.

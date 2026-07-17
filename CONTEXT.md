@@ -3,7 +3,7 @@
 **Repo:** `product-experimentation-analytics`  
 **Owner:** Tirth Joshi  
 **Created:** 2026-05-30  
-**Phase:** v1 complete — EDA → simulated RCT → installment narrative → DiD honest rejection → live dashboard on [Streamlit Cloud](https://product-experimentation-analytics.streamlit.app/).
+**Phase:** v1 complete — EDA → simulated RCT → installment narrative → DiD honest rejection → live dashboard on [Streamlit Cloud](https://experimentation-analytics.streamlit.app/).
 
 **Future enhancements:** [`docs/FUTURE_ENHANCEMENTS.md`](docs/FUTURE_ENHANCEMENTS.md)
 

@@ -12,7 +12,7 @@
 - [x] `sql/metrics/` — conversion, AOV, D7 repeat + pytest
 - [x] Simulated A/B with lift + 95% CI → `reports/experiment_001.md`
 - [x] `docs/METRICS.md` + `docs/EXPERIMENT_DESIGN.md` (simulation labeled honestly)
-- [x] 5-tab Streamlit dashboard on [Streamlit Cloud](https://product-experimentation-analytics.streamlit.app/)
+- [x] 5-tab Streamlit dashboard on [Streamlit Cloud](https://experimentation-analytics.streamlit.app/)
 - [x] README with reproduction steps and live demo link
 - [x] Gated DiD natural experiment — honest rejection documented (ADR 0009)
 

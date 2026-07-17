@@ -1,6 +1,6 @@
 # Product Experimentation & Growth Metrics Platform
 
-**Status:** live [Streamlit dashboard](https://product-experimentation-analytics.streamlit.app/) ·
+**Status:** live [Streamlit dashboard](https://experimentation-analytics.streamlit.app/) ·
 208 tests · 95.6% coverage · all CI green
 
 > **Simulated RCT on historical Olist cohorts.** Variants are assigned by hashed
@@ -12,7 +12,7 @@
 End-to-end **product analytics** for a classic hiring question: *Did a product change actually improve conversion, or was it noise?* Built on the [Olist Brazilian E-Commerce](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) dataset — SQL metric definitions, simulated experiment analysis, confidence intervals, and a ship/no-ship recommendation.
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![Live demo](https://img.shields.io/badge/demo-streamlit-brightgreen)](https://product-experimentation-analytics.streamlit.app/)
+[![Live demo](https://img.shields.io/badge/demo-streamlit-brightgreen)](https://experimentation-analytics.streamlit.app/)
 [![Tests](https://img.shields.io/badge/tests-208%20passing-brightgreen)](./tests/)
 [![Coverage](https://img.shields.io/badge/coverage-95.6%25-brightgreen)](./tests/)
 
@@ -63,7 +63,7 @@ committed report — never recomputed.
 ![Experiment results — dumbbell CI, variance, split bar](docs/img/v3-1-experiment-results.png)
 ![Scenario explorer — verdict flip + what-if grid](docs/img/v3-2-scenario-explorer.png)
 
-[Open the live dashboard ↗](https://product-experimentation-analytics.streamlit.app/) &nbsp;·&nbsp; Redeploy or fork: **[docs/DEPLOY.md](docs/DEPLOY.md)**
+[Open the live dashboard ↗](https://experimentation-analytics.streamlit.app/) &nbsp;·&nbsp; Redeploy or fork: **[docs/DEPLOY.md](docs/DEPLOY.md)**
 
 Run locally:
 
