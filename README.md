@@ -411,8 +411,8 @@ Full checklist: [`reports/eda_gate.md`](./reports/eda_gate.md)
 |------|-------|
 | [risk-prediction](https://github.com/tirthjoship/risk-prediction) | Interpretable ML, leakage control — **not** experimentation |
 | [research-instrument](https://github.com/tirthjoship/research-instrument) | Quant equity research, falsification gates — **not** product funnels |
-| healthcare-noshow-predictor *(private)* | Regulated health ops, calibration — **not** A/B |
-| medallion-analytics-pipeline *(private)* | Lakehouse + Power BI — **not** statistical testing |
+| [healthcare-noshow-predictor](https://github.com/tirthjoship/healthcare-noshow-predictor) | Regulated health ops, calibration — **not** A/B |
+| [medallion-analytics-pipeline](https://github.com/tirthjoship/medallion-analytics-pipeline) | Lakehouse + Power BI — **not** statistical testing |
 
 ---
 
