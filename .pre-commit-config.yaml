@@ -8,7 +8,7 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
         args: ['--maxkb=500']
-        exclude: '^data/sample/'
+        exclude: '^(data/sample/|docs/img/.*\.gif$)'
       - id: detect-private-key
 
   - repo: https://github.com/psf/black
