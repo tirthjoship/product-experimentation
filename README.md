@@ -286,7 +286,7 @@ permanent A/A regression test; **guardrails** stop a pretty primary metric from 
 worse business (delivered-rate is load-bearing under the installment framing: easier credit
 can lift baskets while rotting delivery).
 
-See [`CONTEXT.md`](./CONTEXT.md) §6 and [`docs/EXPERIMENT_DESIGN.md`](./docs/EXPERIMENT_DESIGN.md).
+See [`docs/EXPERIMENT_DESIGN.md`](./docs/EXPERIMENT_DESIGN.md).
 
 ---
 
@@ -401,7 +401,6 @@ Full checklist: [`reports/eda_gate.md`](./reports/eda_gate.md)
 | [risk-prediction](https://github.com/tirthjoship/risk-prediction) | Interpretable ML, leakage control; **not** experimentation |
 | [research-instrument](https://github.com/tirthjoship/research-instrument) | Quant equity research, falsification gates; **not** product funnels |
 | [healthcare-noshow-predictor](https://github.com/tirthjoship/healthcare-noshow-predictor) | Regulated health ops, calibration; **not** A/B |
-| [medallion-analytics-pipeline](https://github.com/tirthjoship/medallion-analytics-pipeline) | Lakehouse + Power BI; **not** statistical testing |
 
 ---
 
@@ -444,9 +443,9 @@ Metric and design documentation:
 
 ## Developer entry points
 
-1. [`CONTEXT.md`](./CONTEXT.md): mission and locked decisions
-2. [`docs/METRICS.md`](./docs/METRICS.md): metric definitions
-3. [`docs/EXPERIMENT_DESIGN.md`](./docs/EXPERIMENT_DESIGN.md): experiment design
+1. [`docs/METRICS.md`](./docs/METRICS.md): metric definitions
+2. [`docs/EXPERIMENT_DESIGN.md`](./docs/EXPERIMENT_DESIGN.md): experiment design
+3. [`docs/adr/`](./docs/adr/): locked decisions
 
 ### Quick setup
 
