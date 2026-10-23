@@ -46,9 +46,10 @@ def render(did: DidFeasibility) -> None:
             body_html=(
                 "We hoped the 2018 truckers' strike could act as a natural experiment. "
                 "It failed two of four trust checks. The two regions were "
-                "<b>already drifting apart before</b> the strike (the chance this is "
-                "coincidence is only "
-                f'<span class="num">{did.pretrends.wald_p:.1%}</span>), and just '
+                "<b>already drifting apart before</b> the strike (a gap this large would "
+                "be unlikely, "
+                f'<span class="num">p = {did.pretrends.wald_p:.3f}</span>, if the regions '
+                "had been moving together), and just "
                 f'<span class="num">{did.adequate_n.treated_orders:,} orders</span> '
                 "were affected, too few to be reliable. We could not trust this "
                 "test, so we do not report a number from it."
@@ -76,14 +77,14 @@ def render(did: DidFeasibility) -> None:
         '<div class="checks">'
         + _check_card("Dated boundary", did.dated_boundary_passed, did.boundary_date)
         + _check_card(
-            "Exogenous assignment",
+            "Outside our control",
             did.exogenous_passed,
-            "the strike hit the north and northeast regions, not chosen by us",
+            "an exogenous event: the strike hit the north and northeast regions, not chosen by us",
         )
         + _check_card(
             "Parallel pre-trends",
             did.pretrends.passed,
-            f"Wald test p-value {did.pretrends.wald_p:.3f}; one lead breaks the band",
+            f"p-value {did.pretrends.wald_p:.3f}; one gap breaks the band",
         )
         + _check_card(
             "Enough orders",
@@ -125,7 +126,7 @@ def render(did: DidFeasibility) -> None:
     with col_n:
         with st.container(border=True):
             st.markdown(
-                f"<h3>{term('Sample adequacy', 'pre-trends')}: treated vs control orders"
+                f"<h3>{term('Enough orders?', 'pre-trends')}: treated vs control orders"
                 f"{adequacy_info}</h3>",
                 unsafe_allow_html=True,
             )

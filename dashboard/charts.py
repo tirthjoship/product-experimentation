@@ -37,7 +37,7 @@ def bucket_bar(stats: MotivationStats) -> go.Figure:
             margin={"l": 56, "r": 16, "t": 26, "b": 34},
             bargap=0.55,
             xaxis={"gridcolor": "#fff"},
-            yaxis={"title": "Average order value (R$)", "gridcolor": "#eef0f3"},
+            yaxis={"title": "Order value (R$)", "gridcolor": "#eef0f3"},
         )
     )
     return fig
@@ -257,7 +257,7 @@ def dumbbell(
         x_axis["tickformat"] = tickformat
     fig.update_layout(
         **theme.plotly_layout(
-            height=130 if not x_title else 160,
+            height=130 if not x_title else 170,
             showlegend=False,
             margin={"l": 56, "r": 56, "t": 16, "b": 30 if not x_title else 48},
             xaxis=x_axis,
@@ -355,7 +355,9 @@ def diverging_marker(value: float, band: float, unit: str) -> go.Figure:
             y=[""],
             mode="markers+text",
             marker={"size": 16, "color": theme.ACCENT, "symbol": "diamond"},
-            text=[f"R${value:.3f}" if unit == "R$" else f"{value:.3f} {unit}"],
+            text=[
+                (f"R${value:.2f}" if unit == "R$" else f"{value:.2f} {unit}") + "<br> "
+            ],
             textposition="top center",
             textfont={"family": theme.FONT_MONO, "size": 11},
             cliponaxis=False,
@@ -368,9 +370,9 @@ def diverging_marker(value: float, band: float, unit: str) -> go.Figure:
     pad = span * 0.35 or 1.0
     fig.update_layout(
         **theme.plotly_layout(
-            height=96,
+            height=112,
             showlegend=False,
-            margin={"l": 24, "r": 24, "t": 24, "b": 24},
+            margin={"l": 24, "r": 24, "t": 36, "b": 24},
             xaxis={
                 "range": [-span - pad, span + pad],
                 "zeroline": True,

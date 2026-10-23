@@ -14,7 +14,7 @@ from dashboard.sections._ui import info
 
 # ⓘ tooltip text (verbatim from mockup)
 _INFO_AOV = (
-    "How to read: the dot is the adjusted lift,, at the effect "
+    "How to read: the dot is the adjusted lift at the effect "
     "size on the slider; the line is its 95% confidence interval. Color shows the "
     "verdict: green if the whole line clears zero (ship), red if it is all below zero "
     "(do not ship), amber if it straddles zero (need more data)."
@@ -124,7 +124,7 @@ def render(grid: list[ScenarioResult]) -> None:
                 est=diff,
                 ci=conv_ci,
                 color=theme.SLATE,
-                x_title="Difference in conversion (percentage points)",
+                x_title="Change in conversion (points)",
             ),
             width="stretch",
             key="whatif_lift",

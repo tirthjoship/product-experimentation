@@ -138,7 +138,7 @@ def render(experiment: ExperimentResult) -> None:
     # 3. Sliders
     # ------------------------------------------------------------------
     # SD default seeded from back-solved report value (rounded to nearest 10)
-    sd_default = int(round(observed_sd / 10) * 10)
+    sd_default = round(observed_sd, 1)
 
     col_n, col_a, col_sd, col_pw = st.columns(4)
 
@@ -168,9 +168,10 @@ def render(experiment: ExperimentResult) -> None:
     with col_sd:
         sd = st.slider(
             label="Spread of order value (R$)",
-            min_value=80,
-            max_value=320,
-            step=10,
+            min_value=80.0,
+            max_value=320.0,
+            step=0.1,
+            format="%.1f",
             value=sd_default,
             help=(
                 "Standard deviation of order value in reais. "
