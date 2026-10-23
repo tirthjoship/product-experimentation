@@ -1,7 +1,7 @@
 # Product Experimentation & Growth Metrics Platform
 
 **Status:** live [Streamlit dashboard](https://experimentation-analytics.streamlit.app/) ·
-208 tests · 95.6% coverage · all CI green
+209 tests · 95.4% coverage · all CI green
 
 > **Simulated RCT on historical Olist cohorts.** Variants are assigned by hashed
 > `customer_unique_id` (seed 42) on historical data; Olist has no native A/B column.
@@ -13,8 +13,8 @@ End-to-end **product analytics** for a common product question: *Did a product c
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Live demo](https://img.shields.io/badge/demo-streamlit-brightgreen)](https://experimentation-analytics.streamlit.app/)
-[![Tests](https://img.shields.io/badge/tests-208%20passing-brightgreen)](./tests/)
-[![Coverage](https://img.shields.io/badge/coverage-95.6%25-brightgreen)](./tests/)
+[![Tests](https://img.shields.io/badge/tests-209%20passing-brightgreen)](./tests/)
+[![Coverage](https://img.shields.io/badge/coverage-95.4%25-brightgreen)](./tests/)
 
 > **Disclaimer:** Experiments in this repo are **simulated** on historical Olist data (hashed customer assignment or documented natural experiment). This is not employer A/B test data and does not claim causal lift from a real product rollout.
 
@@ -59,9 +59,7 @@ theme (white · Space Grotesk · Inter · IBM Plex Mono · oxblood accent). Loud
 **CALCULATOR** banners on every synthetic figure. Verdict always read from `recommend()` in the
 committed report, never recomputed.
 
-![Overview tab: verdict, key metrics](docs/img/v3-0-overview.png)
-![Experiment results: dumbbell CI, variance, split bar](docs/img/v3-1-experiment-results.png)
-![Scenario explorer: verdict flip + what-if grid](docs/img/v3-2-scenario-explorer.png)
+![Walkthrough of the experimentation dashboard: overview verdict, guardrail metrics, scenario explorer, power calculator, natural experiment](docs/img/experimentation-dashboard-demo.gif)
 
 [Open the live dashboard ↗](https://experimentation-analytics.streamlit.app/) &nbsp;·&nbsp; Redeploy or fork: **[docs/DEPLOY.md](docs/DEPLOY.md)**
 
