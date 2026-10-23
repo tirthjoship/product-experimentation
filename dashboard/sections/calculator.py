@@ -101,10 +101,10 @@ def render(experiment: ExperimentResult) -> None:
     mde_def = glossary.define("MDE")
     st.markdown(
         '<div class="simbar">'
-        "<b>CALCULATOR</b> — analytical, not experiment output. "
-        "Closed-form from the same "
-        f'<span class="term" data-def="{mde_def}">mde_mean</span>'
-        " formula the pipeline uses."
+        "<b>CALCULATOR</b>: analytical, not experiment output. "
+        "It uses the same closed-form "
+        f'<span class="term" data-def="{mde_def}">smallest detectable effect</span>'
+        " formula as the pipeline."
         "</div>",
         unsafe_allow_html=True,
     )
@@ -116,18 +116,18 @@ def render(experiment: ExperimentResult) -> None:
         f"With about {observed_n:,} customers in each group, our study could "
         f"reliably spot a true lift of roughly "
         f'<span class="num">R${bottom_mde:.2f} or more</span> '
-        f"(an 80% chance of catching it if it's real). "
-        "Anything smaller than that can slip through looking “inconclusive.” "
-        "That’s the key reason a near-zero result means "
-        "<b>“we couldn’t tell”</b> — not "
-        "<b>“there’s no effect.”</b> "
+        f"(an 80% chance of catching it if it is real). "
+        "Anything smaller can slip through looking inconclusive. "
+        "That is why a near-zero result means "
+        "<b>we could not tell</b>, not "
+        "<b>there is no effect</b>. "
         "Drag the sliders to see how a smaller study would only catch bigger effects."
     )
     st.markdown(
         _ui.takeaway(
             kicker="The bottom line",
             question="Was our study even big enough to catch a real effect?",
-            verdict_label=f"Yes — for effects above ~R${bottom_mde:.2f}",
+            verdict_label=f"Yes, for effects above about R${bottom_mde:.2f}",
             verdict_cls="ship",
             body_html=body_html,
         ),
@@ -144,12 +144,12 @@ def render(experiment: ExperimentResult) -> None:
 
     with col_n:
         n_per_arm = st.slider(
-            label="n per arm",
+            label="Customers per group",
             min_value=2_000,
             max_value=80_000,
             step=1_000,
             value=observed_n,
-            help="Customers per arm. More n → narrower CI → smaller detectable effect.",
+            help="Customers in each group. More customers give a narrower confidence interval, so smaller effects can be detected.",
             key="calc_slider_n_per_arm",
         )
 
@@ -161,34 +161,36 @@ def render(experiment: ExperimentResult) -> None:
             step=0.01,
             value=0.05,
             format="%.2f",
-            help="Significance level: tolerated false-positive rate.",
+            help="How often we accept a false alarm (0.05 means 5 in 100). A lower value is stricter and needs more customers.",
             key="calc_slider_alpha",
         )
 
     with col_sd:
         sd = st.slider(
-            label="baseline SD (BRL)",
+            label="Spread of order value (R$)",
             min_value=80,
             max_value=320,
             step=10,
             value=sd_default,
             help=(
-                "Spread of order value (BRL). Noisier outcomes need more n. "
-                f"Default back-solved from committed mde_aov={experiment.mde_aov:.2f} "
-                f"at n={observed_n:,}, α={experiment.alpha}."
+                "Standard deviation of order value in reais. "
+                "Noisier outcomes need more customers. "
+                f"The default is back-solved from the committed smallest detectable effect "
+                f"of R\\${experiment.mde_aov:.2f} at {observed_n:,} customers per group "
+                f"and a significance level of {experiment.alpha}."
             ),
             key="calc_slider_sd",
         )
 
     with col_pw:
         power_target = st.slider(
-            label="power (target)",
+            label="Power (target)",
             min_value=0.70,
             max_value=0.95,
             step=0.05,
             value=0.80,
             format="%.2f",
-            help="Probability of detecting a true effect of the target size.",
+            help="Chance of detecting a true effect of the target size (0.80 means 80%).",
             key="calc_slider_power",
         )
 
@@ -202,20 +204,24 @@ def render(experiment: ExperimentResult) -> None:
 
     mde_html = (
         '<div class="kpi">'
-        '<div class="lab">' + _ui.term("MDE (BRL)", "MDE") + "</div>"
+        '<div class="lab">'
+        + _ui.term("Smallest detectable effect (MDE)", "MDE")
+        + "</div>"
         '<div class="num">' + _ui.value(f"R${computed_mde:.2f}", "neutral") + "</div>"
         "</div>"
     )
     hw_html = (
         '<div class="kpi">'
-        '<div class="lab">' + _ui.term("CI half-width", "CI") + "</div>"
+        '<div class="lab">'
+        + _ui.term("Confidence interval half-width", "CI")
+        + "</div>"
         '<div class="num">' + _ui.value(f"±R${computed_hw:.2f}", "neutral") + "</div>"
         "</div>"
     )
     pow_html = (
         f'<div class="kpi">'
         f'<div class="lab">'
-        f"power @ R${observed_effect:.2f} (observed lift)"
+        f"Power to detect the observed lift of R${observed_effect:.2f}"
         f"</div>"
         f'<div class="num">' + _ui.value(f"{computed_power:.2f}", pw_cls) + "</div>"
         "</div>"
@@ -233,11 +239,12 @@ def render(experiment: ExperimentResult) -> None:
     with col_curve:
         with st.container(border=True):
             curve_title_html = (
-                "<h3>MDE vs sample size"
+                "<h3>Smallest detectable effect (MDE) vs sample size"
                 + _ui.info(
                     "How to read: each point is the smallest effect detectable at that "
-                    "sample size. The curve falls as n grows — bigger studies catch smaller "
-                    "effects. The accent dot marks your current slider setting."
+                    "sample size,. The curve falls as customers per "
+                    "group grow, so bigger studies catch smaller effects. The accent dot "
+                    "marks your current slider setting."
                 )
                 + "</h3>"
             )
@@ -258,9 +265,10 @@ def render(experiment: ExperimentResult) -> None:
             pow_title_html = (
                 "<h3>Power vs true effect size"
                 + _ui.info(
-                    "How to read: for each possible true effect (x-axis), the chance the "
-                    "study would detect it (y-axis). The dotted line is the 80% target; "
-                    "effects right of where the curve crosses it are reliably detectable."
+                    "How to read: for each possible true effect (horizontal axis), the "
+                    "chance the study would detect it (vertical axis). The dotted line is "
+                    "the 80% target; effects to the right of where the curve crosses it "
+                    "are reliably detectable."
                 )
                 + "</h3>"
             )
@@ -279,8 +287,8 @@ def render(experiment: ExperimentResult) -> None:
     # 6. Footer caption
     # ------------------------------------------------------------------
     st.markdown(
-        '<p class="cap">Slide n down: MDE rises — a smaller study only catches bigger '
-        "effects. This is why the null scenario reads “need more data,” not "
-        "“no effect.”</p>",
+        '<p class="cap">Lower the customers per group and the smallest detectable '
+        "effect rises: a smaller study only catches bigger effects. This is why the "
+        "null scenario reads need more data, not no effect.</p>",
         unsafe_allow_html=True,
     )

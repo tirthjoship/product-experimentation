@@ -41,35 +41,34 @@ def render(did: DidFeasibility) -> None:
         takeaway(
             kicker="The bottom line",
             question="Can a real-world event prove the change actually caused the lift?",
-            verdict_label="No — we reject this test honestly",
+            verdict_label="No, we reject this test",
             verdict_cls=CHIP_FOR_VALUE["poor"],
             body_html=(
                 "We hoped the 2018 truckers' strike could act as a natural experiment. "
-                "It failed two of four trust checks: the two regions were "
-                "<b>already drifting apart before</b> the strike (only a "
-                f'<span class="num">{did.pretrends.wald_p:.1%} chance</span> '
-                "that's coincidence), and just "
+                "It failed two of four trust checks. The two regions were "
+                "<b>already drifting apart before</b> the strike (the chance this is "
+                "coincidence is only "
+                f'<span class="num">{did.pretrends.wald_p:.1%}</span>), and just '
                 f'<span class="num">{did.adequate_n.treated_orders:,} orders</span> '
-                "were affected — too few to be reliable. Reporting “we couldn’t trust "
-                "this, so we won’t claim a number” <b>is</b> the deliverable — a "
-                "credible analyst says no when the evidence isn’t there."
+                "were affected, too few to be reliable. We could not trust this "
+                "test, so we do not report a number from it."
             ),
         ),
         unsafe_allow_html=True,
     )
 
     # --- Simbar — verbatim from mockup ---------------------------------------
-    did_term = term("DiD", "pre-trends")
+    did_term = term("difference-in-differences", "pre-trends")
     st.markdown(
-        f'<div class="simbar">Pre-registered {did_term} on the '
+        f'<div class="simbar">Pre-registered {did_term} test on the '
         f"<b>2018 truckers' strike</b> (outcome: delivery days). It "
-        f"<b>failed its own gate</b> — reporting the rejection is the honest deliverable.</div>",
+        f"<b>failed its own feasibility gate</b>.</div>",
         unsafe_allow_html=True,
     )
 
     # --- .kicker + .checks gate cards (verbatim from mockup) -----------------
     st.markdown(
-        '<div class="kicker">Feasibility gate — 2 of 4 conditions failed</div>',
+        '<div class="kicker">Feasibility gate: 2 of 4 conditions failed</div>',
         unsafe_allow_html=True,
     )
 
@@ -79,17 +78,17 @@ def render(did: DidFeasibility) -> None:
         + _check_card(
             "Exogenous assignment",
             did.exogenous_passed,
-            "strike hit north/NE, not chosen by us",
+            "the strike hit the north and northeast regions, not chosen by us",
         )
         + _check_card(
             "Parallel pre-trends",
             did.pretrends.passed,
-            f"Wald p={did.pretrends.wald_p:.3f}; a lead breaks the band",
+            f"Wald test p-value {did.pretrends.wald_p:.3f}; one lead breaks the band",
         )
         + _check_card(
-            "Adequate n",
+            "Enough orders",
             did.adequate_n.passed,
-            f"only {did.adequate_n.treated_orders:,} treated orders",
+            f"only {did.adequate_n.treated_orders:,} treated orders (too few)",
         )
         + "</div>"
     )
@@ -101,21 +100,21 @@ def render(did: DidFeasibility) -> None:
     col_pre, col_n = st.columns(2)
 
     pre_info = info(
-        "How to read: each point is the treated−control gap in a week before the "
-        "event; the shaded band is the allowed range for a valid DiD. A point breaking "
-        "the band (red) means the groups were already diverging — the "
-        "parallel-trends assumption fails."
+        "How to read: each point is the treated minus control gap, in delivery days, "
+        "in a week before the event. The shaded band is the allowed range for a valid "
+        "difference-in-differences (DiD) test. A point outside the band (red) means "
+        "the groups were already diverging, so the parallel-trends assumption fails."
     )
     adequacy_info = info(
         "How to read: two connected dots showing orders available on each side. "
-        f"The treated side is far smaller ({did.adequate_n.treated_orders:,}) "
-        "— too few to power a trustworthy estimate."
+        f"The treated side is far smaller ({did.adequate_n.treated_orders:,}), "
+        "too few for a trustworthy estimate."
     )
 
     with col_pre:
         with st.container(border=True):
             st.markdown(
-                f"<h3>{term('Pre-trends', 'pre-trends')} — leads must stay in band"
+                f"<h3>{term('Pre-trends', 'pre-trends')}: gaps must stay inside the band"
                 f"{pre_info}</h3>",
                 unsafe_allow_html=True,
             )
@@ -126,14 +125,14 @@ def render(did: DidFeasibility) -> None:
     with col_n:
         with st.container(border=True):
             st.markdown(
-                f"<h3>{term('Sample adequacy', 'pre-trends')} — treated vs control orders"
+                f"<h3>{term('Sample adequacy', 'pre-trends')}: treated vs control orders"
                 f"{adequacy_info}</h3>",
                 unsafe_allow_html=True,
             )
             n = did.adequate_n
             st.plotly_chart(
                 charts.dumbbell(
-                    label="orders",
+                    label="Orders",
                     control=float(n.control_orders),
                     treatment=float(n.treated_orders),
                     fmt="{:,.0f}",
@@ -143,12 +142,18 @@ def render(did: DidFeasibility) -> None:
             )
 
     st.markdown(
-        f'<p class="cap">The −2 week lead ({did.pretrends.max_lead_abs:.2f}) breaks the '
-        f"±{did.pretrends.band:.2f} band and the Wald test rejects parallel "
-        f"pre-trends (p={did.pretrends.wald_p:.3f}) — so the strike is "
-        f"<b>not</b> a clean natural experiment for this question. Combined with only "
-        f"{n.treated_orders:,} treated orders, we reject the DiD design "
-        f"rather than report a number we don't trust.</p>",
+        f'<p class="cap">The largest pre-strike gap '
+        f"({did.pretrends.max_lead_abs:.2f} days) is outside the "
+        f"±{did.pretrends.band:.2f} band"
+        + info(
+            "The Wald test checks all pre-strike gaps together and rejects parallel "
+            f"pre-trends (p-value {did.pretrends.wald_p:.3f}). A small p-value means "
+            "the groups were already moving differently."
+        )
+        + f", so the strike is "
+        f"<b>not</b> a clean natural experiment for this question. With only "
+        f"{n.treated_orders:,} treated orders as well, we reject the design "
+        f"rather than report a number we do not trust.</p>",
         unsafe_allow_html=True,
     )
 
@@ -159,9 +164,9 @@ def render(did: DidFeasibility) -> None:
     )
 
     geo_info = info(
-        "How to read: one bar split by strike exposure — treated (north/NE), "
-        "control (south/SE), excluded (ambiguous). Shows the geographic basis of "
-        "the natural experiment and how lopsided it is."
+        "How to read: one bar split by strike exposure: treated (north and northeast), "
+        "control (south and southeast), excluded (ambiguous). It shows the geographic "
+        "basis of the natural experiment and how lopsided it is."
     )
     with st.container(border=True):
         st.markdown(

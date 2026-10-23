@@ -11,15 +11,16 @@ def render(exp: ExperimentResult, verdict: str) -> None:
     st.warning(
         "**Simulated experiment.** Olist has no native A/B test. Variants are assigned "
         "by hashed `customer_unique_id` (seed 42) on historical data; the treatment "
-        "effect is a labeled synthetic injection. Methodology demo — not a real lift."
+        "effect is a labeled synthetic injection. This is a methodology demo, not a real lift."
     )
     color = theme.verdict_color(verdict)
     lo, hi = exp.aov_adjusted.ci
     st.markdown(
         f'<h1 style="font-family:Fraunces,serif;font-size:3.2rem;margin-bottom:0">'
-        f'<span style="color:{color}">{verdict}</span> — installment cap 6x → 10x</h1>'
+        f'<span style="color:{color}">{verdict}</span>: installment cap 6× → 10×</h1>'
         f'<p style="font-family:IBM Plex Mono,monospace;font-size:1.1rem;color:{theme.SLATE}">'
-        f"AOV +{exp.aov_adjusted.lift:.2f} BRL · covariate-adjusted 95% CI "
-        f"({lo:.2f}, {hi:.2f}) · n = {exp.n_control:,} / {exp.n_treatment:,}</p>",
+        f"Average order value +R${exp.aov_adjusted.lift:.2f} · covariate-adjusted 95% "
+        f"confidence interval R${lo:.2f} to R${hi:.2f} · "
+        f"{exp.n_control:,} control and {exp.n_treatment:,} treatment customers</p>",
         unsafe_allow_html=True,
     )

@@ -50,11 +50,11 @@ def _render(name: str, fn: Callable[[], None]) -> None:
         fn()
     except FileNotFoundError as exc:
         st.error(
-            f"Section '{name}': {exc} — regenerate the report "
+            f"Section '{name}': {exc}. Regenerate the report "
             "(`make experiment` / `scenarios` / `motivation` / `did-feasibility`)."
         )
     except (data.ReportSchemaError, ValueError) as exc:
-        st.error(f"Section '{name}': schema error — {exc}")
+        st.error(f"Section '{name}': schema error: {exc}")
 
 
 _render("header", header.render)
@@ -64,7 +64,7 @@ overview_t, results_t, scenarios_t, power_t, did_t = st.tabs(
         "Overview",
         "Experiment results",
         "Scenario explorer",
-        "Power & design",
+        "Power and design",
         "Natural experiment",
     ]
 )

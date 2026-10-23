@@ -14,19 +14,21 @@ from dashboard.sections._ui import info
 
 # ⓘ tooltip text (verbatim from mockup)
 _INFO_AOV = (
-    "How to read: the dot is the adjusted lift at the effect size on the slider; "
-    "the line is its 95% CI. Color = verdict: green if the whole line clears zero "
-    "(ship), red if all below (don't ship), amber if it straddles zero (need more data)."
+    "How to read: the dot is the adjusted lift,, at the effect "
+    "size on the slider; the line is its 95% confidence interval. Color shows the "
+    "verdict: green if the whole line clears zero (ship), red if it is all below zero "
+    "(do not ship), amber if it straddles zero (need more data)."
 )
 _INFO_CONV = (
-    "How to read: treatment−control difference in conversion with its 95% CI. "
-    "Across zero = guardrail unaffected. Slate = guardrail, not a verdict."
+    "How to read: treatment minus control difference in conversion, in percentage "
+    "points, with its 95% confidence interval. A line crossing zero means the "
+    "guardrail is unaffected. Slate means guardrail, not a verdict."
 )
 
 # Verbatim SIMULATED banner text from mockup (HTML — <b> not markdown **)
 _SIMULATED_BANNER_HTML = (
-    "<b>SIMULATED</b> — synthetic injection, same method as the committed scenarios. "
-    "Slider snaps to precomputed grid points (no number generated in the browser)."
+    "<b>SIMULATED</b>: synthetic injection, same method as the committed scenarios. "
+    "The slider snaps to precomputed grid points, so no number is generated in the browser."
 )
 
 
@@ -40,7 +42,7 @@ def render(grid: list[ScenarioResult]) -> None:
         Sorted ascending by ``result.simulated_effect`` before display.
     """
     st.markdown(
-        '<div class="kicker">What-if — find the flip</div>',
+        '<div class="kicker">What-if: find where the decision flips</div>',
         unsafe_allow_html=True,
     )
 
@@ -65,7 +67,7 @@ def render(grid: list[ScenarioResult]) -> None:
     mid_idx = min(range(len(effect_values)), key=lambda i: abs(effect_values[i]))
 
     chosen_label = st.select_slider(
-        "Injected effect",
+        "Injected effect (change in order value)",
         options=[_fmt(v) for v in effect_values],
         value=_fmt(effect_values[mid_idx]),
         label_visibility="visible",
@@ -83,7 +85,7 @@ def render(grid: list[ScenarioResult]) -> None:
 
     # --- Verdict chip + adjusted lift ---
     chip_css = {"good": "ship", "average": "more", "poor": "no"}.get(vcls, "more")
-    adj_colored = f'<span class="v-{vcls}">{adj_lift:+.2f} BRL</span>'
+    adj_colored = f'<span class="v-{vcls}">{"+" if adj_lift >= 0 else "-"}R${abs(adj_lift):.2f}</span>'
     st.markdown(
         f'<div style="display:flex;gap:24px;align-items:center;margin:10px 0">'
         f'Verdict: <span class="chip {chip_css}">{verdict}</span>'
@@ -95,13 +97,13 @@ def render(grid: list[ScenarioResult]) -> None:
     # --- AOV forest chart in bordered .box card ---
     with st.container(border=True):
         st.markdown(
-            f"<h3>AOV lift at the injected effect{info(_INFO_AOV)}</h3>",
+            f"<h3>Average order value lift at the injected effect{info(_INFO_AOV)}</h3>",
             unsafe_allow_html=True,
         )
         st.plotly_chart(
             charts.forest(
                 pt.result,
-                title=f"AOV lift — injected {chosen_label}",
+                title=f"Average order value lift (injected {chosen_label})",
                 adj_color=color,
             ),
             width="stretch",
@@ -109,25 +111,27 @@ def render(grid: list[ScenarioResult]) -> None:
         )
 
     # --- Conversion lift_forest chart in bordered .box card ---
-    diff = pt.result.conversion.treatment - pt.result.conversion.control
+    diff = (pt.result.conversion.treatment - pt.result.conversion.control) * 100
+    conv_ci = (pt.result.conversion.ci[0] * 100, pt.result.conversion.ci[1] * 100)
     with st.container(border=True):
         st.markdown(
-            f"<h3>Conversion (c vs t){info(_INFO_CONV)}</h3>",
+            f"<h3>Conversion: control vs treatment{info(_INFO_CONV)}</h3>",
             unsafe_allow_html=True,
         )
         st.plotly_chart(
             charts.lift_forest(
-                label="conversion diff",
+                label="Conversion",
                 est=diff,
-                ci=pt.result.conversion.ci,
+                ci=conv_ci,
                 color=theme.SLATE,
+                x_title="Difference in conversion (percentage points)",
             ),
             width="stretch",
             key="whatif_lift",
         )
 
     st.markdown(
-        '<p class="cap">Drag: the verdict crosses DO NOT SHIP → NEED MORE DATA → SHIP'
-        " — the decision rule made visible.</p>",
+        '<p class="cap">Drag the slider: the verdict moves from DO NOT SHIP to NEED MORE DATA to SHIP'
+        " as the injected effect grows.</p>",
         unsafe_allow_html=True,
     )

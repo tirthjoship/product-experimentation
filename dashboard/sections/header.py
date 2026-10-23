@@ -18,10 +18,9 @@ _CHIPS: list[tuple[str, str, str]] = [
         "Dataset <b>Olist · 99,092 orders</b>",
         "",
         (
-            "Olist — ~99k real Brazilian e-commerce orders across 8 relational tables. "
-            "Chosen over DataCo (weak semantics, already used in a sibling repo) and "
-            "fully-synthetic data (not credible for a portfolio). Real and messy, yet big "
-            "enough to power a simulated A/B."
+            "Olist: about 99,000 real Brazilian e-commerce orders across 8 related tables. "
+            "It is real and messy, yet large enough to power a simulated A/B test. "
+            "Fully synthetic data would not show how the method copes with real order patterns."
         ),
     ),
     (
@@ -29,9 +28,9 @@ _CHIPS: list[tuple[str, str, str]] = [
         "",
         (
             "ANCOVA covariate adjustment on freight_value (correlation r=0.484 with order "
-            "value → ~23% variance reduction — free precision, no extra sample). Chosen "
-            "over CUPED, which we rejected because 97% of Olist customers buy only once, "
-            "so there is no pre-period history to subtract. An item-count covariate was "
+            "value, about 23% variance reduction: extra precision with no extra sample). "
+            "CUPED was rejected because 97% of Olist customers buy only once, "
+            "so there is no earlier history to subtract. An item-count covariate was "
             "viable but deferred."
         ),
     ),
@@ -39,38 +38,29 @@ _CHIPS: list[tuple[str, str, str]] = [
         "SIMULATED experiment",
         "sim",
         (
-            "Olist has no real A/B-test column, so we simulate one: assign each customer "
-            "to control/treatment by hashing their id with seed 42, then inject a labeled "
-            "+5% effect into treatment only. Honest by construction — a reader can never "
-            "mistake it for a real lift. A null (no-injection) version is kept as an A/A "
-            "sanity check."
+            "Olist has no real A/B-test column, so we simulate one: each customer is "
+            "assigned to control or treatment by hashing their id with seed 42, then a "
+            "labeled +5% effect is injected into treatment only. The injection is labeled "
+            "everywhere, so it cannot be mistaken for a real lift. A null (no-injection) "
+            "version is kept as an A/A sanity check."
         ),
     ),
     (
-        "Metrics <b>AOV · Conversion · D7</b>",
+        "Metrics <b>Average order value · Conversion · Repeat purchase</b>",
         "",
         (
-            "AOV (average order value) is the primary metric — continuous, sensitive "
-            "(detectable at ~2.45%), and exactly what the cap change targets. Conversion "
-            "is a guardrail only: it sits near a 97% ceiling, so it is unfit as a "
-            "headline. D7 repeat-purchase is exploratory. Rejected: conversion-primary "
-            "(ceiling) and co-primary (multiple-comparison cost)."
-        ),
-    ),
-    (
-        "Pipeline shipped",
-        "go",
-        (
-            "Inference depth, covariate adjustment, the installment product narrative + PM memo, "
-            "and the DiD natural-experiment honest rejection are all merged. This dashboard reads "
-            "only their committed report outputs — it never recomputes."
+            "AOV (average order value) is the primary metric: it is continuous, sensitive "
+            "(a change of about 2.45% is detectable), and is what the cap change targets. "
+            "Conversion is a guardrail only: it sits near a 97% ceiling, so it is unfit as "
+            "a headline. D7 (repeat purchase within 7 days) is exploratory. Rejected: "
+            "conversion as primary (ceiling) and co-primary metrics (multiple-comparison cost)."
         ),
     ),
 ]
 
 
 def render() -> None:
-    """Emit the persistent project header (eyebrow, h1, subtitle, 5 chips).
+    """Emit the persistent project header (eyebrow, h1, subtitle, 4 chips).
 
     Fully static — no data argument needed; all copy is locked in the mockup.
     """
@@ -78,8 +68,7 @@ def render() -> None:
     chip_parts: list[str] = []
     for label_html, extra_class, data_def in _CHIPS:
         cls = f"pill {extra_class}".strip()
-        # Escape single quotes in data-def for safe HTML attribute embedding
-        safe_def = data_def.replace("'", "&#39;")
+        safe_def = data_def.replace('"', "&quot;")
         chip_parts.append(
             f'<span class="{cls}" data-def="{safe_def}">{label_html}</span>'
         )
@@ -96,8 +85,8 @@ def render() -> None:
   </h1>
   <p style="color:#6b727b;font-size:14.5px;max-width:760px;margin:0">
     A simulated A/B test on Brazilian e-commerce orders: does letting customers
-    split credit-card payments into more installments lift average order value —
-    without hurting conversion or repeat purchase? With covariate-adjusted
+    split credit-card payments into more installments lift average order value
+    without hurting conversion or repeat purchase? Includes covariate-adjusted
     inference, a power analysis, and a pre-registered difference-in-differences
     natural-experiment check.
   </p>

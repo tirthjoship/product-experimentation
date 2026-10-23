@@ -14,7 +14,6 @@ def render(scenarios: list[ScenarioResult]) -> None:
         charts.guardrail_plot(scenarios), width="stretch", key="guardrail_delivered"
     )
     st.caption(
-        "Delivered-rate difference is statistically indistinguishable from zero in every "
-        "scenario — the injected effect targets AOV only, and the guardrail correctly "
-        "stays quiet."
+        "The delivered-rate difference is statistically indistinguishable from zero in "
+        "every scenario. The injected effect targets average order value only."
     )
