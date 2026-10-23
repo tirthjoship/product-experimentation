@@ -61,7 +61,7 @@ rather than ship a number.
 
 ## Consequences
 
-- The natural-experiment artifact for the portfolio is a *rejection* memo, not a DiD estimate
+- The natural-experiment artifact for this project is a *rejection* memo, not a DiD estimate
   — explicitly a valid exit (and arguably the stronger judgment signal).
 - Infrastructure is reusable: a future GO requires either a denser geography (the sparsity is
   fundamental to Olist's North/Northeast), or a `log_orders` volume outcome (avoids the

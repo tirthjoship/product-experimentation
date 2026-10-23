@@ -56,3 +56,6 @@ environment.yml
 # coverage artifacts
 .coverage
 htmlcov/
+
+# local-only project context
+CONTEXT.md

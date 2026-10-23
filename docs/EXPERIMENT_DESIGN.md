@@ -77,7 +77,7 @@ effect is synthetic. It is defined once in `src/constants.py`.
 **Why 5%:** The AOV MDE at n ≈ 49.6k/arm is 3.95 BRL (2.45% relative, α=0.05, power=0.80).
 5% sits above that MDE, so the experiment yields a detectable, significant result and a clean
 SHIP decision — which demonstrates the inference pipeline end to end. A smaller effect would
-yield "NEED MORE DATA", which is a valid outcome but less useful for a portfolio demonstration
+yield "NEED MORE DATA", which is a valid outcome but less useful for a demonstration
 of the full pipeline.
 
 ---

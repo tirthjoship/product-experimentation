@@ -22,7 +22,7 @@ customers, sellers, products).
   large enough to power a simulated A/B; timestamps support cohort windows.
 - **DataCo:** rejected — weak semantics, single-feature dominance, already used in a sibling
   repo. Reusing it would duplicate the weakness, not add a new skill.
-- **Fully synthetic data:** rejected — not credible for a portfolio piece; defeats the point
+- **Fully synthetic data:** rejected — not credible for a public demo; defeats the point
   of demonstrating work on real, messy data.
 
 ## Consequences

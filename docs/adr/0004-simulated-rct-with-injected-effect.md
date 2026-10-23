@@ -7,7 +7,7 @@
 ## Context
 
 Olist has no native experiment column. To demonstrate A/B analysis we must construct the
-experiment ourselves, and the construction has to stay honest for a portfolio piece — a reader
+experiment ourselves, and the construction has to stay honest for a public demo — a reader
 must never mistake a synthetic effect for a real one.
 
 ## Decision
