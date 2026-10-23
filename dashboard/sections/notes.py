@@ -16,6 +16,6 @@ def render() -> None:
         "- **Decision rule:** ship only if the *adjusted* CI excludes zero and the "
         "delivered-rate guardrail shows no harm.\n\n"
         "Full memo: [`reports/experiment_001_readout.md`]"
-        "(https://github.com/tirthjoship/product-experimentation-analytics/blob/main/"
+        "(https://github.com/tirthjoship/product-experimentation/blob/main/"
         "reports/experiment_001_readout.md)"
     )
