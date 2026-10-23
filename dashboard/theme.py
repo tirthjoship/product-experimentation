@@ -351,8 +351,25 @@ code, pre, .stCode { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
 .check .ok { color: #2f7d4f; font-weight: 700; }
 .check .bad { color: #b3261e; font-weight: 700; }
 .check .d { font-size: 11.5px; color: #6b727b; margin-top: 3px; }
+.author-foot {
+  margin-top: 28px; padding-top: 12px; border-top: 1px solid var(--line);
+  font: 400 12px/1.6 var(--body); color: var(--slate);
+}
+.author-foot a { color: var(--accent); text-decoration: none; border-bottom: 1px solid currentColor; }
+.author-foot a:hover { opacity: .8; }
 </style>
 """
+
+
+def author_footer(note: str = "") -> str:
+    """Slim author credit line for the bottom of the page (static strings only)."""
+    tail = f" · {note}" if note else ""
+    return (
+        '<div class="author-foot">Built by Tirth Joshi · '
+        '<a href="https://github.com/tirthjoship/product-experimentation" target="_blank" rel="noopener">Source code on GitHub</a> · '
+        '<a href="https://linkedin.com/in/tirthjoshi" target="_blank" rel="noopener">LinkedIn</a>'
+        f"{tail}</div>"
+    )
 
 
 def verdict_color(verdict: str) -> str:

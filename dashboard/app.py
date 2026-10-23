@@ -86,3 +86,5 @@ with power_t:
 
 with did_t:
     _render("did", lambda: did.render(_did()))
+
+st.markdown(theme.author_footer(), unsafe_allow_html=True)

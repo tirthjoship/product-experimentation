@@ -38,3 +38,11 @@ def test_verdict_color_still_works() -> None:
 def test_css_imports_new_fonts() -> None:
     assert "Space+Grotesk" in theme.CSS
     assert "Inter" in theme.CSS
+
+
+def test_author_footer_credit_line() -> None:
+    out = theme.author_footer()
+    assert "Built by Tirth Joshi" in out
+    assert out.count('target="_blank" rel="noopener"') == 2
+    assert "https://github.com/tirthjoship/product-experimentation" in out
+    assert "https://linkedin.com/in/tirthjoshi" in out
