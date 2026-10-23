@@ -18,6 +18,10 @@ End-to-end **product analytics** for a common product question: *Did a product c
 
 > **Disclaimer:** Experiments in this repo are **simulated** on historical Olist data (hashed customer assignment or documented natural experiment). This is not employer A/B test data and does not claim causal lift from a real product rollout.
 
+![Walkthrough of the experimentation dashboard: overview verdict, guardrail metrics, scenario explorer, power calculator, natural experiment](docs/img/experimentation-dashboard-demo.gif)
+
+*20-second walkthrough of the [live dashboard](https://experimentation-analytics.streamlit.app/).*
+
 ---
 
 ## The project journey
@@ -59,7 +63,6 @@ theme (white · Space Grotesk · Inter · IBM Plex Mono · oxblood accent). Loud
 **CALCULATOR** banners on every synthetic figure. Verdict always read from `recommend()` in the
 committed report, never recomputed.
 
-![Walkthrough of the experimentation dashboard: overview verdict, guardrail metrics, scenario explorer, power calculator, natural experiment](docs/img/experimentation-dashboard-demo.gif)
 
 [Open the live dashboard ↗](https://experimentation-analytics.streamlit.app/) &nbsp;·&nbsp; Redeploy or fork: **[docs/DEPLOY.md](docs/DEPLOY.md)**
 
