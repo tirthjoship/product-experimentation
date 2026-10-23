@@ -13,7 +13,7 @@ freight/logistics domain owned by the sibling `supply-chain-optimization-ml` pro
 ## Options
 
 1. **Free-shipping threshold change** — fits AOV mechanics and the freight covariate, but
-   collides with the supply-chain project's domain; portfolio reads as two freight projects.
+   collides with the supply-chain project's domain; it would overlap with a separate supply chain project.
 2. **Installment-expansion test (chosen)** — raise the interest-free installment cap 6x→10x.
    Dataset-native: `order_payments.payment_installments` is real; measured in the cohort
    window, ~half of orders use >1 installment and credit cards carry ~3/4 of payment value
@@ -28,7 +28,7 @@ freight/logistics domain owned by the sibling `supply-chain-optimization-ml` pro
 ## Decision
 
 Option 2. The injected effect, assignment, seed, cohort, metrics, and inference are unchanged —
-the framing is narrative + docs + one descriptive artifact. Portfolio separation is recorded on
+the framing is narrative + docs + one descriptive artifact. Separation from the supply chain project is recorded on
 both sides (supply-chain repo: `docs/FUTURE_ENHANCEMENTS.md` bans causal/uplift work there;
 this repo stays out of freight/logistics).
 

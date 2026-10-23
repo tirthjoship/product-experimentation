@@ -9,7 +9,7 @@
 > `src/constants.py`) injected after assignment to demonstrate the inference pipeline.
 > This is not a real product lift. Seed 42 is documented and pinned.
 
-End-to-end **product analytics** for a classic hiring question: *Did a product change actually improve conversion, or was it noise?* Built on the [Olist Brazilian E-Commerce](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) dataset: SQL metric definitions, simulated experiment analysis, confidence intervals, and a ship/no-ship recommendation.
+End-to-end **product analytics** for a common product question: *Did a product change actually improve conversion, or was it noise?* Built on the [Olist Brazilian E-Commerce](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) dataset: SQL metric definitions, simulated experiment analysis, confidence intervals, and a ship/no-ship recommendation.
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Live demo](https://img.shields.io/badge/demo-streamlit-brightgreen)](https://experimentation-analytics.streamlit.app/)
@@ -26,7 +26,7 @@ The end-to-end arc, with a decision in both directions: a SHIP call on the simul
 
 ```mermaid
 flowchart LR
-    Q["Hiring question:<br/>did a product change move conversion,<br/>or was it noise?"] --> G0{"EDA gate"}
+    Q["Question:<br/>did a product change move conversion,<br/>or was it noise?"] --> G0{"EDA gate"}
     G0 -->|"GO with caveats"| MET["SQL metric layer<br/>conversion · AOV · D7 repeat"]
     MET --> RCT["Simulated RCT<br/>hashed assignment seed 42<br/>labeled synthetic effect"]
     RCT --> VR["Variance reduction<br/>ANCOVA adopted · CUPED rejected<br/>ADR 0007"]
@@ -84,7 +84,7 @@ A product team ships a checkout or onboarding change. Leadership asks:
 3. Was the test **powered** enough to detect a meaningful effect?
 4. Should we **ship**, **hold**, or **collect more data**?
 
-Most ML portfolio projects prove modeling depth. This one proves metric definitions, statistics, and product judgment: the experimentation, causal framing, and SQL case-study skills product DS interviews test.
+This project covers metric definitions, experiment design, statistical inference, causal framing, and SQL, ending in a documented ship or no-ship recommendation.
 
 ---
 
@@ -115,7 +115,7 @@ ANCOVA-adjusted CI; raw numbers are always reported for audit). The conversion g
 no significant movement (the synthetic effect was injected on `order_value` only, so the
 guardrail *should* stay flat, and it does, validating no leakage).
 
-**Reading the numbers (the narrative that matters in interviews):**
+**Reading the numbers:**
 
 1. **Why is raw lift +10.15 when the injected effect should add ~8.1?** Random hash assignment
    left the treatment arm with a slightly higher pre-effect baseline (~161.9 vs 159.9). The ×1.05
@@ -142,7 +142,7 @@ guardrail *should* stay flat, and it does, validating no leakage).
 ## The project story: problem to triage to decision
 
 Every pivot in this project came from a problem the data or the pipeline surfaced. The trail
-is the portfolio artifact: each problem was triaged, a decision was recorded (ADR), and the
+is the record of the work: each problem was triaged, a decision was recorded (ADR), and the
 pipeline moved on.
 
 Diagram: each problem the data or pipeline surfaced, the triage, and the ADR it produced.
@@ -172,18 +172,6 @@ flowchart TD
 | Generic "simulated lift" had no PM story | framing workshop; free-shipping collided with sibling repo's freight domain | installment-expansion test ([ADR 0008](docs/adr/0008-installment-framing-over-free-shipping.md)) |
 | Prose numbers go stale when pipelines re-run | memo numbers must match committed JSON, enforced in CI | `tests/test_readout_integrity.py`: this README table was itself caught stale (CI upper 13.00 vs committed 13.11) and fixed |
 | Olist has no real intervention for causal work | gated DiD: pre-register, run outcome-blind feasibility, reject if assumptions fail | truckers'-strike DiD FAILS gate (sparse North/NE: 45% week-cells <20 orders; pre-trends diverge wald_p=0.018) → documented rejection ([ADR 0009](docs/adr/0009-gated-did-natural-experiment.md)) |
-
----
-
-## Who this is for (hiring signal)
-
-| Market | Why this repo matters |
-|--------|----------------------|
-| **Seattle / San Francisco** | Product DS interviews center on A/B design, SQL, and judgment under uncertainty |
-| **Vancouver** | Retail funnel analytics (Walmart background) + full-spectrum DA roles |
-| **Remote Canada / US** | Demonstrates you can own metrics, not just train models |
-
-**Complements** (does not duplicate): supply chain ML, stock falsification rigor, healthcare interpretability, medallion BI pipeline.
 
 ---
 
@@ -472,23 +460,9 @@ make experiment
 
 ---
 
-## Resume bullet
-
-> Defined funnel metrics (conversion, AOV, D7-repeat) in versioned SQL over ~99k Olist
-> e-commerce orders; ran a simulated A/B test with hashed person-level assignment, 95% bootstrap
-> CIs, Welch/two-proportion tests, and MDE power analysis; auto-generated a ship/no-ship report
-> with a guardrail-validated, no-leakage pipeline; implemented a gated DiD natural experiment
-> (honest rejection documented); shipped a 5-tab Streamlit+Plotly dashboard with a what-if
-> scenario grid, analytical power calculator, and self-explaining hovers (208 tests, 95.6%
-> coverage on `src/`, mypy strict).
-
----
-
 ## Author
 
-**Tirth Joshi**, UBC Master of Data Science · Former analytics (VGH, BCCNM, Walmart Canada)
-
-Do **not** claim Olist or simulated experiments as employer work.
+**Tirth Joshi**, UBC Master of Data Science · Former analytics (VGH & UBC Hospital Foundation, BCCNM, Walmart Canada)
 
 ---
 

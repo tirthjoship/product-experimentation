@@ -6,7 +6,7 @@
 ## Context
 
 Plans 1–4 produce deterministic artifacts (`reports/*.json` + `.md`) whose every number traces
-to a seeded run. A dashboard is the portfolio's public face, so its central risk is **drift**:
+to a seeded run. A dashboard is the project's public face, so its central risk is **drift**:
 a UI that recomputes statistics can silently diverge from the committed results, or worse,
 invent numbers the reports never produced. The non-negotiable project rule (ADR
 [0004]) is *no invented metrics* — every figure shown must already exist in a committed report

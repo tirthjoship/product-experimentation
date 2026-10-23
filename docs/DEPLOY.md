@@ -59,11 +59,3 @@ Keeping `requirements.txt` minimal makes the Cloud build fast and avoids resolve
 | A single tab shows a red "Section … schema error" | A `reports/*.json` is stale/missing on the deployed branch. Regenerate locally (`make experiment` / `scenarios` / `motivation` / `did-feasibility`) and push. Other tabs are isolated and keep working. |
 | Build fails on a dependency | Confirm **Python version = 3.12** in Advanced settings (Cloud may default to a newer runtime). Pins in `requirements.txt` were verified on 3.12. |
 | Want a custom subdomain | Streamlit Cloud → app settings → rename; then update the dashboard link in `README.md`. |
-
----
-
-## Portfolio hook
-
-Pair the live dashboard with the honest-rejection narrative (DiD natural-experiment tab) —
-shipped dashboard **plus** documented "we did not ship because the gate failed" is the
-differentiated story for product analytics interviews.

@@ -6,7 +6,7 @@
 
 ## Context
 
-The portfolio standard is hexagonal architecture (ports & adapters) for ML projects, and the
+The usual standard for ML projects here is hexagonal architecture (ports & adapters) for ML projects, and the
 sibling repos (supply-chain, stock, healthcare) follow it. This project is different in kind:
 it is a SQL + statistics analytics deliverable, not a model-serving system. It has one input
 source (Olist CSVs via DuckDB) and one output (a markdown report, later a Streamlit view).
