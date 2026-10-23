@@ -19,7 +19,7 @@ class ReportSchemaError(Exception):
     def __init__(self, path: Path, field: str, detail: str) -> None:
         self.path = path
         self.field = field
-        super().__init__(f"{path.name}: field '{field}' — {detail}")
+        super().__init__(f"{path.name}: field '{field}': {detail}")
 
 
 def _read_json(path: Path) -> Any:

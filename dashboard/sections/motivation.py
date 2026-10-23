@@ -9,7 +9,9 @@ from dashboard.data import MotivationStats
 def render(stats: MotivationStats) -> None:
     st.markdown('<p class="section-label">01 / Motivation</p>', unsafe_allow_html=True)
     c1, c2, c3 = st.columns(3)
-    c1.metric("Orders paid in >1 installment", f"{stats.share_multi_installment:.1%}")
+    c1.metric(
+        "Orders paid in more than 1 installment", f"{stats.share_multi_installment:.1%}"
+    )
     c2.metric(
         "Credit-card share of payment value", f"{stats.credit_card_value_share:.1%}"
     )
@@ -17,5 +19,5 @@ def render(stats: MotivationStats) -> None:
     st.plotly_chart(charts.bucket_bar(stats), width="stretch", key="motivation_bucket")
     st.caption(
         "Descriptive, not causal: the gradient shows the affordability mechanism exists. "
-        "Estimating what the cap change *causes* is the experiment's job."
+        "Estimating what the cap change *causes* is the job of the experiment."
     )

@@ -89,7 +89,7 @@ code, pre, .stCode { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.75rem;
   letter-spacing: 0.14em;
-  color: #7a1f2b;           /* oxblood — v3 replaces slate */
+  color: #7a1f2b;           /* oxblood: v3 replaces slate */
   text-transform: uppercase;
   border-top: 1px solid #eaecef;
   padding-top: 14px;
@@ -236,9 +236,9 @@ code, pre, .stCode { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
 [data-testid="stVerticalBlockBorderWrapper"] { overflow: visible; }
 
 /* ---- chart cards (st.container border=True) → match mockup .box ---- */
-/* Streamlit's default card border is a dark rgba(49,51,63,.2) at radius 8;
+/* The default Streamlit card border is a dark rgba(49,51,63,.2) at radius 8;
    the mockup .box is a subtle 1px #eaecef at radius 10. Recolouring + rounding
-   every vertical block is safe — the change is invisible on the borderless
+   every vertical block is safe: the change is invisible on the borderless
    layout blocks (border-width 0) and only re-skins the bordered chart cards. */
 [data-testid="stVerticalBlock"] {
   border-color: #eaecef !important;
